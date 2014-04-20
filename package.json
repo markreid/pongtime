@@ -1,0 +1,28 @@
+{
+  "name": "pongomatic",
+  "version": "0.0.1",
+  "description": "pongomatic",
+  "main": "app.js",
+  "dependencies": {
+    "express": "~4.0.0",
+    "connect": "~2.14.4",
+    "sequelize": "~1.7.2",
+    "pg": "~3.0.3",
+    "passport": "~0.2.0",
+    "morgan": "~1.0.0",
+    "body-parser": "~1.0.2",
+    "hjs": "0.0.6"
+  },
+  "devDependencies": {
+    "grunt": "~0.4.4",
+    "grunt-contrib-compass": "~0.7.2",
+    "grunt-contrib-jshint": "~0.10.0",
+    "grunt-contrib-sass": "~0.7.3"
+  },
+  "scripts": {
+    "test": "test"
+  },
+  "repository": "",
+  "author": "",
+  "license": "BSD"
+}

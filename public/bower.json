@@ -1,0 +1,22 @@
+{
+  "name": "pong-client",
+  "version": "0.0.1",
+  "authors": [
+    "Mark Reid <contact@markreid.com.au>"
+  ],
+  "description": "pongomatic client app",
+  "moduleType": [
+    "amd"
+  ],
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "jquery": "~2.1.0",
+    "requirejs": "~2.1.11",
+    "angular": "~1.2.16",
+    "sass-bootstrap": "~3.0.2",
+    "angular-resource": "~1.2.16",
+    "angular-cookies": "~1.2.16",
+    "angular-route": "~1.2.16"
+  }
+}
