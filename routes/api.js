@@ -10,16 +10,18 @@ var db = require('../models');
 
 
 
-router.get('/players', function(req, res){
-    db.Player.findAll({attributes:['name', 'id']}).success(function(players){
+router.get('/players', function(req, res, next){
+    db.Player.findAll({
+        attributes: ['name', 'id'],
+        order: 'id'
+    }).success(function(players){
         res.send(200, _.pluck(players, 'values'));
     }).fail(function(err){
-        res.send(500, err);
+        next(err);
     });
 });
 
 router.post('/players', function(req, res, next){
-    console.log(req.body);
     db.Player.create(req.body).success(function(player){
         res.send(201, player.values);
     }).fail(function(err){
@@ -54,6 +56,14 @@ router.put('/players/:playerid', function(req, res, next){
     }).fail(function(err){
         next(err);
     });
+});
+
+router.delete('/players/:playerid', function(req, res, next){
+    req.player.destroy().success(function(){
+        res.send(200);
+    }).fail(function(err){
+        next(err);
+    })
 });
 
 
