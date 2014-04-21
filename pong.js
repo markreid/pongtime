@@ -3,6 +3,8 @@
  * express server for pongomatic
  */
 
+var config = require('./config');
+
 var express = require('express');
 var path = require('path');
 //var favicon = require('connect/node_modules/static-favicon');
@@ -13,8 +15,9 @@ var bodyParser = require('body-parser');
 var routes = require('./routes');
 var apiroutes = require('./routes/api');
 
-
 var app = express();
+
+var db = require('./models');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -27,8 +30,9 @@ app.use(bodyParser.urlencoded());
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', routes);
 app.use('/api/v1/', apiroutes);
+app.use('/', routes);
+
 
 /// catch 404 and forwarding to error handler
 app.use(function(req, res, next) {
