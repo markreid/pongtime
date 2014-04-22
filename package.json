@@ -12,13 +12,17 @@
     "morgan": "~1.0.0",
     "body-parser": "~1.0.2",
     "hjs": "0.0.6",
-    "underscore": "~1.6.0"
+    "underscore": "~1.6.0",
+    "passport-google": "~0.3.0",
+    "express-session": "~1.0.3",
+    "connect-redis": "~2.0.0"
   },
   "devDependencies": {
     "grunt": "~0.4.4",
     "grunt-contrib-compass": "~0.7.2",
     "grunt-contrib-jshint": "~0.10.0",
-    "grunt-contrib-sass": "~0.7.3"
+    "grunt-contrib-sass": "~0.7.3",
+    "prompt": "~0.2.12"
   },
   "scripts": {
     "test": "test"

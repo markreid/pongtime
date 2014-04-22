@@ -11,13 +11,20 @@ var path = require('path');
 var logger = require('morgan');
 var cookieParser = require('connect/node_modules/cookie-parser');
 var bodyParser = require('body-parser');
+var passport = require('passport');
+var session = require('express-session');
+var RedisStore = require('connect-redis')(session);
+
 
 var routes = require('./routes');
 var apiroutes = require('./routes/api');
 
+var db = require('./models');
+var auth = require('./libs/auth');
+
+
 var app = express();
 
-var db = require('./models');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -28,8 +35,16 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
 app.use(cookieParser());
+app.use(session({
+    secret:'secrety secrets',
+    store: new RedisStore({
+        url: config.REDIS.URL,
+        prefix: config.REDIS.PREFIX
+    })
+}));
 app.use(express.static(path.join(__dirname, 'public')));
-
+app.use(passport.initialize());
+app.use(passport.session());
 app.use('/api/v1/', apiroutes);
 app.use('/', routes);
 

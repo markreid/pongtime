@@ -9,6 +9,9 @@ var _ = require('underscore');
 var db = require('../models');
 
 
+/**
+ * Players
+ */
 
 router.get('/players', function(req, res, next){
     db.Player.findAll({
@@ -64,6 +67,56 @@ router.delete('/players/:playerid', function(req, res, next){
     }).fail(function(err){
         next(err);
     })
+});
+
+
+/**
+ * Users
+ */
+
+router.get('/users', function(req, res, next){
+    db.User.findAll({
+        //attributes: ['name', 'id', 'email']
+    }).success(function(users){
+        res.send(200, _.pluck(users, 'values'));
+    }).fail(function(err){
+        next(err);
+    });
+});
+
+// disabled - users are created by passport
+// router.post('/users', function(req, res, next){
+//     db.User.create(req.body).success(function(user){
+//         res.send(201, user.values);
+//     }).fail(function(err){
+//         next(err);
+//     });
+// });
+
+router.get('/users/:userid', function(req, res, next){
+    db.User.find({
+        where: {
+            id: req.params.userid
+        },
+        include: {
+            model: db.Player,
+            attributes: ['name', 'id']
+        },
+        attributes: ['name', 'id']
+    }).success(function(user){
+        res.send(user.values);
+    }).fail(function(err){
+        next(err);
+    });
+});
+
+/**
+ * User (current user)
+ */
+
+router.get('/user', function(req, res, next){
+    console.log(req.user);
+    res.send(200, req.user);
 });
 
 

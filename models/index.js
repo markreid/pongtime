@@ -25,11 +25,16 @@ fs.readdirSync(__dirname).filter(function(file){
     console.info('loading models from ' + file);
     var model = sequelize.import(path.join(__dirname, file));
     models[model.name] = model;
-    if(model.associate) model.associate(models);
 });
 
 // configure associations
-models.User.hasOne(models.Player);
+models.Player.hasOne(models.User);
+models.User.belongsTo(models.Player);
+
+
+_.each(models, function(model){
+    if(model.associate) model.associate(models);
+});
 
 sequelize.sync();
 
