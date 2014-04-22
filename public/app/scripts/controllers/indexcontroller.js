@@ -15,6 +15,9 @@
 
         };
 
+        /**
+         * Call the players service to fetch players from the DB
+         */
         $scope.getPlayers = function(){
             return players.getPlayers().success(function(players){
                 $scope.players = _.map(players, function(player){
@@ -23,19 +26,32 @@
             });
         };
 
+        /**
+         * Toggle player.active
+         */
         $scope.toggleActive = function(childScope){
             childScope.player.active = !childScope.player.active;
         };
 
+        /**
+         * Run generateTeams() a bunch of times so it looks visually sweet
+         */
         $scope.runTeamGenerator = function(){
-            var loops = 40;
-            var timeout = 150;
-            while(loops--){
-                timeout = timeout *0.95;
-                $timeout($scope.generateTeams, loops*timeout);
+            var loops = 20;
+            var timeout = 30;
+            var promise;
+            for(var i = 0; i <loops; i++){
+                promise = $timeout($scope.generateTeams, loops*timeout);
+                timeout = timeout * 1.1;
             }
+            promise.then(function(){
+                $scope.gameReady = true;
+            });
         };
 
+        /**
+         * Generate the teams
+         */
         $scope.generateTeams = function(){
             var allPlayers = $scope.players.slice();
             var players = _.filter(allPlayers, function(player){
