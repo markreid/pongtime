@@ -17,6 +17,8 @@
     "sass-bootstrap": "~3.0.2",
     "angular-resource": "~1.2.16",
     "angular-cookies": "~1.2.16",
-    "angular-route": "~1.2.16"
+    "angular-route": "~1.2.16",
+    "angular-sanitize": "~1.2.16",
+    "underscore": "~1.6.0"
   }
 }

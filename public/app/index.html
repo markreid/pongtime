@@ -1,6 +1,3 @@
-
-
-
 <html>
 <head>
     <meta name="HandheldFriendly" content="True">
@@ -8,121 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
     <title>Pong time, gentlemen?</title>
 
-    <style type="text/css">
+    <link rel="stylesheet" type="text/css" href="/static/styles/base.css" />
 
-    body {
-        font-family: Helvetica Neue, Helvetica, sans-serif;
-        font-size: 12px;
-        font-weight: 200;
-        color: #444;
-        text-align: center;
-    }
-
-    section {
-        margin: 2em 0;
-    }
-
-    #results {
-        margin-top: 1em;
-    }
-
-    h1 {
-        font-size: 16px;
-        font-weight: inherit;
-        text-align: center;
-    }
-
-    .players {
-        text-align: center;
-        margin: 30px auto 50px;
-    }
-
-    .player {
-        border: 1px solid #bbb;
-        background: #fcc;
-        padding: 6px 12px;
-        border-radius: 4px;
-        cursor: pointer;
-    }
-
-    .player.active {
-        background: #cfc;
-    }
-
-    #btn-generate {
-        border: 1px solid #bbb;
-        background: #eee;
-        padding: 6px 10px;
-        border-radius: 4px;
-        cursor: pointer;
-        text-decoration: none;
-    }
-
-    #btn-wrapper {
-        margin-bottom: 2em;
-    }
-
-    #teams li {
-        display: inline-block;
-        margin-left: 16px;
-        font-size: 16px;
-    }
-
-    #teams li::after {
-        content: 'vs';
-        margin-left: 16px;
-        font-weight: bold;
-    }
-
-    #teams li:last-child::after {
-        content: none;
-    }
-
-    </style>
 </head>
 
-<body>
+<body ng-app="pong">
 
-    <h1>Fucken pong-o-matic</h1>
+    <div id="container" ng-view="">
 
-    <section>
-        <p>1. Choose your players.</p>
-
-        <div class="players">
-            <span class="player active">Mark</span>
-            <span class="player active">Sean</span>
-            <span class="player active">Gaurav</span>
-            <span class="player active">Lyndo</span>
-            <span class="player active">Smiguel</span>
-            <span class="player active">Nam</span>
-        </div>
-    </section>
-
-    <section>
-        <p>2. How many teams?</p>
-        <select id="select-number-of-teams">
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-            <option value="6">6</option>
-        </select>
-    </section>
-
-    <section>
-        <p>3. Players per team?</p>
-        <select id="select-players-per-team">
-            <option value="1">1</option>
-            <option value="2" selected>2</option>
-            <option value="3">3</option>
-        </select>
-    </section>
-
-    <section>
-        <p id="btn-wrapper">4. <a id="btn-generate">PONG ME</a></p>
-        <p id="warnings"></p>
-        <ul id="teams"></ul>
-    </section>
+    </div>
 
 
     <script>
@@ -221,6 +112,24 @@
 
 
     </script>
+
+
+    <!-- bower components -->
+    <script src="/static/bower_components/jquery/dist/jquery.min.js"></script>
+    <script src="/static/bower_components/angular/angular.js"></script>
+    <script src="/static/bower_components/sass-bootstrap/dist/js/bootstrap.js"></script>
+    <script src="/static/bower_components/angular-resource/angular-resource.js"></script>
+    <script src="/static/bower_components/angular-cookies/angular-cookies.js"></script>
+    <script src="/static/bower_components/angular-sanitize/angular-sanitize.js"></script>
+    <script src="/static/bower_components/angular-route/angular-route.js"></script>
+    <script src="/static/bower_components/underscore/underscore.js"></script>
+
+    <!-- application scripts -->
+    <script src="/static/scripts/pongclient.js"></script>
+    <script src="/static/scripts/services/players.js"></script>
+    <script src="/static/scripts/controllers/indexcontroller.js"></script>
+
+
 </body>
 
 </html>

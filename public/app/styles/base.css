@@ -1,0 +1,107 @@
+body {
+    font-family: Helvetica Neue, Helvetica, sans-serif;
+    font-size: 12px;
+    font-weight: 200;
+    color: #444;
+    text-align: center;
+}
+
+section {
+    margin: 2em 0;
+}
+
+#results {
+    margin-top: 1em;
+}
+
+h1 {
+    font-size: 16px;
+    font-weight: inherit;
+    text-align: center;
+}
+
+.players {
+    text-align: center;
+    margin: 30px auto 50px;
+}
+
+.player {
+    border: 1px solid #bbb;
+    background: #fcc;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.player.active {
+    background: #cfc;
+}
+
+#btn-generate {
+    border: 1px solid #bbb;
+    background: #eee;
+    padding: 6px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+#btn-wrapper {
+    margin-bottom: 2em;
+}
+
+#teams li {
+    display: inline-block;
+    margin-left: 16px;
+    font-size: 16px;
+}
+
+#teams li::after {
+    content: 'vs';
+    margin-left: 16px;
+    font-weight: bold;
+}
+
+#teams li:last-child::after {
+    content: none;
+}
+
+
+@-webkit-keyframes spinner1 {
+  from {
+    -webkit-transform: rotate(0deg);
+  } to {
+    -webkit-transform: rotate(360deg);
+  }
+}
+@-webkit-keyframes spinner2{
+  from {
+    -webkit-transform: rotate(0deg);
+  } to {
+    -webkit-transform: rotate(-360deg);
+  }
+}
+.spinner {
+  position: fixed;
+  width: 34px;
+  height: 34px;
+  top: 50%; left: 50%;
+  margin-left: -17px; margin-top: -17px;
+}
+.spinner::after, .spinner::before {
+    position: fixed;
+    content: "";
+    border: 2px solid #a1a1a1;
+    width: 32px;
+    height: 32px;
+}
+.spinner::after {
+    -webkit-animation: spinner1 2.5s linear infinite;
+}
+.spinner::before {
+    width: 44px;
+    height: 44px;
+    margin-left: -6.5px;  margin-top: -6.5px;
+    -webkit-animation: spinner2 2.5s linear infinite;
+  }
+}

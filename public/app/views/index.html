@@ -1,0 +1,44 @@
+<div class="spinner" ng-show="refreshing"></div>
+
+<div class="content" ng-hide="refreshing">
+    <h1>Fucken pong-o-matic</h1>
+
+    <section>
+        <p>1. Choose your players.</p>
+
+        <div class="players">
+            <span ng-repeat="player in players" class="player" ng-class="{active: player.active}" ng-click="toggleActive(this)">{{ player.name }}</span>
+        </div>
+
+    </section>
+
+    <section>
+        <p>2. How many teams?</p>
+        <select id="select-number-of-teams" ng-model="numTeams">
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+        </select>
+    </section>
+
+    <section>
+        <p>3. Players per team?</p>
+        <select id="select-players-per-team" ng-model="playersPerTeam">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+        </select>
+    </section>
+
+    <section>
+        <p id="btn-wrapper">4. <a ng-click="runTeamGenerator()">PONG ME</a></p>
+        <p id="warnings">{{ warning }}</p>
+        <ul id="teams">
+            <li ng-repeat="team in teams">{{ team.playersString }}</li>
+        </ul>
+    </section>
+
+</div>
