@@ -9,6 +9,7 @@
             // set defaults
             $scope.numTeams = 2;
             $scope.playersPerTeam = 2;
+            $scope.showAddPlayer = false;
             $scope.getPlayers().finally(function(){
                 $scope.refreshing = false;
             });
@@ -31,6 +32,22 @@
          */
         $scope.toggleActive = function(childScope){
             childScope.player.active = !childScope.player.active;
+        };
+
+        $scope.toggleShowAddPlayer = function(){
+            $scope.showAddPlayer = !$scope.showAddPlayer;
+            console.log($scope.showAddPlayer);
+        };
+
+        $scope.addNewPlayer = function(name){
+            players.add({
+                name: name
+            }).success(function (newPlayer){
+                $scope.players.push(newPlayer);
+                $scope.newPlayerName = '';
+            }).error(function(err){
+                console.log(err);
+            });
         };
 
         /**

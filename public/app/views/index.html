@@ -8,7 +8,15 @@
 
         <div class="players">
             <span ng-repeat="player in players" class="player" ng-class="{active: player.active}" ng-click="toggleActive(this)">{{ player.name }}</span>
+
+            <a ng-click="toggleShowAddPlayer()">[+]</a>
+
+            <form ng-show="showAddPlayer" style="margin-top: 20px;">
+                <input ng-model="newPlayerName" placeholder="name">
+                <button ng-click="addNewPlayer(newPlayerName)">Add</button>
+            </form>
         </div>
+
 
     </section>
 
