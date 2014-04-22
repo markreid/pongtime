@@ -23,10 +23,12 @@ router.get('/auth/logout', function(req, res){
     res.redirect('/');
 });
 
+// 404 anything in /static/ that wasn't found by express.static
+router.get('/static/*', function(req, res){
+    res.send(404);
+});
 
-
-// We always just return the client app, which calls the APIs
-// and does the rest for itself.
+// Everything else just forwards to the client app
 router.get('/*', function(req, res){
   res.sendfile(path.join(__dirname, '../public/app/index.html'));
 });

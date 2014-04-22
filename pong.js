@@ -42,7 +42,7 @@ app.use(session({
         prefix: config.REDIS.PREFIX
     })
 }));
-app.use(express.static(path.join(__dirname, 'public')));
+app.use('/static', express.static(path.join(__dirname, 'public/app')));
 app.use(passport.initialize());
 app.use(passport.session());
 app.use('/api/v1/', apiroutes);
