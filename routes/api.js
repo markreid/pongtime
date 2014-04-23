@@ -5,6 +5,7 @@
 var express = require('express');
 var router = express.Router();
 var _ = require('underscore');
+var Sequelize = require('sequelize');
 
 var db = require('../models');
 
@@ -108,6 +109,87 @@ router.get('/users/:userid', function(req, res, next){
     }).fail(function(err){
         next(err);
     });
+});
+
+/**
+ * Teams
+ */
+
+router.get('/teams', function(req, res, next){
+    db.Team.findAll({
+        attributes: ['name', 'id'],
+        include: {
+            model: db.Player,
+            attributes: ['name', 'id']
+        }
+    }).success(function(teams){
+        res.send(200, _.pluck(teams, 'values'));
+    }).fail(function(err){
+        next(err);
+    });
+});
+
+router.get('/teams/:teamid', function(req, res, next){
+    db.Team.find({
+        where: {
+            id: req.params.teamid
+        },
+        include: {
+            model: db.Player,
+            attributes: ['name', 'id']
+        }
+    }).success(function(team){
+        res.send(200, team.values);
+    }).fail(function(err){
+        next(err);
+    });
+});
+
+/**
+ * Search for a team by player IDs, comma-separated
+ * /api/team/search/1,2
+ * Returns only a team with ALL players and NOBODY ELSE.
+ */
+router.get('/teams/search/:players', function(req, res, next){
+    // sanitization
+    var players = req.params.players.split(',');
+    var safePlayers = _.map(players, function(p){
+        return Number(p);
+    });
+
+    db.helpers.getTeamByPlayers(safePlayers, function(err, team){
+        if(err) return next(err);
+        if(!team) return res.send(404);
+
+        res.send(200, team);
+
+    });
+
+});
+
+router.post('/teams', function(req, res, next){
+    db.Player.findAll({
+        where: {
+            id: req.body.players
+        }
+    }).success(function(players){
+        if(!players || !players.length) return res.send(404);
+
+        console.log('found players:');
+        console.log(_.pluck(players, 'values'));
+
+        db.Team.create({
+            name: req.body.name
+        }).success(function(team){
+            team.setPlayers(players).success(function(team){
+                res.send(200, team.values);
+            });
+        });
+
+    }).fail(function(err){
+        next(err);
+    });
+
 });
 
 /**

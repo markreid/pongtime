@@ -36,7 +36,6 @@
 
         $scope.toggleShowAddPlayer = function(){
             $scope.showAddPlayer = !$scope.showAddPlayer;
-            console.log($scope.showAddPlayer);
         };
 
         $scope.addNewPlayer = function(name){
