@@ -142,6 +142,7 @@ router.get('/teams/:teamid', function(req, res, next){
 
         }]
     }).success(function(team){
+        if(!team) return res.send(404);
         res.send(200, team.values);
     }).fail(function(err){
         next(err);
@@ -198,7 +199,7 @@ router.post('/teams', function(req, res, next){
             name: req.body.name
         }).then(function(team){
 
-            // add players
+            // add players and a stat model
             return team.setPlayers(players).then(function(players){
                 return db.Stat.create({}).then(function(stat){
                     return stat.setTeam(stat);
