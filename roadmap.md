@@ -22,9 +22,7 @@
 
 
 
-#### Adding and removing players
-`Player` model
-
+### Proposed Schema
 
 Player
     name
@@ -32,7 +30,7 @@ Player
     slug
     email
     image
-    teams =>
+    teams => PlayersTeam => Team
     stats ->
 
 User
@@ -42,18 +40,39 @@ User
     g+ identifier
 
 Team
-    players =>
+    name
+    players => PlayersTeam => Player
 
 Game
     date
-    teams =>
+    teams => GamesTeam => Team
     winner ->
     loser ->
     redemption YN
     pants YN
 
 Stats
-    player ->
-    hottest streak
-    coldest streak
-    current streak
+    team ->
+    games
+    wins
+    losses
+    hottest
+    hottestend
+    coldest
+    coldestend
+    streak
+    redemptionsGiven
+    redemptionsHad
+    pantsGiven
+    pantsHad
+
+
+
+### Clientside flow
+
+#### Starting a game
+
+* Select players
+* Lookup teams, show stats.
+* Confirm -> Create game
+* Ask for results -> Create teams -> Update game
