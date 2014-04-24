@@ -1,3 +1,7 @@
+/**
+ * players service
+ */
+
 (function(){
     'use strict';
 
