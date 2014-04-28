@@ -1,0 +1,72 @@
+@import 'sass-bootstrap/lib/bootstrap';
+
+
+/**
+ * Old shit
+ */
+
+.section-players button {
+    margin: 0 3px;
+}
+
+.container > section {
+    margin: 0 30px;
+}
+
+
+/**
+ * Game widget
+ */
+
+gamewidget .table-match-history {
+    tr td, tr th {
+        text-align: center;
+
+        &:first-child{
+            text-align: left;
+        }
+    }
+}
+
+
+/**
+ * Spinner loader
+ */
+
+@-webkit-keyframes spinner1 {
+  from {
+    -webkit-transform: rotate(0deg);
+  } to {
+    -webkit-transform: rotate(360deg);
+  }
+}
+@-webkit-keyframes spinner2{
+  from {
+    -webkit-transform: rotate(0deg);
+  } to {
+    -webkit-transform: rotate(-360deg);
+  }
+}
+.spinner {
+  position: fixed;
+  width: 34px;
+  height: 34px;
+  top: 50%; left: 50%;
+  margin-left: -17px; margin-top: -17px;
+}
+.spinner::after, .spinner::before {
+    position: fixed;
+    content: "";
+    border: 2px solid #a1a1a1;
+    width: 32px;
+    height: 32px;
+}
+.spinner::after {
+    -webkit-animation: spinner1 2.5s linear infinite;
+}
+.spinner::before {
+    width: 44px;
+    height: 44px;
+    margin-left: -6.5px;  margin-top: -6.5px;
+    -webkit-animation: spinner2 2.5s linear infinite;
+  }

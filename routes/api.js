@@ -9,6 +9,12 @@ var Sequelize = require('sequelize');
 
 var db = require('../models');
 
+// middleware for simulating a slow API response time
+router.use(function(req, res, next){
+    setTimeout(function(){
+        next();
+    }, 300);
+});
 
 /**
  * Players
@@ -165,8 +171,8 @@ router.get('/teams/search/:players', function(req, res, next){
 
     db.helpers.getTeamByPlayers(safePlayers).then(function(team){
         if(!team) return res.send(404);
-
         res.send(200, team);
+
     }, function(err){
         next(err);
     });
@@ -182,7 +188,7 @@ router.post('/teams', function(req, res, next){
 
     // First check whether the team already exists
     db.helpers.getTeamIdByPlayers(playerIDs).then(function(teamId){
-        if(teamId) throw {status:409, message:'Team exists'};
+        if(teamId) throw {status:409, message:'Team exists: ' + teamId};
 
         // Now find the players
         return db.Player.findAll({
@@ -199,19 +205,59 @@ router.post('/teams', function(req, res, next){
             name: req.body.name
         }).then(function(team){
 
-            // add players and a stat model
+            // add players and a stat model, return the team model
             return team.setPlayers(players).then(function(players){
                 return db.Stat.create({}).then(function(stat){
-                    return stat.setTeam(stat);
+                    return stat.setTeam(stat).then(function(){
+                        res.send(200, team.values);
+                    });
                 });
             });
         });
-    }).then(function(team){
-        res.send(200, team.values);
-    }, function(err){
+    }).catch(function(err){
         next(err);
     });
 
+});
+
+router.delete('/teams/:teamid', function(req, res, next){
+    db.Team.find({
+        where: {
+            id: req.params.teamid
+        },
+        include: [{
+            model: db.Player,
+            attributes: ['name', 'id']
+        }, {
+            model: db.Stat
+
+        }]
+    }).then(function(team){
+        // todo - if the team doesn't exist, should we still try to destroy the other models?
+        if(!team) return;
+        return team.destroy();
+    }).then(function(){
+        // todo - do this in sequelize
+        // nuke stats and playersteams records when you nuke a team
+
+        return db.Stat.find({
+            where: {
+                TeamId: req.params.teamid
+            }
+        });
+    }).then(function(stats){
+        // todo - as above, if there are no stats, do we still continue on or throw?
+        if(!stats) return;
+        return stats.destroy();
+    }).then(function(){
+        // remove the playersteams models
+        var teamid = Number(req.params.teamid);
+        return db.sequelize.query('DELETE FROM "PlayersTeams" WHERE "PlayersTeams"."TeamId" = ' + teamid + ';');
+    }).then(function(){
+        res.send(200);
+    }).catch(function(err){
+        next(err);
+    });
 
 });
 
@@ -222,16 +268,52 @@ router.post('/teams', function(req, res, next){
 
 router.get('/games', function(req, res, next){
     db.Game.findAll({
-        // include: [{
-        //     model: db.Team,
-        //     attributes: ['name']
-        // }]
+        include: [{
+            model: db.Team,
+            attributes: ['name']
+        }]
     }).success(function(games){
         res.send(200, games);
     }).fail(function(err){
         console.log(err);
         next(err);
     });
+});
+
+/**
+ * Fetch games where winningTeamId or losingTeamId were not registered
+ * @param  {[type]}   req  [description]
+ * @param  {[type]}   res  [description]
+ * @param  {Function} next [description]
+ * @return {[type]}        [description]
+ */
+router.get('/games/open/', function(req, res, next){
+    db.Game.findAll({
+        include: [{
+            model: db.Team,
+            attributes: ['name']
+        }],
+        where: Sequelize.or('"winningTeamId" IS NULL', '"losingTeamId" IS NULL')
+    }).then(function(data){
+        res.send(200, data);
+    }).catch(function(err){
+        next(err);
+    });
+});
+
+router.get('/games/search/:teamids', function(req, res, next){
+    if(!req.params.teamids) return res.send(400);
+
+    var teamsString = _.map(req.params.teamids.split(','), function(team){
+        return Number(team);
+    }).join(',');
+
+    db.sequelize.query('SELECT "Games".* FROM "Games" LEFT OUTER JOIN "GamesTeams" AS "Teams.GamesTeam" ON "Games"."id" = "Teams.GamesTeam"."GameId" LEFT OUTER JOIN "Teams" AS "Teams" ON "Teams"."id" = "Teams.GamesTeam"."TeamId" WHERE "Teams".id IN (' + teamsString + ') GROUP BY "Games".id  HAVING COUNT(*) = 2 ORDER BY "Games".id;').then(function(data){
+        res.send(200, data);
+    }).catch(function(err){
+        next(err);
+    });
+
 });
 
 router.post('/games', function(req, res, next){
@@ -293,6 +375,9 @@ router.put('/games/:gameid', function(req, res, next){
         }).fail(function(err){
             next(err);
         });
+
+        // todo
+        // need to update the stats tables too!
 
     }).fail(function(err){
         next(err);

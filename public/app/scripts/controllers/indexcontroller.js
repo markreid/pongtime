@@ -1,14 +1,14 @@
 (function(){
     'use strict';
 
-    angular.module('pong').controller('indexController', ['$scope', '$timeout', 'players', function($scope, $timeout, players){
+    angular.module('pong').controller('indexController', ['$scope', '$timeout', 'players', 'teams', function($scope, $timeout, playersService, teamsService){
 
         $scope.reset = function(){
             $scope.refreshing = true;
 
             // set defaults
             $scope.numTeams = 2;
-            $scope.playersPerTeam = 2;
+            $scope.playersPerTeam = 1;
             $scope.showAddPlayer = false;
             $scope.getPlayers().finally(function(){
                 $scope.refreshing = false;
@@ -20,7 +20,7 @@
          * Call the players service to fetch players from the DB
          */
         $scope.getPlayers = function(){
-            return players.getPlayers().success(function(players){
+            return playersService.getPlayers().success(function(players){
                 $scope.players = _.map(players, function(player){
                     return _.extend(player, {active:true});
                 });
@@ -39,7 +39,7 @@
         };
 
         $scope.addNewPlayer = function(name){
-            players.add({
+            playersService.add({
                 name: name
             }).success(function (newPlayer){
                 $scope.players.push(newPlayer);
@@ -53,8 +53,8 @@
          * Run generateTeams() a bunch of times so it looks visually sweet
          */
         $scope.runTeamGenerator = function(){
-            var loops = 20;
-            var timeout = 30;
+            var loops = 1;
+            var timeout = 0;
             var promise;
             for(var i = 0; i <loops; i++){
                 promise = $timeout($scope.generateTeams, loops*timeout);
@@ -100,9 +100,19 @@
                 }
             }
 
-            _.each(teams, function(team){
-                team.playersString = _.pluck(team, 'name').join(' and ');
+            // map it into a reasonable format
+            var teams = _.map(teams, function(playersArray){
+                return {
+                    players: _.map(playersArray, function(player){
+                        return {
+                            id: player.id,
+                            name: player.name,
+                        }
+                    }),
+                    playersString: _.pluck(playersArray, 'name').join(' and ')
+                }
             });
+
             $scope.teams = teams;
 
         };

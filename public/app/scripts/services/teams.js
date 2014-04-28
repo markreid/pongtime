@@ -22,6 +22,12 @@
             return $http.get('/api/v1/teams/search/' + playersString +'/');
         };
 
+        TeamsService.prototype.addTeam = function(players){
+            return $http.post('/api/v1/teams/', {
+                players: players
+            });
+        };
+
         return new TeamsService();
 
     }]);

@@ -1,0 +1,36 @@
+<div class="panel" ng-class="{'panel-success': !fetching, 'panel-warning': fetching}">
+
+    <div class="panel-heading">
+        <h4 ng-show="team.name">{{ team.name }}</h4>
+        <small ng-show="team.name && !singlePlayer">{{ playerNames }}</small>
+        <h4 ng-hide="team.name">{{ playerNames }}</h4>
+    </div>
+
+    <div class="panel-body" ng-show="fetching">
+        <p><i>Fetching team data...</i></p>
+    </div>
+
+    <div class="panel-body" ng-hide="fetching">
+
+        <p class="lead">{{ stats.paragraph }}</p>
+
+        <a ng-click="toggleDetailedStats()" ng-show="stats.available">Full stats &raquo;</a>
+
+        <div ng-show="stats.available && showDetailedStats">
+
+            <dl class="dl-horizontal">
+                <dt>Played</dt><dd>{{ team.stat.games }}</dd>
+                <dt>Won</dt><dd>{{ team.stat.wins }}</dd>
+                <dt>Lost</dt><dd>{{ team.stat.losses }}</dd>
+                <dt>Current streak</dt><dd>{{ team.stat.streak }}</dd>
+                <dt>Hottest streak</dt><dd>{{ team.stat.hottest }} wins</dd>
+                <dt>Coldest streak</dt><dd>{{ team.stat.coldest }} losses</dd>
+                <dt>Redemptions won</dt>
+                <dt>Redemptions lost</dt>
+                <dt>Redemptions given</dt>
+                <dt>Redemptions denied</dt>
+            </dl>
+
+        </div>
+    </div>
+</div>
