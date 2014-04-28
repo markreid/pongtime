@@ -13,7 +13,7 @@ var db = require('../models');
 router.use(function(req, res, next){
     setTimeout(function(){
         next();
-    }, 300);
+    }, 800);
 });
 
 /**
@@ -330,7 +330,7 @@ router.post('/games', function(req, res, next){
         console.log(_.pluck(teams, 'values'));
 
         db.Game.create({}).success(function(game){
-            game.setTeams(teams).success(function(game){
+            game.setTeams(teams).success(function(gamesteam){
                 res.send(200, game.values);
             }).fail(function(err){
                 next(err);

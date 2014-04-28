@@ -14,14 +14,11 @@ module.exports = function(sequelize, datatypes){
         },
         redemption: {
             type: datatypes.BOOLEAN
-        },
-        pants: {
-            type: datatypes.BOOLEAN
         }
     });
 
     // fields added via association
-    // teams m2m
+    // teams
     // winner 121
     // loser 121
 

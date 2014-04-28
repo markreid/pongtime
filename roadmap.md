@@ -25,13 +25,9 @@
 ### Proposed Schema
 
 Player
+    id*
     name
-    title
-    slug
-    email
-    image
     teams => PlayersTeam => Team
-    stats ->
 
 User
     player ->

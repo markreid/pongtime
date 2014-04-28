@@ -85,9 +85,9 @@
                 });
             }
         }
-    }]).directive('gamewidget', ['teams', 'games', function(teamsService, gamesService){
+    }]).directive('creategame', ['teams', 'games', '$q', function(teamsService, gamesService, $q){
         return {
-            templateUrl: '/static/views/gamewidget.html',
+            templateUrl: '/static/views/creategamewidget.html',
             restrict: 'E',
             scope: {
                 teams: '=teams'
@@ -157,41 +157,32 @@
                     console.log($scope.teams);
                 }
 
-                $scope.generateGame = function(){
-                    var apiHits = _.map($scope.teams, function(team){
-                        // if the team has an ID, it exists, do nothing
-                        if(team.id) return;
+                $scope.createGame = function(){
 
-                        // otherwise, create the team by passing player IDs
+                    var teamIdPromises = _.map($scope.teams, function(team){
+                        // if we have an ID for this team already, just return it
+                        if(team.id) return team.id;
+
+                        // otherwise, use the teamsService to add the team first
                         var playerIds = _.pluck(team.players, 'id');
-                        return teamsService.addTeam(playerIds);
+                        return teamsService.addTeam(playerIds).then(function(response){
+                            // only need to return the ID
+                            return response.data.id;
+                        });
                     });
 
-                    console.log(apiHits);
-
-                    $.when.apply(this, apiHits).then(function(){
-                        console.log('teams were added:');
-                        console.log(arguments);
+                    $q.all(teamIdPromises).then(function(teams){
+                        return gamesService.add({
+                            teams: teams
+                        });
+                    }).then(function(response){
+                        $scope.createdGame = response.data;
+                    }).catch(function(err){
+                        // todo - error handling
+                        console.log('m-m-m-m-meltdoooooooown');
                     });
 
                     return;
-
-                    var teamIds = _.pluck($scope.teams, 'id');
-
-                    if(teamIds.length === 2 && !~teamIds.indexOf(null)){
-                        this.addGame(teamIds);
-                    }
-
-                    var apiHits = [];
-                    _.each($scope.teams)
-
-                    $.when([])
-
-                    // if both teams already exist, gamesService.add()
-                    // otherwise make the teams first, then gamesService.add()
-
-                    var teamIds = _.pluck($scope.teams, 'id');
-                    console.log(teamIds);
 
 
                 };
@@ -199,6 +190,21 @@
             }
         }
 
+    }]).directive('gamewidget', ['games', function(gamesService){
+        return {
+            restrict: 'E',
+            templateUrl: '/static/views/gamewidget.html',
+            scope: {
+                game: '=game',
+                teams: '=teams'
+            },
+            link: function($scope, el, attrs){
+                $scope.$watch('game', function(game){
+                    if(!game) return;
+                    game.date = moment(game.date).fromNow();
+                });
+            }
+        };
     }]);
 
 })();
