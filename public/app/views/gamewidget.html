@@ -1,24 +1,34 @@
-<section>
-    <p class="lead text-center">
-        <b>{{ teams[0].name || teams[0].playersString}}</b> vs <b>{{ teams[1].name || teams[1].playersString}}</b>
-        <br>
-        <small>{{ game.date }}</small>
-    </p>
-
-    <div class="results" ng-show="hasResults">
-
+<section class="panel panel-warning">
+    <div class="panel-heading">
+        <h4 class="text-center">
+            <b>{{ teams[0].name || teams[0].playersString}}</b> vs <b>{{ teams[1].name || teams[1].playersString}}</b>
+            <br>
+            <small>{{ game.date }}</small>
+        </h4>
     </div>
 
-    <div class="form-results=" ng-hide="hasResults">
-        <p>Add a result for this game!</p>
+    <div class="panel-body">
+        <div class="results" ng-show="hasResults">
+        </div>
 
-        Winner
-            <select>
-                <option disabled>Who won?</option>
-                <option ng-repeat="team in teams" value="team.id">{{ team.name || team.playersString }}</option>
-                <option value="-1">Draw</option>
-            </select>
+        <div class="form-results=" ng-hide="hasResults">
+            <p>The result of this game hasn't been set.</p>
 
-        Redemption <input type="checkbox">
+            <form class="form form-inline">
+            <fieldset>
+                <select>
+                    <option disabled selected>Who won?</option>
+                    <option ng-repeat="team in teams" value="team.id">{{ team.name || team.playersString }}</option>
+                    <option value="-1">Draw</option>
+                </select>
+
+                <label for="redemption">
+                    Redemption? <input type="checkbox" name="redemption">
+                </label>
+
+                <button type="submit" class="btn btn-primary btn-sm">Save</button>
+                <button type="reset" class="btn btn-warning btn-sm">Reset</button>
+            </form>
+        </div>
     </div>
 </section>

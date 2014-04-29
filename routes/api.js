@@ -13,7 +13,7 @@ var db = require('../models');
 router.use(function(req, res, next){
     setTimeout(function(){
         next();
-    }, 800);
+    }, 300);
 });
 
 /**

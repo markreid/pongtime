@@ -7629,14 +7629,22 @@ td.visible-print {
   }
 }
 /**
+ * Base/generic/utils
+ */
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\000037}}
+.vspace {
+  margin: 1em 0;
+}
+
+/**
  * Old shit
  */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\000038}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000316}}
 .section-players button {
   margin: 0 3px;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000312}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000320}}
 .container > section {
   margin: 0 30px;
 }
@@ -7644,11 +7652,11 @@ td.visible-print {
 /**
  * Game widget
  */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000322}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000330}}
 gamewidget .table-match-history tr td, gamewidget .table-match-history tr th {
   text-align: center;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000325}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000333}}
 gamewidget .table-match-history tr td:first-child, gamewidget .table-match-history tr th:first-child {
   text-align: left;
 }
@@ -7657,30 +7665,30 @@ gamewidget .table-match-history tr td:first-child, gamewidget .table-match-histo
  * Spinner loader
  */
 @-webkit-keyframes spinner1 {
-  /* line 37, base.scss */
+  /* line 45, base.scss */
   from {
     -webkit-transform: rotate(0deg);
   }
 
-  /* line 39, base.scss */
+  /* line 47, base.scss */
   to {
     -webkit-transform: rotate(360deg);
   }
 }
 
 @-webkit-keyframes spinner2 {
-  /* line 44, base.scss */
+  /* line 52, base.scss */
   from {
     -webkit-transform: rotate(0deg);
   }
 
-  /* line 46, base.scss */
+  /* line 54, base.scss */
   to {
     -webkit-transform: rotate(-360deg);
   }
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000350}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000358}}
 .spinner {
   position: fixed;
   width: 34px;
@@ -7691,7 +7699,7 @@ gamewidget .table-match-history tr td:first-child, gamewidget .table-match-histo
   margin-top: -17px;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000357}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000365}}
 .spinner::after, .spinner::before {
   position: fixed;
   content: "";
@@ -7700,12 +7708,12 @@ gamewidget .table-match-history tr td:first-child, gamewidget .table-match-histo
   height: 32px;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000364}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000372}}
 .spinner::after {
   -webkit-animation: spinner1 2.5s linear infinite;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000367}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000375}}
 .spinner::before {
   width: 44px;
   height: 44px;

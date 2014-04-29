@@ -19,6 +19,7 @@
     "angular-cookies": "~1.2.16",
     "angular-route": "~1.2.16",
     "angular-sanitize": "~1.2.16",
-    "underscore": "~1.6.0"
+    "underscore": "~1.6.0",
+    "moment": "~2.6.0"
   }
 }
