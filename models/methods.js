@@ -382,8 +382,11 @@ module.exports = function(sequelize, models){
             if(!teams || teams.length !== 2) throw new Error('Invalid team IDs');
 
             return models.Game.create({}).then(function(game){
-                return game.setTeams(teams).then(function(gamesteam){
-                    return game;
+                return game.setTeams(teams).then(function(teams){
+                    // return the game with the teams attached.
+                    return _.extend({}, game.values, {
+                      teams: teams
+                    });
                 });
             });
         }).catch(function(err){
@@ -435,7 +438,9 @@ module.exports = function(sequelize, models){
                 return methods.stats.addLoss(gameData.losingTeamId, {
                     redemption: gameData.redemption
                 });
-            });
+            }).then(function(){
+                return game;
+            })
 
         }).catch(function(err){
             throw err;
