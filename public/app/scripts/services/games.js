@@ -19,12 +19,12 @@
 
         GamesService.prototype.save = function(data){
             // validation
-            // we require .id, .winner:num, .loser:num and .redemption:bool
-            if(!!~[data.id, data.winner, data.loser, data.redemption].indexOf(null)) throw new Error('missing parameters.');
+            // we require .id, .winningTeamId:num, .losingTeamId:num and .redemption:bool
+            if(~[data.id, data.winningTeamId, data.losingTeamId, data.redemption].indexOf(null)) throw new Error('missing parameters.');
 
             return $http.put('/api/v1/games/' + Number(data.id), {
-                winner: data.winner,
-                loser: data.loser,
+                winningTeamId: data.winningTeamId,
+                losingTeamId: data.losingTeamId,
                 redemption: data.redemption
             });
         };

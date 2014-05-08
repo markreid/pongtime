@@ -102,6 +102,7 @@
                     $scope.readyTeamWidgetCount = 0;
                     $scope.stats = {};
                     $scope.showStats = false;
+                    $scope.createdGame = null;
                 };
 
                 // if the teams change, call a reset
@@ -201,7 +202,10 @@
 
                 // if the teams object updates, attach it to .game
                 $scope.$watch('teams', function(teams){
-                    if(teams && $scope.game) $scope.game.teams = teams;
+                    if(teams && $scope.game){
+                        $scope.game.teams = teams;
+                        $scope.game = parseGameData($scope.game);
+                    }
                 });
 
                 $scope.$watch('game', function(game){
@@ -227,6 +231,8 @@
                         if(team.id === game.losingTeamId) game.losingTeam = team;
                     });
 
+                    return game;
+
                 };
 
                 // set a loser by picking the team that didn't win
@@ -249,11 +255,15 @@
                         losingTeamId: $scope.game.losingTeamId,
                         redemption: $scope.game.redemption
                     }).then(function(response){
-                        $scope.game = parseGameData(response.data);
+                        $scope.$apply(function(){
+                            $scope.game = parseGameData(response.data);
+                        });
                     }).catch(function(err){
-                        console.log('some fucking error');
+                        console.log('error saving game:');
+                        console.log(err);
                     });
                 };
+
             }
         };
     }]);

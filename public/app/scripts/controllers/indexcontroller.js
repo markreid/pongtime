@@ -8,7 +8,7 @@
 
             // set defaults
             $scope.numTeams = 2;
-            $scope.playersPerTeam = 1;
+            $scope.playersPerTeam = 2;
             $scope.showAddPlayer = false;
             $scope.getPlayers().finally(function(){
                 $scope.refreshing = false;

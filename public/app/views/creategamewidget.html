@@ -1,7 +1,7 @@
 <h3>Teams</h3>
 
 <div class="row">
-    <teamwidget ng-repeat="team in teams track by $index" team="teams[$index]" class="col-xs-6"></teamwidget>
+    <teamwidget ng-repeat="team in teams" team="team" class="col-xs-6"></teamwidget>
 </div>
 
 <div class="row">
@@ -28,7 +28,7 @@
 </div>
 
 <div class="text-center vspace" ng-show="teamsReady">
-    <button ng-click="createGame();" type="button" class="btn btn-xl btn-primary">LET'S ROLL.</button>
+    <button ng-click="createGame();" ng-disabled="createdGame" type="button" class="btn btn-xl btn-primary">Start This Game.</button>
 </div>
 
-<gamewidget ng-show="createdGame" game="createdGame" teams="teams">
+<gamewidget ng-show="createdGame" game="createdGame">

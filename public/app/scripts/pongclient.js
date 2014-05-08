@@ -4,7 +4,7 @@
     angular.module(['pong'], ['ngCookies', 'ngResource', 'ngSanitize', 'ngRoute'])
     .config(function($routeProvider, $locationProvider){
         $routeProvider.when('/', {
-            templateUrl: '/static/views/index.html',
+            templateUrl: '/static/views/indexview.html',
             controller: 'indexController'
         }).when('/games', {
             templateUrl: '/static/views/gamesview.html',
