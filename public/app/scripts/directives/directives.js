@@ -152,11 +152,6 @@
                     });
                 };
 
-
-                $scope.showTeams = function(){
-                    console.log($scope.teams);
-                }
-
                 $scope.createGame = function(){
 
                     var teamIdPromises = _.map($scope.teams, function(team){
@@ -165,7 +160,9 @@
 
                         // otherwise, use the teamsService to add the team first
                         var playerIds = _.pluck(team.players, 'id');
-                        return teamsService.addTeam(playerIds).then(function(response){
+                        // todo - let the user add a team name
+                        var playersString = _.pluck(team.players, 'name').join(' and ');
+                        return teamsService.addTeam(playerIds, playersString).then(function(response){
                             // only need to return the ID
                             return response.data.id;
                         });
@@ -199,10 +196,63 @@
                 teams: '=teams'
             },
             link: function($scope, el, attrs){
+
+                var gamesService = angular.injector(['pong', 'ng']).get('games');
+
+                // if the teams object updates, attach it to .game
+                $scope.$watch('teams', function(teams){
+                    if(teams && $scope.game) $scope.game.teams = teams;
+                });
+
                 $scope.$watch('game', function(game){
                     if(!game) return;
-                    game.date = moment(game.date).fromNow();
+                    game = parseGameData(game);
                 });
+
+                // parse the data the API returns to make it more readable and usable
+                var parseGameData = function(game){
+                    // format the date as a "x minutes ago"
+                    game.date = moment(game.date).fromNow();
+
+                    // need to set redemption to false if it's null
+                    game.redemption = game.redemption || false;
+
+                    // hasResults - if winner, loser and redemption are all not null
+                    game.hasResults = !~[game.winningTeamId, game.losingTeamId, game.redemption].indexOf(null);
+
+                    if(!game.hasResults) return game;
+
+                    _.each(game.teams, function(team){
+                        if(team.id === game.winningTeamId) game.winningTeam = team;
+                        if(team.id === game.losingTeamId) game.losingTeam = team;
+                    });
+
+                };
+
+                // called when the winner option box is changed
+                $scope.setLoser = function(){
+                    console.log('setloser');
+                    var teams = _.pluck($scope.game.teams, 'id').slice();
+                    $scope.game.losingTeamId = _.without(teams, $scope.game.winningTeamId)[0];
+                }
+
+                $scope.setWinner = function(){
+                    var teams = _.pluck($scope.game.teams, 'id').slice();
+                    $scope.game.winningTeamId = _.without(teams, $scope.game.losingTeamId)[0];
+                };
+
+                $scope.save = function(){
+                    gamesService.save({
+                        id: $scope.game.id,
+                        winner: $scope.game.winningTeamId,
+                        loser: $scope.game.losingTeamId,
+                        redemption: $scope.game.redemption
+                    }).then(function(response){
+                        $scope.game = parseGameData(response.data);
+                    }).catch(function(err){
+                        console.log('some fucking error');
+                    });
+                };
             }
         };
     }]);

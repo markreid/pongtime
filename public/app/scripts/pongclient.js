@@ -6,6 +6,9 @@
         $routeProvider.when('/', {
             templateUrl: '/static/views/index.html',
             controller: 'indexController'
+        }).when('/games', {
+            templateUrl: '/static/views/gamesview.html',
+            controller: 'gamesController'
         }).otherwise({
             redirectTo: '/'
         });

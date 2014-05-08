@@ -22,9 +22,11 @@
             return $http.get('/api/v1/teams/search/' + playersString +'/');
         };
 
-        TeamsService.prototype.addTeam = function(players){
+        TeamsService.prototype.addTeam = function(players, name){
+            if(!players || !players.length || !name) throw new Error('shitty arguments, bro.');
             return $http.post('/api/v1/teams/', {
-                players: players
+                players: players,
+                name: name
             });
         };
 

@@ -1,32 +1,31 @@
-<section class="panel panel-warning">
+<section class="panel" ng-class="{'panel-success': game.hasResults, 'panel-warning': !game.hasResults}">
     <div class="panel-heading">
         <h4 class="text-center">
-            <b>{{ teams[0].name || teams[0].playersString}}</b> vs <b>{{ teams[1].name || teams[1].playersString}}</b>
+            <b>{{ game.teams[0].name || game.teams[0].playersString}}</b> vs <b>{{ game.teams[1].name || game.teams[1].playersString}}</b>
             <br>
             <small>{{ game.date }}</small>
         </h4>
     </div>
 
     <div class="panel-body">
-        <div class="results" ng-show="hasResults">
+        <div class="results clearfix" ng-show="game.hasResults">
+            <p class="lead">{{ game.winningTeam.name }} won.</p>
+            <span class="label pull-right" ng-class="{'label-success': game.redemption, 'label-danger': !game.redemption}">{{ game.redemption ? 'REDEEMED' : 'REDEMPTION DENIED' }}.</span>
         </div>
 
-        <div class="form-results=" ng-hide="hasResults">
+        <div class="form-results=" ng-hide="game.hasResults">
             <p>The result of this game hasn't been set.</p>
 
             <form class="form form-inline">
             <fieldset>
-                <select>
-                    <option disabled selected>Who won?</option>
-                    <option ng-repeat="team in teams" value="team.id">{{ team.name || team.playersString }}</option>
-                    <option value="-1">Draw</option>
-                </select>
+                <select ng-model="game.winningTeamId" ng-change="setLoser()" ng-options="team.id as team.name for team in game.teams"><option>lol!</option></select>
+                <select ng-model="game.losingTeamId" ng-change="setWinner()" ng-options="team.id as team.name for team in game.teams"></select>
 
                 <label for="redemption">
-                    Redemption? <input type="checkbox" name="redemption">
+                    Redemption? <input type="checkbox" name="redemption" ng-model="game.redemption">
                 </label>
 
-                <button type="submit" class="btn btn-primary btn-sm">Save</button>
+                <button type="submit" class="btn btn-primary btn-sm" ng-click="save()">Save</button>
                 <button type="reset" class="btn btn-warning btn-sm">Reset</button>
             </form>
         </div>

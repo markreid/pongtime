@@ -5,7 +5,7 @@
 (function(){
     'use strict';
 
-    angular.module('pong').factory('games', ['$http', function($http){
+    angular.module('pong').factory('games', ['$http', '$q', function($http, $q){
 
         var GamesService = function(){};
 
@@ -15,6 +15,18 @@
 
         GamesService.prototype.add = function(data){
             return $http.post('/api/v1/games', data);
+        };
+
+        GamesService.prototype.save = function(data){
+            // validation
+            // we require .id, .winner:num, .loser:num and .redemption:bool
+            if(!!~[data.id, data.winner, data.loser, data.redemption].indexOf(null)) throw new Error('missing parameters.');
+
+            return $http.put('/api/v1/games/' + Number(data.id), {
+                winner: data.winner,
+                loser: data.loser,
+                redemption: data.redemption
+            });
         };
 
         /**
