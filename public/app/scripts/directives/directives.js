@@ -229,23 +229,24 @@
 
                 };
 
-                // called when the winner option box is changed
+                // set a loser by picking the team that didn't win
                 $scope.setLoser = function(){
-                    console.log('setloser');
                     var teams = _.pluck($scope.game.teams, 'id').slice();
                     $scope.game.losingTeamId = _.without(teams, $scope.game.winningTeamId)[0];
                 }
 
+                // or set a winner by picking the team that didn't lose
                 $scope.setWinner = function(){
                     var teams = _.pluck($scope.game.teams, 'id').slice();
                     $scope.game.winningTeamId = _.without(teams, $scope.game.losingTeamId)[0];
                 };
 
+                // hit the gamesService and update
                 $scope.save = function(){
                     gamesService.save({
                         id: $scope.game.id,
-                        winner: $scope.game.winningTeamId,
-                        loser: $scope.game.losingTeamId,
+                        winningTeamId: $scope.game.winningTeamId,
+                        losingTeamId: $scope.game.losingTeamId,
                         redemption: $scope.game.redemption
                     }).then(function(response){
                         $scope.game = parseGameData(response.data);

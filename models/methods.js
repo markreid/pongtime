@@ -398,8 +398,8 @@ module.exports = function(sequelize, models){
      */
     methods.games.update = function(model, gameData){
 
-        // to update a game, we need winner, loser, redemption.
-        var requiredFields = ['winner', 'loser', 'redemption'];
+        // to update a game, we need winningTeamId, losingTeamId, redemption.
+        var requiredFields = ['winningTeamId', 'losingTeamId', 'redemption'];
         var missingFields = _.difference(requiredFields, Object.keys(gameData));
         if(missingFields.length) throw new Error ('games.update() missing arguments: ' + missingFields.join(', '));
 
@@ -407,15 +407,15 @@ module.exports = function(sequelize, models){
         var teams = _.map(model.values.teams, function(team){
             return team.dataValues.id;
         });
-        if(!~teams.indexOf(gameData.winner) || !~teams.indexOf(gameData.loser) || gameData.winner === gameData.loser) throw new Error('invalid winner and loser team IDs');
+        if(!~teams.indexOf(gameData.winningTeamId) || !~teams.indexOf(gameData.losingTeamId) || gameData.winningTeamId === gameData.losingTeamId) throw new Error('invalid winningTeamId and losingTeamId team IDs');
 
         // was there previously a result set for this game?
         var hadResult = model.values.winningTeamId || model.values.losingTeamId;
 
         // ok, arguments are all valid, let's update the game.
         return model.updateAttributes({
-            winningTeamId: gameData.winner,
-            losingTeamId: gameData.loser,
+            winningTeamId: gameData.winningTeamId,
+            losingTeamId: gameData.losingTeamId,
             redemption: gameData.redemption
         }).then(function(game){
 
@@ -429,10 +429,10 @@ module.exports = function(sequelize, models){
 
             // otherwise, we're adding a result for the first time, so
             // we can just call the .addWin and .addLoss stats helpers.
-            return methods.stats.addWin(gameData.winner, {
+            return methods.stats.addWin(gameData.winningTeamId, {
                 redemption: gameData.redemption
             }).then(function(){
-                return methods.stats.addLoss(gameData.loser, {
+                return methods.stats.addLoss(gameData.losingTeamId, {
                     redemption: gameData.redemption
                 });
             });
