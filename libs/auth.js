@@ -8,10 +8,11 @@ var passport = require('passport');
 var passportGoogle = require('passport-google').Strategy;
 var db = require('../models');
 var _ = require('underscore');
+var config = require('../config');
 
 passport.use(new passportGoogle({
-    returnURL: 'http://localhost:2020/auth/google/return',
-    realm: 'http://localhost:2020/'
+    returnURL: config.AUTH.GOOGLE.RETURNURL,
+    realm: config.AUTH.GOOGLE.REALM
 }, function googleAuthCallback(identifier, profile, done){
 
     // login as an existing user or register a new one
