@@ -271,7 +271,7 @@
             restrict: 'E',
             templateUrl: '/static/views/headernav.html',
             link: function($scope, el, attrs){
-                console.log('headernav.link()');
+
             }
         }
     }]);

@@ -9,6 +9,9 @@
         }).when('/games', {
             templateUrl: '/static/views/gamesview.html',
             controller: 'gamesController'
+        }).when('/teams', {
+            templateUrl: '/static/views/teamsview.html',
+            controller: 'teamsController'
         }).otherwise({
             redirectTo: '/'
         });
