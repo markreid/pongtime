@@ -96,9 +96,6 @@ router.get('/users', function(req, res, next){
     });
 });
 
-// disabled - users are created by passport
-// router.post('/users', function(req, res, next){});
-
 router.get('/users/:userid', function(req, res, next){
 
     res.send(200, req.foundUser.values);
@@ -127,7 +124,6 @@ router.param('userid', function(req, res, next, id){
 });
 
 router.delete('/users/:userid', function(req, res, next){
-    console.log(req.foundUser.values);
     req.foundUser.destroy().then(function(){
         res.send(200);
     }).catch(function(err){
