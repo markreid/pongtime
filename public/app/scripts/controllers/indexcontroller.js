@@ -10,6 +10,7 @@
             $scope.numTeams = 2;
             $scope.playersPerTeam = 2;
             $scope.showAddPlayer = false;
+	    $scope.warning = false;
             $scope.getPlayers().finally(function(){
                 $scope.refreshing = false;
             });
@@ -69,6 +70,7 @@
          * Generate the teams
          */
         $scope.generateTeams = function(){
+	    $scope.warning = false;
             var allPlayers = $scope.players.slice();
             var players = _.filter(allPlayers, function(player){
                 return player.active

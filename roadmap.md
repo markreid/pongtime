@@ -33,6 +33,7 @@
 
 #### serverside
 
+* Add a dev/prod switch for the API 300ms delay
 * Auth for API
 * Add a date to games
 * Stats refresh method
