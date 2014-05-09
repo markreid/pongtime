@@ -16,6 +16,12 @@ router.use(function(req, res, next){
     }, 0);
 });
 
+// if you're not a registered user with auth 3, you can only GET
+router.use(function(req, res, next){
+    if(req.method !== 'GET' && (!req.user || req.user.auth !== 3)) throw {status:403};
+    next();
+});
+
 /**
  * Players
  */
@@ -75,6 +81,11 @@ router.delete('/players/:playerid', function(req, res, next){
  * Users
  */
 
+// currently logged in user
+router.get('/user', function(req, res, next){
+    res.send(200, req.user || null);
+});
+
 router.get('/users', function(req, res, next){
     db.User.findAll({
         //attributes: ['name', 'id', 'email']
@@ -89,18 +100,37 @@ router.get('/users', function(req, res, next){
 // router.post('/users', function(req, res, next){});
 
 router.get('/users/:userid', function(req, res, next){
+
+    res.send(200, req.foundUser.values);
+});
+
+// if we're given a userid param, try to attach the user to the request
+router.param('userid', function(req, res, next, id){
     db.User.find({
         where: {
-            id: req.params.userid
+            id: id
         },
+        attributes: ['name', 'id'],
         include: {
             model: db.Player,
             attributes: ['name', 'id']
-        },
-        attributes: ['name', 'id']
-    }).success(function(user){
-        res.send(user.values);
-    }).fail(function(err){
+        }
+    }).then(function(user){
+        if(!user) throw {status:404};
+
+        // foundUser: we can't use .user because that's the passport user
+        req.foundUser = user;
+        next();
+    }).catch(function(err){
+        next(err);
+    });
+});
+
+router.delete('/users/:userid', function(req, res, next){
+    console.log(req.foundUser.values);
+    req.foundUser.destroy().then(function(){
+        res.send(200);
+    }).catch(function(err){
         next(err);
     });
 });
@@ -263,16 +293,6 @@ router.put('/games/:gameid', function(req, res, next){
         next(err);
     });
 
-});
-
-
-/**
- * User (current user)
- */
-
-router.get('/user', function(req, res, next){
-    console.log(req.user);
-    res.send(200, req.user);
 });
 
 
