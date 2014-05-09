@@ -12,7 +12,7 @@
 
     <div class="panel-body" ng-hide="fetching">
 
-        <p class="lead">{{ stats.paragraph }}</p>
+        <p class="lead">{{ team.stat.paragraph }}</p>
 
         <a ng-click="toggleDetailedStats()" ng-show="stats.available">Full stats &raquo;</a>
 
@@ -25,10 +25,8 @@
                 <dt>Current streak</dt><dd>{{ team.stat.streak }}</dd>
                 <dt>Hottest streak</dt><dd>{{ team.stat.hottest }} wins</dd>
                 <dt>Coldest streak</dt><dd>{{ team.stat.coldest }} losses</dd>
-                <dt>Redemptions won</dt>
-                <dt>Redemptions lost</dt>
-                <dt>Redemptions given</dt>
-                <dt>Redemptions denied</dt>
+                <dt>Redemptions won</dt><dd>{{ team.stat.redemptionsHad }}/{{ team.stat.losses }}</dd>
+                <dt>Redemptions denied</dt><dd>{{ team.stat.redemptionsDenied || 0}}/{{ team.stat.wins }}</dd>
             </dl>
 
         </div>

@@ -133,6 +133,9 @@ module.exports = function(sequelize, models){
         return models.Player.findAll({
             where: where || {},
             attributes: ['name', 'id'],
+            include: {
+                model: models.Team
+            },
             order: 'id'
         }).then(function(players){
             return _.pluck(players, 'values');

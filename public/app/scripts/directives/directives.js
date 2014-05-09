@@ -10,8 +10,20 @@
             restrict: 'E',
             scope: {
                 teamData: '=team',
+                players: '=players'
             },
             link: function($scope, el, attrs){
+
+                console.log($scope.players);
+
+                /**
+                 * The teamwidget should have the capability for two options:
+                 * 1. Bind data that can be used to fetch a team
+                 * 2. Pass a complete team object
+                 *
+                 * 1. Pass a team ID or a playerID array
+                 * 2. Pass a team object
+                 */
 
                 // hint: use the .teamData object to update the teams in their parent scope
 
@@ -47,6 +59,15 @@
                     });
                 };
 
+                var fetchHandler = function(team){
+                    $scope.exists = true;
+                    $scope.team = team;
+                };
+
+                var parseTeam = function(teamData){
+
+                };
+
                 $scope.toggleDetailedStats = function(){
                     $scope.showDetailedStats = !$scope.showDetailedStats;
                 };
@@ -69,6 +90,15 @@
                     if(stats.streak > 1) paragraph += stats.streak + ' win ';
                     if(stats.streak) paragraph += 'streak.';
 
+                    // redemptions
+                    // when you WIN, if you give away redemption we increment .redemptionsGiven
+                    // when you LOSE, if you win redemption, we increment .redemptionsHad
+                    // so for showing how many times you've won redemption, look at .redemptionsHad
+                    // for showing how many times you've denied the other team redemption,
+                    // it's .played - .redemptionsGiven
+                    console.log(stats);
+                    stats.redemptionsDenied = stats.wins - stats.redemptionsGiven;
+
                     return {
                         available: true,
                         paragraph: paragraph
@@ -79,8 +109,19 @@
                 // reset our scope when the teamData attribute changes.
                 // won't catch changes to individual properties (ie teamData.name), so we can
                 // update those without triggering a watch here.
-                $scope.$watch('teamData', function(){
+                $scope.$watch('teamData', function(teamData){
                     reset();
+
+                    // todo - we only want to fetch if teamData isn't complete
+                    // make sure this is a valid check
+                    if(teamData.id){
+                        $scope.team = parseTeam(teamData);
+                        $scope.exists = true;
+                        $scope.fetching = false;
+                        //$scope
+                        return;
+                    }
+
                     fetch();
                 });
             }
@@ -266,12 +307,25 @@
 
             }
         };
-    }]).directive('headernav', [function(){
+    }]).directive('headernav', ['users', function(usersService){
         return {
             restrict: 'E',
             templateUrl: '/static/views/headernav.html',
             link: function($scope, el, attrs){
 
+                usersService.getCurrentUser().then(function(user){
+                    $scope.user = user;
+                    $scope.signedIn = !!user;
+
+                    // todo - this is crap, should use angular bootstrap
+                    // when they mouse hover on the element, bind the dropdown
+                    // because it wasn't there when bootstrap initialized.
+                    el.one('mouseover', function(){
+                        $(el).find('.dropdown-toggle').dropdown();
+                    });
+                }).catch(function(err){
+                    $scope.signedIn = false;
+                });
             }
         }
     }]);

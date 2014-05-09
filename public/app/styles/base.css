@@ -7641,10 +7641,15 @@ td.visible-print {
   padding-top: 40px;
 }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000317}}
+.nav-user {
+  margin-left: 2em;
+}
+
 /**
  * Old shit
  */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000321}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000326}}
 .section-players button {
   margin: 0 3px;
 }
@@ -7652,17 +7657,17 @@ td.visible-print {
 /**
  * Game widget
  */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000330}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000335}}
 gamewidget .table-match-history tr td, gamewidget .table-match-history tr th {
   text-align: center;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000333}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000338}}
 gamewidget .table-match-history tr td:first-child, gamewidget .table-match-history tr th:first-child {
   text-align: left;
 }
 
 /** Better loader **/
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000341}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000346}}
 .loader {
   width: 50px;
   height: 50px;
@@ -7674,7 +7679,7 @@ gamewidget .table-match-history tr td:first-child, gamewidget .table-match-histo
   -webkit-animation: loader-1 1s infinite linear;
   animation: loader-1 1s infinite linear;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000352}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000357}}
 .loader::before, .loader::after {
   border-radius: 50%;
   position: absolute;
@@ -7688,7 +7693,7 @@ gamewidget .table-match-history tr td:first-child, gamewidget .table-match-histo
   -webkit-animation: 1s infinite ease-in-out;
   animation: 1s infinite ease-in-out;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000366}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000371}}
 .loader::before {
   left: -5%;
   -webkit-animation: loader-2 1s infinite alternate ease-in-out;
@@ -7696,7 +7701,7 @@ gamewidget .table-match-history tr td:first-child, gamewidget .table-match-histo
   animation: loader-2 1s infinite alternate ease-in-out;
   transform-origin: 10% 50%;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000374}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000379}}
 .loader::after {
   left: auto;
   right: -5%;
@@ -7707,7 +7712,7 @@ gamewidget .table-match-history tr td:first-child, gamewidget .table-match-histo
   transform: scale(0);
   transform-origin: 90% 50%;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000385}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000390}}
 .loader.pageloader {
   position: fixed;
   top: 30%;
@@ -7716,48 +7721,48 @@ gamewidget .table-match-history tr td:first-child, gamewidget .table-match-histo
 }
 
 @-webkit-keyframes loader-1 {
-  /* line 95, base.scss */
+  /* line 100, base.scss */
   0% {
     -webkit-transform: rotate(20deg);
   }
 
-  /* line 96, base.scss */
+  /* line 101, base.scss */
   100% {
     -webkit-transform: rotate(380deg);
   }
 }
 
 @-webkit-keyframes loader-2 {
-  /* line 100, base.scss */
+  /* line 105, base.scss */
   0% {
     -webkit-transform: scale(0);
   }
 
-  /* line 101, base.scss */
+  /* line 106, base.scss */
   100% {
     -webkit-transform: scale(1);
   }
 }
 
 @keyframes loader-1 {
-  /* line 105, base.scss */
+  /* line 110, base.scss */
   0% {
     transform: rotate(20deg);
   }
 
-  /* line 106, base.scss */
+  /* line 111, base.scss */
   100% {
     transform: rotate(380deg);
   }
 }
 
 @keyframes loader-2 {
-  /* line 110, base.scss */
+  /* line 115, base.scss */
   0% {
     transform: scale(0);
   }
 
-  /* line 111, base.scss */
+  /* line 116, base.scss */
   100% {
     transform: scale(1);
   }

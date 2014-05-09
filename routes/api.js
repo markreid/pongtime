@@ -88,7 +88,7 @@ router.get('/user', function(req, res, next){
 
 router.get('/users', function(req, res, next){
     db.User.findAll({
-        //attributes: ['name', 'id', 'email']
+        attributes: ['name', 'id']
     }).success(function(users){
         res.send(200, _.pluck(users, 'values'));
     }).fail(function(err){
