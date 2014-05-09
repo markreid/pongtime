@@ -5,7 +5,7 @@
 
         $scope.reset = function(){
             $scope.refreshing = true;
-            $scope.getTeams();
+            //$scope.getTeams();
             // set defaults here
 
         };
