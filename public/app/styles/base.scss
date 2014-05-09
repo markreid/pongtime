@@ -8,6 +8,11 @@
   margin: 1em 0;
 }
 
+#view-container {
+  // account for the fixed nav at the top
+  padding-top: 40px;
+}
+
 
 /**
  * Old shit
@@ -16,11 +21,6 @@
 .section-players button {
     margin: 0 3px;
 }
-
-.container > section {
-    margin: 0 30px;
-}
-
 
 /**
  * Game widget

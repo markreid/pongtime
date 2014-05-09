@@ -1,6 +1,6 @@
 (function(){
-
     'use strict';
+
     angular.module(['pong'], ['ngCookies', 'ngResource', 'ngSanitize', 'ngRoute'])
     .config(function($routeProvider, $locationProvider){
         $routeProvider.when('/', {
