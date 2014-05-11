@@ -26,8 +26,6 @@
 #### clientside
 
 * Keep a cache of team data in the teams service, so you can do a lookup by ID without hitting the server, and we don't need to pass teams around the views everywhere.
-* The let's roll button should be disable after you've hit it, until you generate teams again. Potentially forward you to the games view.
-* Teams view
 * Players view
 
 
@@ -35,7 +33,6 @@
 
 * Add a dev/prod switch for the API 300ms delay
 * Auth for API
-* Add a date to games
 * Stats refresh method
 * Player stats
 * Team slugs

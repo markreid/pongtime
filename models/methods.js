@@ -40,10 +40,16 @@ module.exports = function(sequelize, models){
     };
 
     /**
-     * Record a win for a teams
+     * Update stat values with a win for a team and its players
      * @param {Number} teamId
      */
-    methods.stats.recordWin = function(teamId, gameData){
+    methods.teams.recordWin = function(teamId, gameData){
+        // 1. get the team.
+        // 2. get the stat for the team, update it.
+        // 3. get the stat for each of the team players, update them.
+        console.log('heyo!');
+        console.log(_.pluck(gameData.teams, 'values'));
+
         return models.Stat.find({
             where: {
                 TeamId: teamId
@@ -51,7 +57,7 @@ module.exports = function(sequelize, models){
         }).then(function(stat){
             if(!stat) throw new Error('Unable to find Stat model for Team ' + teamId);
 
-            // recaulcate the stats, given this win
+            // recalculate the stats, given this win
             var updatedStats = addWinToStats(stat.values, gameData);
 
             // save the model and return values
@@ -66,7 +72,7 @@ module.exports = function(sequelize, models){
      * @param {Number} teamId
      * @param {Object} extras   extra data (redemption, etc)
      */
-    methods.stats.recordLoss = function(teamId, gameData){
+    methods.teams.recordLoss = function(teamId, gameData){
         return models.Stat.find({
             where: {
                 TeamId: teamId
@@ -106,9 +112,11 @@ module.exports = function(sequelize, models){
         return models.Player.findAll({
             where: where || {},
             attributes: ['name', 'id'],
-            include: {
+            include: [{
                 model: models.Team
-            },
+            }, {
+                model: models.Stat
+            }],
             order: 'id'
         }).then(function(players){
             return _.pluck(players, 'values');
@@ -141,17 +149,98 @@ module.exports = function(sequelize, models){
     };
 
     /**
-     * Create a player
+     * Create a player and associate a new stat model
      * @param  {Object} data
      * @return {Object}      model.values
      */
     methods.players.create = function(data){
         // todo - validation here
         return models.Player.create(data).then(function(player){
-            return player.values;
+            return models.Stat.create({}).then(function(stat){
+                return player.setStat(stat);
+            }).then(function(){
+                return player.values;
+            });
         }).catch(function(err){
             throw err;
         });
+    };
+
+    /**
+     * Generate the stats for a player
+     * By tallying the stats for all the teams they're in
+     */
+    methods.players.getStats = function(playerModel){
+        var teamIds = _.pluck(playerModel.values.teams, 'id');
+
+        // now fetch those teams
+        return methods.teams.findAll({
+            id: teamIds
+        }).then(function(teams){
+            var stats = _.pluck(teams, 'stat');
+            var values = _.pluck(stats, 'values');
+
+            var summed = values.pop();
+
+            _.each(values, function(stat){
+                for(var key in stat){
+                    summed[key] += stat[key];
+                }
+            });
+
+            return summed;
+
+
+        }).catch(function(err){
+            throw err;
+        });
+    };
+
+    /**
+     * Record a win for a player
+     * @param {Number} playerId
+     * @param {Object} gameData
+     */
+    methods.players.recordWin = function(playerId, gameData){
+        return models.Stat.find({
+            where: {
+                PlayerId: playerId
+            }
+        }).then(function(stat){
+            if(!stat) throw new Error('Unable to find Stat model for Player ' + playerId);
+
+            // recalculate the stats, given this win
+            var updatedStats = addWinToStats(stat.values, gameData);
+
+            // save the model and return values
+            return stat.updateAttributes(updatedStats).then(function(stat){
+                return stat.values;
+            });
+        });
+    };
+
+    /**
+     * Record a loss for a player
+     * @param {Number} playerId
+     * @param {Object} gameData
+     */
+    methods.players.recordLoss = function(playerId, gameData){
+        return models.Stat.find({
+            where: {
+                PlayerId: playerId
+            }
+        }).then(function(stat){
+            if(!stat) throw new Error('Unable to find Stat model for Player ' + playerId);
+
+            // recalculate the stats given this loss
+            var updatedStats = addLossToStats(stat.values, gameData);
+
+            // save the model
+            return stat.updateAttributes(updatedStats).then(function(stat){
+                return stat.values;
+            });
+        });
+
     };
 
     /**
@@ -373,12 +462,10 @@ module.exports = function(sequelize, models){
 
                 // now associate the players
                 return team.setPlayers(players).then(function(players){
-                    // add a Stat model
-                    return models.Stat.create({}).then(function(stat){
-                        // associate the team with the stat
-                        return stat.setTeam(team).then(function(){
-                            return team.values;
-                        });
+                    return models.Stat.create({});
+                }).then(function(stat){
+                    return team.setStat(stat).then(function(stat){
+                        return team.values;
                     });
                 });
             });
@@ -527,7 +614,6 @@ module.exports = function(sequelize, models){
      * @return {[type]}          [description]
      */
     methods.games.update = function(model, gameData){
-
         // to update a game, we need winningTeamId, losingTeamId, redemption.
         var requiredFields = ['winningTeamId', 'losingTeamId', 'redemption'];
         var missingFields = _.difference(requiredFields, Object.keys(gameData));
@@ -553,14 +639,14 @@ module.exports = function(sequelize, models){
             // and we're editing it, we need to refresh the stats
             // for the teams and players involved.
             if(hadResult){
-                // trigger a stats refresh here
+                // todo - trigger a stats refresh here
                 return;
             }
 
             // otherwise, we're adding a result for the first time, so
             // we can just call the .addWin and .addLoss stats helpers.
-            return methods.stats.recordWin(gameData.winningTeamId, gameData).then(function(){
-                return methods.stats.recordLoss(gameData.losingTeamId, gameData).then(function(){
+            return methods.teams.recordWin(gameData.winningTeamId, game.values).then(function(){
+                return methods.teams.recordLoss(gameData.losingTeamId, game.values).then(function(){
                     return game;
                 });
             });

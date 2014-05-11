@@ -41,7 +41,8 @@ models.Team.hasOne(models.Game, {foreignKey: 'winningTeamId', as: 'Winner'});
 models.Team.hasOne(models.Game, {foreignKey: 'losingTeamId', as: 'Loser'});
 
 models.Team.hasOne(models.Stat);
-models.Stat.belongsTo(models.Team);
+models.Player.hasOne(models.Stat);
+//models.Stat.belongsTo(models.Team);
 
 
 _.each(models, function(model){

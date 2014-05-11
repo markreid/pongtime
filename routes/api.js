@@ -56,8 +56,16 @@ router.param('playerid', function(req, res, next, id){
     });
 });
 
-router.get('/players/:playerid', function(req, res){
+router.get('/players/:playerid', function(req, res, next){
     res.send(200, req.player.values);
+});
+
+router.get('/players/:playerid/stats', function(req, res, next){
+    db.methods.players.getStats(req.player).then(function(response){
+        res.send(200, response);
+    }).catch(function(err){
+        next(err);
+    });
 });
 
 router.put('/players/:playerid', function(req, res, next){
