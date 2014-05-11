@@ -10,11 +10,15 @@
         var GamesService = function(){};
 
         GamesService.prototype.getGames = function(){
-            return $http.get('/api/v1/games');
+            return $http.get('/api/v1/games').then(function(response){
+                return response.data;
+            });
         };
 
         GamesService.prototype.add = function(data){
-            return $http.post('/api/v1/games', data);
+            return $http.post('/api/v1/games', data).then(function(response){
+                return response.data;
+            });
         };
 
         GamesService.prototype.save = function(data){
@@ -26,6 +30,8 @@
                 winningTeamId: data.winningTeamId,
                 losingTeamId: data.losingTeamId,
                 redemption: data.redemption
+            }).then(function(response){
+                return response.data;
             });
         };
 
