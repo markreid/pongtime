@@ -12,6 +12,7 @@
         TeamsService.prototype.getTeams = function(){
             return $http.get('/api/v1/teams/').then(function(response){
                 response.data = _.map(response.data, function(team){
+                    team = parseTeam(team);
                     team.stat = generateStats(team.stat);
                     return team;
                 });
@@ -21,16 +22,18 @@
 
         TeamsService.prototype.getTeam = function(id){
             return $http.get('/api/v1/teams/' + id + '/').then(function(response){
-                response.data.stat = generateStats(response.data.stat);
-                return response.data;
+                var team = parseTeam(response.data);
+                team.stat = generateStats(team.stat);
+                return team;
             });
         };
 
         TeamsService.prototype.getTeamByPlayers = function(players){
             var playersString = players.join(',');
             return $http.get('/api/v1/teams/search/' + playersString +'/').then(function(response){
-                response.data.stat = generateStats(response.data.stat);
-                return response.data;
+                var team = parseTeam(response.data);
+                team.stat = generateStats(team.stat);
+                return team;
             });
         };
 
@@ -40,8 +43,9 @@
                 players: players,
                 name: name
             }).then(function(response){
-                response.data.stat = generateStats(response.data.stat);
-                return response.data;
+                var team = parseTeam(response.data);
+                team.stat = generateStats(team.stat);
+                return team;
             });
         };
 
@@ -59,11 +63,11 @@
                 paragraph: 'This team hasn\'t played a game yet.'
             };
 
-            var winPercentage = Math.round((stats.wins/stats.games)*100);
-            var lossPercentage = Math.round((stats.losses/stats.games)*100);
+            stats.winPercentage = Math.round((stats.wins/stats.games)*100);
+            stats.lossPercentage = Math.round((stats.losses/stats.games)*100);
 
             // todo - this sucks
-            var paragraph = stats.wins + ' out of ' + stats.games + ' wins (' + winPercentage + '%)'
+            var paragraph = stats.wins + ' out of ' + stats.games + ' wins (' + stats.winPercentage + '%)'
             var streaktext = '';
 
             if(stats.streak < -1 || stats.streak > 1){
@@ -108,6 +112,12 @@
                 available: true,
                 paragraph: paragraph
             });
+        };
+
+        function parseTeam(team){
+            team.url = '/teams/' + team.id + '/'
+            team.playerNames = _.pluck(team.players, 'name').join(' and ');
+            return team;
         };
 
         return new TeamsService();

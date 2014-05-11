@@ -210,7 +210,8 @@
             templateUrl: '/static/views/gamewidget.html',
             scope: {
                 game: '=game',
-                teams: '=teams'
+                teams: '=teams',
+                edit: '=?edit'
             },
             link: function($scope, el, attrs){
 
@@ -248,7 +249,6 @@
                     });
 
                     return game;
-
                 };
 
                 // set a loser by picking the team that didn't win
@@ -274,6 +274,7 @@
                         $scope.$apply(function(){
                             $scope.game = parseGameData(game);
                         });
+                        $scope.edit = false;
                     }).catch(function(err){
                         console.log('error saving game:');
                         console.log(err);

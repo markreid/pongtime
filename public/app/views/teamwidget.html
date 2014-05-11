@@ -2,7 +2,7 @@
 
     <div class="panel-heading">
         <h4 ng-show="team.name">{{ team.name }}</h4>
-        <small ng-show="team.name && team.players.length === 1">{{ playerNames }}</small>
+        <small ng-show="team.name && team.players.length > 1">{{ team.playerNames }}</small>
         <h4 ng-hide="team.name">{{ playerNames }}</h4>
     </div>
 

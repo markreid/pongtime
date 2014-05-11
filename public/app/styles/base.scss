@@ -23,6 +23,27 @@ teamwidget .loader {
     margin: 0 auto;
 }
 
+// game widgets
+gamewidget {
+    .panel {
+        position: relative;
+    }
+
+    .btn-edit {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+
+        // todo - must be a variable for this, dark green.
+        color: rgb(70,136,71);
+
+        &:hover {
+            color: #333;
+            cursor: pointer;
+        }
+    }
+}
+
 /**
  * Old shit
  */

@@ -8,26 +8,42 @@
     </div>
 
     <div class="panel-body">
-        <div class="results clearfix" ng-show="game.hasResults">
+        <div ng-show="!game.hasResults && !editing">
+            <p class="lead">The outcome of this game hasn't been recorded. <a ng-click="editing=true" style="white-space:nowrap;">Add the result &raquo;</a></p>
+        </div>
+
+        <div class="results clearfix" ng-hide="editing" ng-show="game.hasResults">
             <p class="lead">{{ game.winningTeam.name }} won.</p>
             <span class="label pull-right" ng-class="{'label-success': game.redemption, 'label-danger': !game.redemption}">{{ game.redemption ? 'REDEEMED' : 'REDEMPTION DENIED' }}.</span>
         </div>
 
-        <div class="form-results=" ng-hide="game.hasResults">
-            <p>The result of this game hasn't been set.</p>
-
-            <form class="form form-inline">
+        <div class="form-results=" ng-show="editing">
+            <form class="form">
             <fieldset>
-                <select ng-model="game.winningTeamId" ng-change="setLoser()" ng-options="team.id as team.name for team in game.teams"><option>lol!</option></select>
-                <select ng-model="game.losingTeamId" ng-change="setWinner()" ng-options="team.id as team.name for team in game.teams"></select>
+                <div class="form-group">
+                    <label for="winner">Who won?</label>
+                    <select ng-model="game.winningTeamId" ng-change="setLoser()" ng-options="team.id as team.name for team in game.teams"><option>lol!</option></select>
+                </div>
+                <div class="form-group">
+                    <label for="loser">Who lost?</label>
+                    <select ng-model="game.losingTeamId" ng-change="setWinner()" ng-options="team.id as team.name for team in game.teams"></select>
+                </div>
 
-                <label for="redemption">
-                    Redemption? <input type="checkbox" name="redemption" ng-model="game.redemption">
-                </label>
+                <div class="form-group">
+                    <label for="redemption">
+                        Was there redemption?
+                        <input type="checkbox" name="redemption" ng-model="game.redemption">
+                    </label>
+                </div>
 
-                <button type="submit" class="btn btn-primary btn-sm" ng-click="save()">Save</button>
-                <button type="reset" class="btn btn-warning btn-sm">Reset</button>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary btn-sm" ng-click="save()">Save</button>
+                    <button type="reset" ng-click="editing=false" class="btn btn-warning btn-sm">Cancel</button>
+                </div>
             </form>
         </div>
     </div>
+    <span class="btn-edit glyphicon glyphicon-pencil" ng-click="editing=!editing"></span>
+
+
 </section>

@@ -29,8 +29,9 @@
 
         $scope.getOneTeam = function(id){
             return teamsService.getTeam(id).then(function(team){
-                $scope.teams = [team];
+                $scope.team = team;
                 $scope.pageTitle = team.name;
+                $scope.hasHave = team.players.length > 1 ? 'have' : 'has';
             }).catch(function(err){
                 //todo - handle
             }).finally(function(){
