@@ -87,41 +87,29 @@ router.get('/user', function(req, res, next){
 });
 
 router.get('/users', function(req, res, next){
-    db.User.findAll({
-        attributes: ['name', 'id']
-    }).success(function(users){
-        res.send(200, _.pluck(users, 'values'));
-    }).fail(function(err){
+    db.methods.users.findAll().then(function(users){
+        res.send(200, users);
+    }).catch(function(err){
         next(err);
     });
 });
 
-router.get('/users/:userid', function(req, res, next){
-
-    res.send(200, req.foundUser.values);
-});
-
 // if we're given a userid param, try to attach the user to the request
 router.param('userid', function(req, res, next, id){
-    db.User.find({
-        where: {
-            id: id
-        },
-        attributes: ['name', 'id'],
-        include: {
-            model: db.Player,
-            attributes: ['name', 'id']
-        }
+    db.methods.users.findOne({
+        id: id
     }).then(function(user){
-        if(!user) throw {status:404};
-
-        // foundUser: we can't use .user because that's the passport user
         req.foundUser = user;
         next();
     }).catch(function(err){
         next(err);
     });
 });
+
+router.get('/users/:userid', function(req, res, next){
+    res.send(200, req.foundUser.values);
+});
+
 
 router.delete('/users/:userid', function(req, res, next){
     req.foundUser.destroy().then(function(){

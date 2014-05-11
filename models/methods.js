@@ -8,6 +8,7 @@ module.exports = function(sequelize, models){
         teams: {},
         stats: {},
         games: {},
+        users: {},
         generic: {}
     };
 
@@ -449,6 +450,44 @@ module.exports = function(sequelize, models){
             throw err;
         });
 
+    };
+
+    /**
+     * Find all users, optionally filtered by where object
+     * @param  {Object} where
+     * @return {Array}
+     */
+    methods.users.findAll = function(where){
+        return models.User.findAll({
+            where: where,
+            attributes: ['name', 'id']
+        }).then(function(users){
+            return _.pluck(users, 'values');
+        }).catch(function(err){
+            throw err;
+        });
+    };
+
+    /**
+     * Find a single user
+     * @param  {Object} where     where clause filter
+     * @param  {Boolean} notValues return model, not model.values
+     * @return {Object}
+     */
+    methods.users.findOne = function(where, notValues){
+        return models.User.find({
+            where: where,
+            attributes: ['name', 'id'],
+            include: {
+                model: models.Player,
+                attributes: ['name', 'id']
+            }
+        }).then(function(user){
+            if(!user) throw {status:404};
+            return user;
+        }).catch(function(err){
+            throw err;
+        });
     };
 
     return methods;
