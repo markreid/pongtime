@@ -33,9 +33,10 @@
             </ul>
 
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="/">New Game</a></li>
-                <li><a href="/games/">Played Games</a></li>
-                <li><a href="/teams">Teams</a></li>
+                <li ng-class="{active:path==='/'}"><a href="/">New Game</a></li>
+                <li ng-class="{active:path==='/games'}"><a href="/games/">Played Games</a></li>
+                <li ng-class="{active:path==='/teams'}"><a href="/teams">Teams</a></li>
+                <li ng-class="{active:path==='/players'}"><a href="/players">Players</a></li>
             </ul>
 
         </div>
