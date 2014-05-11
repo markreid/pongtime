@@ -17,7 +17,7 @@ passport.use(new passportGoogle({
 
     // login as an existing user or register a new one
     db.User.findOrCreate({
-        email: profile.emails[0].value
+        googleIdentifier: identifier
     }, {
         email: profile.emails[0].value,
         name: profile.displayName
