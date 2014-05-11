@@ -172,6 +172,18 @@ router.get('/teams/search/:players', function(req, res, next){
 });
 
 /**
+ * Force a refresh of the stats for a team
+ * todo - rate limit, or restrict by auth?
+ */
+router.get('/teams/:id/refreshstats', function(req, res, next){
+    db.methods.teams.refreshStats(req.params.id).then(function(response){
+        res.send(200, response);
+    }).catch(function(err){
+        next(err);
+    });
+});
+
+/**
  * Create a team, given a name and player IDs
  */
 router.post('/teams', function(req, res, next){
@@ -194,7 +206,6 @@ router.delete('/teams/:teamid', function(req, res, next){
         next(err);
     });
 });
-
 
 /**
  * Games
@@ -224,6 +235,10 @@ router.get('/games/open/', function(req, res, next){
     });
 });
 
+/**
+ * Return all games played by the given teams
+ * Returns only games with *both* teams
+ */
 router.get('/games/search/:teamids', function(req, res, next){
     if(!req.params.teamids) return res.send(400);
 
@@ -237,6 +252,19 @@ router.get('/games/search/:teamids', function(req, res, next){
         next(err);
     });
 
+});
+
+/**
+ * Return all the games that a team has played in
+ * todo - change this to /games?team=x
+ */
+router.get('/games/team/:teamid', function(req, res, next){
+    if(!req.params.teamid) return res.send(400);
+    db.methods.games.getTeamGames(Number(req.params.teamid)).then(function(games){
+        res.send(200, games);
+    }).catch(function(err){
+        next(err);
+    });
 });
 
 router.post('/games', function(req, res, next){

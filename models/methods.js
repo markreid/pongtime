@@ -40,11 +40,10 @@ module.exports = function(sequelize, models){
     };
 
     /**
-     * Record a win for a team
+     * Record a win for a teams
      * @param {Number} teamId
-     * @param {Object} extras   extra data to be recorded (pants, redemption, etc)
      */
-    methods.stats.addWin = function(teamId, extras){
+    methods.stats.recordWin = function(teamId, gameData){
         return models.Stat.find({
             where: {
                 TeamId: teamId
@@ -52,32 +51,11 @@ module.exports = function(sequelize, models){
         }).then(function(stat){
             if(!stat) throw new Error('Unable to find Stat model for Team ' + teamId);
 
-            // increment games and wins
-            stat.games++;
-            stat.wins++;
+            // recaulcate the stats, given this win
+            var updatedStats = addWinToStats(stat.values, gameData);
 
-            if(stat.streak >= 0){
-                // we're on a hot streak, increment the streak
-                stat.streak++;
-
-                // if this is the hottest streak, increment it and remove the end date
-                if(stat.streak > stat.hottest){
-                    stat.hottest = stat.streak;
-                    stat.hottestDate = null;
-                }
-
-            } else {
-                // ending a cold streak
-                // if it's the coldest, set the date to today
-                if(stat.streak === stat.coldest) stat.coldestEnd = new Date();
-
-                // reset to 1
-                stat.streak = 1;
-            }
-
-            if(extras && extras.redemption) stat.redemptionsGiven++;
-
-            return stat.save().then(function(stat){
+            // save the model and return values
+            return stat.updateAttributes(updatedStats).then(function(stat){
                 return stat.values;
             });
         });
@@ -88,7 +66,7 @@ module.exports = function(sequelize, models){
      * @param {Number} teamId
      * @param {Object} extras   extra data (redemption, etc)
      */
-    methods.stats.addLoss = function(teamId, extras){
+    methods.stats.recordLoss = function(teamId, gameData){
         return models.Stat.find({
             where: {
                 TeamId: teamId
@@ -96,34 +74,28 @@ module.exports = function(sequelize, models){
         }).then(function(stat){
             if(!stat) throw new Error('Unable to find Stat model for Team ' + teamId);
 
-            // increment games and losses
-            stat.games++;
-            stat.losses++;
+            // recalculate the stats given this loss
+            var updatedStats = addLossToStats(stat.values, gameData);
 
-            if(stat.streak >= 0){
-                // we're on a hot streak, break it.
-                // if this is the hottest, set the end date to today
-                if(stat.streak === stat.hottest) stat.hottestEnd = new Date();
-
-                // reset streak to -1
-                stat.streak = -1;
-            } else {
-                // continuing a cold streak. bummerrrrrr.
-                stat.streak--;
-                // if this is the coldest streak, decrement it and remove the end date
-                if(stat.streak < stat.coldest){
-                    stat.coldest = stat.streak;
-                    stat.coldestEnd = null;
-                }
-            }
-
-            if(extras && extras.redemption) stat.redemptionsHad++;
-
-            return stat.save().then(function(stat){
+            // save the model
+            return stat.updateAttributes(updatedStats).then(function(stat){
                 return stat.values;
             });
         });
 
+    };
+
+    methods.stats.findByTeam = function(teamId, notValues){
+        return models.Stat.find({
+            where: {
+                TeamId: teamId
+            }
+        }).then(function(stat){
+            if(notValues) return stat;
+            return stat.values;
+        }).catch(function(err){
+            throw err;
+        });
     };
 
     /**
@@ -154,7 +126,11 @@ module.exports = function(sequelize, models){
     methods.players.findOne = function(where, notValues){
         return models.Player.find({
             where: where || {},
-            attributes : ['id', 'name']
+            include: {
+                model: models.Team,
+                attributes: ['name', 'id']
+            },
+            attributes : ['name']
         }).then(function(player){
             // if notValues is true, we want to return the model
             if(notValues) return player || null;
@@ -248,6 +224,125 @@ module.exports = function(sequelize, models){
             });
         });
     };
+
+    /**
+     * Regenerate the stats table for a given team
+     * @param  {Number} teamID
+     * @return {Object}        updated stats model
+     */
+    methods.teams.refreshStats = function(teamID){
+        teamID = Number(teamID);
+
+        // fetch all the games that this team has played in, from earliest to latest.
+        return methods.games.getTeamGames(teamID).then(function(games){
+
+            // start with a fresh stats object
+            // create an empty model and take default values,
+            // removing the ones we don't want to overwrite.
+            var cleanStats = models.Stat.build({}).values;
+            delete cleanStats.id;
+
+            // now let's iterate and count everything up
+            _.each(games, function(game){
+                if(game.winningTeamId === teamID){
+                    cleanStats = addWinToStats(cleanStats, game);
+                    return;
+                }
+                if(game.losingTeamId === teamID){
+                    cleanStats = addLossToStats(cleanStats, game);
+                    return;
+                }
+                // no result, ignore this game for now.
+            });
+
+            // now find the stats model for this team
+            return methods.stats.findByTeam(teamID, true).then(function(stat){
+                return stat.updateAttributes(cleanStats);
+            }).then(function(stat){
+                return stat.values;
+            }).catch(function(err){
+                throw err;
+            });
+        });
+
+    };
+
+    /**
+     * Calculate a win on a stats object
+     * @param {Object} _stats   pre-game stats
+     * @param {Object} game     game data
+     * @return {Object}         post-game stats
+     */
+    function addWinToStats(_stats, _game){
+        var stats = _.extend({}, _stats);
+
+        // increment games and wins
+        stats.games++;
+        stats.wins++;
+
+        // update streak
+        if(stats.streak >= 0){
+            // on a hot streak, increment it
+            stats.streak++;
+
+            // is this the hottest streak we've had?
+            if(stats.streak > stats.hottest){
+                stats.hottest = stats.streak;
+                stats.hottestEnd = null;
+            }
+        }
+        else{
+            // snapping a cold streak, aw yee
+
+            // if this is the coldest streak, set the end date
+            if(stats.streak === stats.coldest) stats.coldestEnd = _game.date;
+            stats.streak = 1;
+        }
+
+        // if redemption was won, it means the winners gave it away.
+        if(_game.redemption) stats.redemptionsGiven++;
+
+        return stats;
+    }
+
+    /**
+     * Calculate a loss on a stats object
+     * @param {Object} _stats   pre-game stats
+     * @param {Object} _game    game data
+     * @return {Object}         post-game stats
+     */
+    function addLossToStats(_stats, _game){
+        var stats = _.extend({}, _stats);
+
+        // increment games and losses
+        stats.games++;
+        stats.losses++;
+
+        // update streak
+        if(stats.streak <= 0){
+            // on a cold streak, decrement it
+            stats.streak--;
+
+            // is this the coldest streak we've had?
+            if(stats.streak < stats.coldest){
+                stats.coldest = stats.streak;
+                stats.coldestEnd = null;
+            }
+        }
+        else{
+            // breaking a hot streak, aw shit.
+
+            // if it was the hottest, set the end date.
+            if(stats.streak === stats.hottest) stats.hottestEnd = _game.date;
+            stats.streak = -1;
+        }
+
+        // did they at least win redemption?
+        if(_game.redemption) stats.redemptionsHad++;
+
+        return stats;
+    }
+
 
     /**
      * Create a new team, given a name and player IDs
@@ -367,6 +462,8 @@ module.exports = function(sequelize, models){
 
     /**
      * Return an array of games matching the provided team IDs
+     * Not the same as .getTeamGames - this will return only
+     * games that all given teams played in
      * @param  {Array} teamIds
      * @return {Array}
      */
@@ -375,6 +472,28 @@ module.exports = function(sequelize, models){
         var teamsString = teamIds.join(',');
         return sequelize.query('SELECT "Games".* FROM "Games" LEFT OUTER JOIN "GamesTeams" AS "Teams.GamesTeam" ON "Games"."id" = "Teams.GamesTeam"."GameId" LEFT OUTER JOIN "Teams" AS "Teams" ON "Teams"."id" = "Teams.GamesTeam"."TeamId" WHERE "Teams".id IN (' + teamsString + ') GROUP BY "Games".id  HAVING COUNT(*) = 2 ORDER BY "Games".id;').then(function(games){
             return games;
+        }).catch(function(err){
+            throw err;
+        });
+    };
+
+    /**
+     * Return games that a team has played in, ordered by date.
+     * Not the same as .findByTeams - this will find all the games
+     * that one team has played in.
+     * todo - this query is wrong, it should return both teams
+     */
+    methods.games.getTeamGames = function(team, notValues){
+        return models.Game.findAll({
+            include: {
+                model: models.Team,
+                attributes: ['id'],
+            }, where: {
+                'Teams.id': team
+            }, order: 'date'
+        }).then(function(games){
+            if(notValues) return games;
+            return _.pluck(games, 'values');
         }).catch(function(err){
             throw err;
         });
@@ -440,15 +559,11 @@ module.exports = function(sequelize, models){
 
             // otherwise, we're adding a result for the first time, so
             // we can just call the .addWin and .addLoss stats helpers.
-            return methods.stats.addWin(gameData.winningTeamId, {
-                redemption: gameData.redemption
-            }).then(function(){
-                return methods.stats.addLoss(gameData.losingTeamId, {
-                    redemption: gameData.redemption
+            return methods.stats.recordWin(gameData.winningTeamId, gameData).then(function(){
+                return methods.stats.recordLoss(gameData.losingTeamId, gameData).then(function(){
+                    return game;
                 });
-            }).then(function(){
-                return game;
-            })
+            });
 
         }).catch(function(err){
             throw err;
@@ -493,6 +608,7 @@ module.exports = function(sequelize, models){
             throw err;
         });
     };
+
 
     return methods;
 
