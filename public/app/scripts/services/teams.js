@@ -117,6 +117,10 @@
         function parseTeam(team){
             team.url = '/teams/' + team.id + '/'
             team.playerNames = _.pluck(team.players, 'name').join(' and ');
+            team.players = _.map(team.players, function(player){
+                player.url = '/players/' + player.id;
+                return player;
+            });
             return team;
         };
 
