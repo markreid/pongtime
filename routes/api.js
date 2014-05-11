@@ -191,7 +191,7 @@ router.delete('/teams/:teamid', function(req, res, next){
     db.methods.teams.delete(req.team).then(function(){
         res.send(200);
     }).catch(function(err){
-        throw err;
+        next(err);
     });
 });
 
@@ -245,7 +245,7 @@ router.post('/games', function(req, res, next){
     db.methods.games.create(req.body.teams).then(function(game){
         res.send(201, game);
     }).catch(function(err){
-        throw err;
+        next(err);
     });
 
 
