@@ -190,6 +190,8 @@ module.exports = function(sequelize, models){
             include: [{
                 model: models.Player,
                 attributes: ['name', 'id']
+            }, {
+                model: models.Stat
             }]
         }).then(function(teams){
             return _.pluck(teams, 'values');
@@ -204,6 +206,8 @@ module.exports = function(sequelize, models){
             include: [{
                 model: models.Player,
                 attributes: ['name', 'id']
+            }, {
+                model: models.Stat
             }]
         }).then(function(team){
             if(notValues) return team || null;
