@@ -2,21 +2,25 @@
 
     <div class="panel-heading">
         <h4 ng-show="team.name">{{ team.name }}</h4>
-        <small ng-show="team.name && !singlePlayer">{{ playerNames }}</small>
+        <small ng-show="team.name && team.players.length === 1">{{ playerNames }}</small>
         <h4 ng-hide="team.name">{{ playerNames }}</h4>
     </div>
 
     <div class="panel-body" ng-show="fetching">
-        <p><i>Fetching team data...</i></p>
+        <div class="loader"></div>
+    </div>
+
+    <div class="panel-body" ng-show="exists===false">
+        This team hasn't been created yet.
     </div>
 
     <div class="panel-body" ng-hide="fetching">
 
         <p class="lead">{{ team.stat.paragraph }}</p>
 
-        <a ng-click="toggleDetailedStats()" ng-show="stats.available">Full stats &raquo;</a>
+        <a ng-click="toggleDetailedStats()" ng-show="team.stat.available">Full stats &raquo;</a>
 
-        <div ng-show="stats.available && showDetailedStats">
+        <div ng-show="team.stat.available && showDetailedStats">
 
             <dl class="dl-horizontal">
                 <dt>Played</dt><dd>{{ team.stat.games }}</dd>
@@ -25,8 +29,8 @@
                 <dt>Current streak</dt><dd>{{ team.stat.streak }}</dd>
                 <dt>Hottest streak</dt><dd>{{ team.stat.hottest }} wins</dd>
                 <dt>Coldest streak</dt><dd>{{ team.stat.coldest }} losses</dd>
-                <dt>Redemptions won</dt><dd>{{ team.stat.redemptionsHad }}/{{ team.stat.losses }}</dd>
-                <dt>Redemptions denied</dt><dd>{{ team.stat.redemptionsDenied || 0}}/{{ team.stat.wins }}</dd>
+                <dt>Redemptions won</dt><dd>{{ team.stat.redemptionsHad }}/{{ team.stat.losses }} ({{ team.stat.redemptionsHadPercentage }}%)</dd>
+                <dt>Redemptions denied</dt><dd>{{ team.stat.redemptionsDenied || 0}}/{{ team.stat.wins }} ({{ team.stat.redemptionsDeniedPercentage }}%)</dd>
             </dl>
 
         </div>

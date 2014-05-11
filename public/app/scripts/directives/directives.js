@@ -5,125 +5,92 @@
 (function(){
 
     angular.module('pong').directive('teamwidget', ['teams', function(teamsService){
+
+        /**
+         * Team widget
+         * Displays basic information about a team
+         * and allows quick editing of its properties.
+         */
+
         return {
             templateUrl: '/static/views/teamwidget.html',
             restrict: 'E',
             scope: {
-                teamData: '=team',
-                players: '=players'
+                team: '=team',
+                playerIds: '=?playerIds',
+                teamId: '=?teamId',
+                playerNames: '@playerNames'
             },
-            link: function($scope, el, attrs){
-
-                console.log($scope.players);
+            link: function($scope, $el, $attrs){
 
                 /**
-                 * The teamwidget should have the capability for two options:
-                 * 1. Bind data that can be used to fetch a team
-                 * 2. Pass a complete team object
+                 * Widget data can be populated in three ways:
+                 * 1.   Team data is provided via `teams` attribute
+                 * 2.   Player IDs are provided via `player-ids` attribute and we hit
+                 *      the teams API.
+                 * 3.   Team ID is provided via `team-id` attribute and we hit the API.
                  *
-                 * 1. Pass a team ID or a playerID array
-                 * 2. Pass a team object
+                 * the `team` attribute has two-way binding to the parent scope, so we can pass teams
+                 * back to the parent after a fetch.
                  */
 
-                // hint: use the .teamData object to update the teams in their parent scope
+                 // configure default scope properties
+                $scope.exists = null;
 
-                var reset = function(){
-                    $scope.team = {};
-                    $scope.playerNames = _.pluck($scope.teamData.players, 'name').join(' and ');
-                    $scope.singlePlayer = $scope.teamData.players.length === 1;
-                    $scope.fetching = true;
+                /**
+                 * Parse properties passed to the directive via scope attributes
+                 * and hit the API where necessary
+                 */
+                function parseDataFromAttributes(){
+                    if($scope.team && $scope.team.id){
+                        // we've been given the team data directly, there's nothing to fetch.
+                        fetchHandler($scope.team);
+                        return;
+                    }
+                    if($scope.playerIds){
+                        // we were passed player IDs. hit the team API to find a matching team.
+                        teamsService.getTeamByPlayers($scope.playerIds).then(fetchHandler).catch(fetchErrorHandler);
+                        return;
+                    }
+                    if($scope.teamId){
+                        // we were passed a team ID, fetch it via the API.
+                        teamsService.getTeam($scope.teamId).then(fetchHandler).catch(fetchErrorHandler);
+                        return;
+                    }
                 };
 
-                var fetch = function(){
-                    $scope.fetching = true;
-                    var playerIds = _.pluck($scope.teamData.players, 'id');
-                    teamsService.getTeamByPlayers(playerIds).then(function(response){
-                        $scope.exists = true;
-                        $scope.team = response.data;
-                        $scope.stats = generateStats(response.data.stat);
-                        $scope.teamData.id = response.data.id;
-                        $scope.teamData.name = response.data.name;
-                        $(el).trigger('pngTeamWidgetSync');
-                    }).catch(function(err){
-                        $scope.team = {};
-                        $scope.stats = generateStats(false);
-                        $scope.teamData.id = null;
-
-                        if(err.status === 404){
-                            $scope.exists = false;
-                            $(el).trigger('pngTeamWidgetSync');
-                        }
-
-                    }).finally(function(){
-                        $scope.fetching = false;
-                    });
-                };
-
-                var fetchHandler = function(team){
-                    $scope.exists = true;
+                function fetchHandler(team){
+                    team.playerIds = _.pluck(team.players, 'id');
                     $scope.team = team;
+                    $scope.exists = true;
+                    $scope.fetching = false;
+                    $el.trigger('pongTeamWidgetSync');
                 };
 
-                var parseTeam = function(teamData){
+                function fetchErrorHandler(err){
+                    // a 404 means the team doesn't exist
+                    if(err.status === 404){
+                        $scope.fetching = false;
+                        $scope.exists = false;
+                        $el.trigger('pongTeamWidgetSync');
+                        return;
+                    }
 
+                    // todo - handle other errors here.
+                    throw err;
+                };
+
+                function reset(){
+                    $scope.fetching = true;
+                    parseDataFromAttributes();
                 };
 
                 $scope.toggleDetailedStats = function(){
                     $scope.showDetailedStats = !$scope.showDetailedStats;
                 };
 
-                var generateStats = function(stats){
-                    if(!stats || stats.games === 0) return {
-                        available: false,
-                        paragraph: 'No games played yet'
-                    };
+                reset();
 
-                    // otherwise, fill in some mad shit.
-                    var winPercentage = Math.round((stats.wins/stats.games)*100);
-                    var lossPercentage = Math.round((stats.losses/stats.games)*100);
-
-                    var paragraph = stats.wins + ' out of ' + stats.games + ' wins (' + winPercentage + '%). '
-                    if(stats.streak) paragraph += 'On a ';
-                    if(stats.streak === 1) paragraph += '1 win ';
-                    if(stats.streak === -1) paragraph += '1 loss ';
-                    if(stats.streak < -1) paragraph += stats.streak*-1 + ' loss ';
-                    if(stats.streak > 1) paragraph += stats.streak + ' win ';
-                    if(stats.streak) paragraph += 'streak.';
-
-                    // redemptions
-                    // when you WIN, if you give away redemption we increment .redemptionsGiven
-                    // when you LOSE, if you win redemption, we increment .redemptionsHad
-                    // so for showing how many times you've won redemption, look at .redemptionsHad
-                    // for showing how many times you've denied the other team redemption,
-                    // it's .played - .redemptionsGiven
-                    console.log(stats);
-                    stats.redemptionsDenied = stats.wins - stats.redemptionsGiven;
-
-                    return {
-                        available: true,
-                        paragraph: paragraph
-                    }
-                };
-
-
-                // reset our scope when the teamData attribute changes.
-                // won't catch changes to individual properties (ie teamData.name), so we can
-                // update those without triggering a watch here.
-                $scope.$watch('teamData', function(teamData){
-                    reset();
-
-                    // todo - we only want to fetch if teamData isn't complete
-                    // make sure this is a valid check
-                    if(teamData.id){
-                        $scope.team = parseTeam(teamData);
-                        $scope.exists = true;
-                        $scope.fetching = false;
-                        //$scope
-                        return;
-                    }
-
-                    fetch();
-                });
             }
         }
     }]).directive('creategame', ['teams', 'games', '$q', function(teamsService, gamesService, $q){
@@ -133,7 +100,12 @@
             scope: {
                 teams: '=teams'
             },
-            link: function($scope, el, attrs){
+            link: function($scope, $el, $attrs){
+
+                /**
+                 * The widget will be passed team data through the `teams` attribute.
+                 * If the teams don't have an ID attribute, we need to fetch them from the server.
+                 */
 
                 /**
                  * Reset scope to initial state.
@@ -146,7 +118,8 @@
                     $scope.createdGame = null;
                 };
 
-                // if the teams change, call a reset
+                // If the teams change, call a reset.
+                // This change can come from the parent scope or a child scope (teamwidgets)
                 $scope.$watch('teams', $scope.reset);
 
                 // if both team widgets are ready, try and fetch the game stats
@@ -157,9 +130,10 @@
                     }
                 });
 
-                $(el).on('pngTeamWidgetSync', function(){
+                $el.on('pongTeamWidgetSync', function(){
                     $scope.readyTeamWidgetCount++;
                 });
+
 
                 /**
                  * Fetch the head-to-head history of these two teams.
@@ -168,7 +142,7 @@
                 var fetchGameStats = function(){
                     // silent failure if we don't have a team ID for each team (ie, they're new)
                     var teamIds = _.pluck($scope.teams, 'id');
-                    if(teamIds.length !== 2 || ~teamIds.indexOf(null)) return;
+                    if(teamIds.length !== 2 || ~teamIds.indexOf(undefined)) return;
 
                     gamesService.getGameStats(teamIds).then(function(stats){
                         if(!stats){
@@ -203,10 +177,10 @@
                         // otherwise, use the teamsService to add the team first
                         var playerIds = _.pluck(team.players, 'id');
                         // todo - let the user add a team name
-                        var playersString = _.pluck(team.players, 'name').join(' and ');
-                        return teamsService.addTeam(playerIds, playersString).then(function(response){
+                        var playerNames = _.pluck(team.players, 'name').join(' and ');
+                        return teamsService.addTeam(playerIds, playerNames).then(function(team){
                             // only need to return the ID
-                            return response.data.id;
+                            return team.id;
                         });
                     });
 
@@ -215,8 +189,9 @@
                             teams: teams
                         });
                     }).then(function(response){
-                        $scope.createdGame = response.data;
+                        $scope.createdGame = response;
                     }).catch(function(err){
+
                         // todo - error handling
                         console.log('m-m-m-m-meltdoooooooown');
                     });
@@ -257,7 +232,7 @@
                 // parse the data the API returns to make it more readable and usable
                 var parseGameData = function(game){
                     // format the date as a "x minutes ago"
-                    game.date = moment(game.date).fromNow();
+                    game.date = moment(game.date).format('MMM D, YYYY');
 
                     // need to set redemption to false if it's null
                     game.redemption = game.redemption || false;
@@ -295,9 +270,9 @@
                         winningTeamId: $scope.game.winningTeamId,
                         losingTeamId: $scope.game.losingTeamId,
                         redemption: $scope.game.redemption
-                    }).then(function(response){
+                    }).then(function(game){
                         $scope.$apply(function(){
-                            $scope.game = parseGameData(response.data);
+                            $scope.game = parseGameData(game);
                         });
                     }).catch(function(err){
                         console.log('error saving game:');
@@ -311,6 +286,7 @@
         return {
             restrict: 'E',
             templateUrl: '/static/views/headernav.html',
+            replace: true,
             link: function($scope, el, attrs){
 
                 usersService.getCurrentUser().then(function(user){

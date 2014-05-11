@@ -1,7 +1,7 @@
 <h3>Teams</h3>
 
 <div class="row">
-    <teamwidget ng-repeat="team in teams" players="team.players" class="col-xs-6"></teamwidget>
+    <teamwidget ng-repeat="team in teams track by $index" team="teams[$index]" player-ids="team.playerIds" player-names="{{ team.playerNames }}" class="col-xs-6"></teamwidget>
 </div>
 
 <div class="row">

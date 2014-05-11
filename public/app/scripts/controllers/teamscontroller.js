@@ -17,8 +17,8 @@
          * Call the players service to fetch players from the DB
          */
         $scope.getAllTeams = function(){
-            return teamsService.getTeams().then(function(response){
-                $scope.teams = response.data;
+            return teamsService.getTeams().then(function(teams){
+                $scope.teams = teams;
             }).catch(function(err){
                 console.log('FUCK.');
             }).finally(function(){
@@ -28,9 +28,9 @@
         };
 
         $scope.getOneTeam = function(id){
-            return teamsService.getTeam(id).then(function(response){
-                $scope.teams = [response.data];
-                $scope.pageTitle = response.data.name;
+            return teamsService.getTeam(id).then(function(team){
+                $scope.teams = [team];
+                $scope.pageTitle = team.name;
             }).catch(function(err){
                 //todo - handle
             }).finally(function(){

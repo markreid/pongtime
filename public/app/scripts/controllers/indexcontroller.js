@@ -3,6 +3,19 @@
 
     angular.module('pong').controller('indexController', ['$scope', '$timeout', 'players', 'teams', function($scope, $timeout, playersService, teamsService){
 
+        /**
+         * This controller has a kind-of complicated workflow, so here's a little description:
+         *
+         * 1. Fetch players from the DB.
+         * 2. Button click generates teams by randomising and splicing together players as needed (ie, 2 vs 2)
+         * 3. Teams are passed to a creategame widget
+         * 4. Creategame widget passes each team to a teamwidget, which hits the API to find the teams
+         * 5. If the teams exist, creategame widget fetches stats and head-to-head results
+         * 6. Teams are passed UP the scope from their teamwidgets back to the creategame widget
+         * 7. Button click generates the game, displays in a gamewidget.
+         *
+         */
+
         $scope.reset = function(){
             $scope.refreshing = true;
 
@@ -10,7 +23,7 @@
             $scope.numTeams = 2;
             $scope.playersPerTeam = 2;
             $scope.showAddPlayer = false;
-	    $scope.warning = false;
+	        $scope.warning = false;
             $scope.getPlayers().finally(function(){
                 $scope.refreshing = false;
             });
@@ -70,7 +83,7 @@
          * Generate the teams
          */
         $scope.generateTeams = function(){
-	    $scope.warning = false;
+	       $scope.warning = false;
             var allPlayers = $scope.players.slice();
             var players = _.filter(allPlayers, function(player){
                 return player.active
@@ -103,6 +116,7 @@
             }
 
             // map it into a reasonable format
+            // todo - inefficient, too many loops
             var teams = _.map(teams, function(playersArray){
                 return {
                     players: _.map(playersArray, function(player){
@@ -111,12 +125,16 @@
                             name: player.name,
                         }
                     }),
-                    playersString: _.pluck(playersArray, 'name').join(' and ')
+                    playerIds: _.pluck(playersArray, 'id'),
+                    playerNames: _.pluck(playersArray, 'name').join(' and ')
                 }
             });
 
+            // clear the teams and call a $digest before setting the new teams.
+            // this ensures we get new instances of the teamwidget directive every time.
+            $scope.teams = [];
+            $scope.$digest();
             $scope.teams = teams;
-
         };
 
         var spliceRandom = function(arr){
