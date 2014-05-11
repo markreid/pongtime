@@ -21,7 +21,7 @@ module.exports = function(grunt) {
                 //generatedImagesDir: '.tmp/images/generated',
                 //imagesDir: '<%= yeoman.app %>/images',
                 javascriptsDir: 'public/app/scripts',
-                fontsDir: 'public/app/styles/fonts',
+                fontsDir: 'public/app/bower_components/sass-bootstrap/fonts',
                 importPath: 'public/app/bower_components',
                 httpImagesPath: '/static/images',
                 httpGeneratedImagesPath: '/static/images/generated',
@@ -35,6 +35,13 @@ module.exports = function(grunt) {
                     debugInfo: true
                 }
             }
+        },
+
+        watch: {
+            compass: {
+                files: ['public/app/styles/*.scss'],
+                tasks: ['compass']
+            }
         }
 
     });
@@ -42,6 +49,7 @@ module.exports = function(grunt) {
     // Load the plugin that provides the "uglify" task.
     //grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-compass');
+    grunt.loadNpmTasks('grunt-contrib-watch');
 
     // Default task(s).
     grunt.registerTask('default', ['uglify']);
