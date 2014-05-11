@@ -12,6 +12,9 @@
         }).when('/teams', {
             templateUrl: '/static/views/teamsview.html',
             controller: 'teamsController'
+        }).when('/teams/:id/', {
+            templateUrl: '/static/views/teamsview.html',
+            controller: 'teamsController'
         }).otherwise({
             redirectTo: '/'
         });
