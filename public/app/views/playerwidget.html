@@ -1,0 +1,13 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h4><a href="{{ player.url }}">{{ player.name }}</a></h4>
+    </div>
+
+    <div class="panel-body">
+        <h4>Plays for:</h4>
+        <ul class="teams-list">
+            <li ng-repeat="team in player.teams"><a href="{{ team.url }}">{{ team.name }}</a></li>
+        </ul>
+    </div>
+
+</div>

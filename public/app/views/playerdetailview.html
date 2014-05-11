@@ -1,0 +1,9 @@
+<div class="container">
+    <div class="jumbotron">
+        <h1>{{ player.name }}</h1>
+    </div>
+    <p class="lead">Has played in {{ player.teams.length }} teams:</p>
+    <ul>
+        <li ng-repeat="team in player.teams"><a href="{{ team.url }}">{{ team.name }}</a></li>
+    </ul>
+</div>

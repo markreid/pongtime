@@ -34,10 +34,12 @@
          * Call the players service to fetch players from the DB
          */
         $scope.getPlayers = function(){
-            return playersService.getPlayers().success(function(players){
+            return playersService.getPlayers().then(function(players){
                 $scope.players = _.map(players, function(player){
                     return _.extend(player, {active:true});
                 });
+            }).catch(function(err){
+                throw err;
             });
         };
 
@@ -55,10 +57,10 @@
         $scope.addNewPlayer = function(name){
             playersService.add({
                 name: name
-            }).success(function (newPlayer){
+            }).then(function (newPlayer){
                 $scope.players.push(newPlayer);
                 $scope.newPlayerName = '';
-            }).error(function(err){
+            }).catch(function(err){
                 console.log(err);
             });
         };

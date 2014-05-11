@@ -28,7 +28,8 @@ module.exports = function(grunt) {
                 httpFontsPath: '/static/styles/fonts',
                 relativeAssets: false,
                 assetCacheBuster: false,
-                raw: 'Sass::Script::Number.precision = 10\n'
+                raw: 'Sass::Script::Number.precision = 10\n',
+                //sourceMaps: true
             },
             server: {
                 options: {

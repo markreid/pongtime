@@ -283,12 +283,21 @@
 
             }
         };
-    }]).directive('headernav', ['users', function(usersService){
+    }]).directive('headernav', ['users', '$location', function(usersService, $location){
         return {
             restrict: 'E',
             templateUrl: '/static/views/headernav.html',
             replace: true,
             link: function($scope, el, attrs){
+
+                // watch the $location provider and set .path every time it changes
+                // we use this to set .active on the nav items
+                $scope.$watch(function(){
+                    return $location.path();
+                }, function(path){
+                    $scope.path = path;
+                });
+
 
                 usersService.getCurrentUser().then(function(user){
                     $scope.user = user;
@@ -305,6 +314,18 @@
                 });
             }
         }
+    }]).directive('playerwidget', ['players', function(playersService){
+        return {
+            restrict: 'E',
+            templateUrl: '/static/views/playerwidget.html',
+            replace: false,
+            scope: {
+                player: '=player'
+            },
+            link: function($scope, $el, $attrs){
+                console.log($scope.player);
+            }
+        };
     }]);
 
 })();

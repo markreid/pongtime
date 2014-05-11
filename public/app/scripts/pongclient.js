@@ -12,16 +12,21 @@
         }).when('/teams', {
             templateUrl: '/static/views/teamlistview.html',
             controller: 'teamsController'
-        }).when('/teams/:id/', {
+        }).when('/teams/:id', {
             templateUrl: '/static/views/teamdetailview.html',
             controller: 'teamsController'
+        }).when('/players', {
+            templateUrl: '/static/views/playerlistview.html',
+            controller: 'playersController'
+        }).when('/players/:id', {
+            templateUrl: '/static/views/playerdetailview.html',
+            controller: 'playersController'
         }).otherwise({
             redirectTo: '/'
         });
         $locationProvider.html5Mode(true);
     }).filter('plural', function(){
-        // a super dodgy plural filter.
-        // use like this:
+        // a super dodgy plural filter. use like this:
         // {{ 'some thing' | plural:count:'some things'}}
         return function(singular, count, plural){
             if(!_.isNaN(count) && Number(count) === 0 || Number(count) > 1){
