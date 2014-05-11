@@ -44,6 +44,14 @@ gamewidget {
     }
 }
 
+#view-team-list {
+    .teams-table {
+        th {
+            cursor: pointer;
+        }
+    }
+}
+
 /**
  * Old shit
  */
