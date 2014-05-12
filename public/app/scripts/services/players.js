@@ -37,6 +37,8 @@
          * @param {Object} data
          */
         PlayersService.prototype.add = function(data){
+            // add a slug, if we don't have one.
+            if(!data.slug) data.slug = slugify(data.name);
             return $http.post('/api/v1/players', data).then(function(response){
                 return response.data;
             });
@@ -59,6 +61,23 @@
 
         function generateStats(player){
 
+        };
+
+        // todo - put this in utils somewhere, or maybe add it as a filter? could allow clientside editing that way...
+        function slugify(str){
+            if (str == null) return '';
+
+            var from  = "ąàáäâãåæăćęèéëêìíïîłńòóöôõøśșțùúüûñçżź",
+                to    = "aaaaaaaaaceeeeeiiiilnoooooosstuuuunczz",
+                regex = new RegExp(from, 'g');
+
+            str = String(str).toLowerCase().replace(regex, function(c){
+            var index = from.indexOf(c);
+            return to.charAt(index) || '-';
+            });
+
+            str = str.replace(/[^\w\s-]/g, '');
+            return str.trim(str).replace(/([A-Z])/g, '-$1').replace(/[-_\s]+/g, '-').toLowerCase();
         };
 
         return new PlayersService();
