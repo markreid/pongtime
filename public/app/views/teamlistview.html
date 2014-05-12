@@ -21,7 +21,10 @@
 			<div class="col-md-4">
 				<div class="input-group">
 			        <input type="text" class="form-control" ng-model="filterquery">
-					<span class="input-group-addon"><span class="glyphicon glyphicon-search"></span></span>
+					<span class="input-group-addon">
+						<span class="glyphicon glyphicon-search" ng-show="!filterquery"></span>
+						<span class="glyphicon glyphicon-remove" ng-show="filterquery" ng-click="filterquery=''"></span>
+					</span>
 				</div>
 			</div>
 		</header>
