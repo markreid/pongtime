@@ -1,5 +1,37 @@
 # pong time, gentlemen?
 
+## currently broken
+
+* PUT /games/x/ returns empty response, needs to return values
+* do the new game flow then go to teams, angular throws an error
+
+
+### to-do list
+
+#### clientside
+
+* Keep a cache of team data in the teams service, so you can do a lookup by ID without hitting the server, and we don't need to pass teams around the views everywhere.
+* Players view
+
+
+#### serverside
+
+* Add a dev/prod switch for the API 300ms delay
+* Auth for API
+* Stats refresh method
+* Player stats
+* Team slugs
+
+
+#### database
+
+* Can SQL enforce that game.winningTeamId != game.losingTeamId ...?
+* Can we add a cascade so that deleting a player deletes the associated stat? Currently it works backwards with a Restrict (can't delete stat while it has a player/team)...
+    * I think it's a no because there's no reference to the player/team from the stat, it's backwards. You might need a trigger instead.
+* 
+
+
+
 ### features
 
 * add/remove players
@@ -21,70 +53,3 @@
             * get team games, filter by team won and redemption false
 
 
-### to-do list
-
-#### clientside
-
-* Keep a cache of team data in the teams service, so you can do a lookup by ID without hitting the server, and we don't need to pass teams around the views everywhere.
-* Players view
-
-
-#### serverside
-
-* Add a dev/prod switch for the API 300ms delay
-* Auth for API
-* Stats refresh method
-* Player stats
-* Team slugs
-
-
-### Proposed Schema
-
-Player
-    id*
-    name
-    teams => PlayersTeam => Team
-
-User
-    player ->
-    auth [1,2,3]
-    email
-    g+ identifier
-
-Team
-    name
-    players => PlayersTeam => Player
-
-Game
-    date
-    teams => GamesTeam => Team
-    winner ->
-    loser ->
-    redemption YN
-    pants YN
-
-Stats
-    team ->
-    games
-    wins
-    losses
-    hottest
-    hottestend
-    coldest
-    coldestend
-    streak
-    redemptionsGiven
-    redemptionsHad
-    pantsGiven
-    pantsHad
-
-
-
-### Clientside flow
-
-#### Starting a game
-
-* Select players
-* Lookup teams, show stats.
-* Confirm -> Create game
-* Ask for results -> Create teams -> Update game
