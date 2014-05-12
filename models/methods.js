@@ -41,27 +41,23 @@ module.exports = function(sequelize, models){
 
     /**
      * Update stat values with a win for a team and its players
-     * @param {Number} teamId
+     * @param {Object} gameData     game model values
      */
-    methods.teams.recordWin = function(teamId, gameData){
-        // 1. get the team.
-        // 2. get the stat for the team, update it.
-        // 3. get the stat for each of the team players, update them.
-        console.log('heyo!');
-        console.log(_.pluck(gameData.teams, 'values'));
+    methods.teams.recordWin = function(gameData){
+        // 1. get the team and their stats.
+        // 2. get all the players and record an update.
 
-        return models.Stat.find({
+        return models.Team.find({
             where: {
-                TeamId: teamId
-            }
-        }).then(function(stat){
-            if(!stat) throw new Error('Unable to find Stat model for Team ' + teamId);
+                id: gameData.winningTeamId
+            },
+            include: models.Stat
+        }).then(function(team){
+            if(!team.stat) throw new Error('Unable to find stat model for team ' + team.values.id);
 
-            // recalculate the stats, given this win
-            var updatedStats = addWinToStats(stat.values, gameData);
+            var updatedStats = addWinToStats(team.stat.values, gameData);
 
-            // save the model and return values
-            return stat.updateAttributes(updatedStats).then(function(stat){
+            return team.stat.updateAttributes(updatedStats).then(function(stat){
                 return stat.values;
             });
         });
@@ -69,26 +65,22 @@ module.exports = function(sequelize, models){
 
     /**
      * Record a loss for a team
-     * @param {Number} teamId
-     * @param {Object} extras   extra data (redemption, etc)
+     * @param {Object} gameData
      */
-    methods.teams.recordLoss = function(teamId, gameData){
-        return models.Stat.find({
+    methods.teams.recordLoss = function(gameData){
+        return models.Team.find({
             where: {
-                TeamId: teamId
-            }
-        }).then(function(stat){
-            if(!stat) throw new Error('Unable to find Stat model for Team ' + teamId);
+                id: gameData.losingTeamId
+            },
+            include: models.Stat
+        }).then(function(team){
+            if(!team.stat) throw new Error('Unable to find stat model for team ' + team.values.id);
 
-            // recalculate the stats given this loss
-            var updatedStats = addLossToStats(stat.values, gameData);
-
-            // save the model
-            return stat.updateAttributes(updatedStats).then(function(stat){
+            var updatedStats = addLossToStats(team.stat.values, gameData);
+            return team.stat.updateAttributes(updatedStats).then(function(stat){
                 return stat.values;
             });
         });
-
     };
 
     methods.stats.findByTeam = function(teamId, notValues){
@@ -154,6 +146,8 @@ module.exports = function(sequelize, models){
      * @return {Object}      model.values
      */
     methods.players.create = function(data){
+        console.log('createdata:');
+        console.log(data);
         // todo - validation here
         return models.Player.create(data).then(function(player){
             return models.Stat.create({}).then(function(stat){
@@ -610,43 +604,43 @@ module.exports = function(sequelize, models){
 
     /**
      * Update a game
-     * @param  {[type]} gameData [description]
-     * @return {[type]}          [description]
+     * @param  {Sequelize Model} gameModel
+     * @param {Object} udpatedData
      */
-    methods.games.update = function(model, gameData){
+    methods.games.update = function(gameModel, updatedData){
         // to update a game, we need winningTeamId, losingTeamId, redemption.
         var requiredFields = ['winningTeamId', 'losingTeamId', 'redemption'];
-        var missingFields = _.difference(requiredFields, Object.keys(gameData));
+        var missingFields = _.difference(requiredFields, Object.keys(updatedData));
         if(missingFields.length) throw new Error ('games.update() missing arguments: ' + missingFields.join(', '));
 
         // are the teams we've been given actually valid for this game?
-        var teams = _.map(model.values.teams, function(team){
+        var teams = _.map(gameModel.values.teams, function(team){
             return team.dataValues.id;
         });
-        if(!~teams.indexOf(gameData.winningTeamId) || !~teams.indexOf(gameData.losingTeamId) || gameData.winningTeamId === gameData.losingTeamId) throw new Error('invalid winningTeamId and losingTeamId team IDs');
+        if(!~teams.indexOf(updatedData.winningTeamId) || !~teams.indexOf(updatedData.losingTeamId) || updatedData.winningTeamId === updatedData.losingTeamId) throw new Error('invalid winningTeamId and losingTeamId team IDs');
 
         // was there previously a result set for this game?
-        var hadResult = model.values.winningTeamId || model.values.losingTeamId;
+        var hadResult = gameModel.values.winningTeamId || gameModel.values.losingTeamId;
 
         // ok, arguments are all valid, let's update the game.
-        return model.updateAttributes({
-            winningTeamId: gameData.winningTeamId,
-            losingTeamId: gameData.losingTeamId,
-            redemption: gameData.redemption
+        return gameModel.updateAttributes({
+            winningTeamId: updatedData.winningTeamId,
+            losingTeamId: updatedData.losingTeamId,
+            redemption: updatedData.redemption
         }).then(function(game){
 
             // if there was previously a result set for this game
             // and we're editing it, we need to refresh the stats
             // for the teams and players involved.
             if(hadResult){
-                // todo - trigger a stats refresh here
+                // todo - trigger a stats refresh for the players and teams involved here.
                 return;
             }
 
             // otherwise, we're adding a result for the first time, so
             // we can just call the .addWin and .addLoss stats helpers.
-            return methods.teams.recordWin(gameData.winningTeamId, game.values).then(function(){
-                return methods.teams.recordLoss(gameData.losingTeamId, game.values).then(function(){
+            return methods.teams.recordWin(game.values).then(function(){
+                return methods.teams.recordLoss(game.values).then(function(){
                     return game;
                 });
             });

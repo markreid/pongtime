@@ -14,13 +14,27 @@ module.exports = function(sequelize, datatypes){
         },
         redemption: {
             type: datatypes.BOOLEAN
+        },
+        meta: {
+            type: datatypes.TEXT
+        },
+        winningTeamId: {
+            type: datatypes.INTEGER,
+            references: 'Teams',
+            referencesKey: 'id',
+            // if the team gets deleted, delete this too
+            onDelete: 'CASCADE',
+            onUpdate: 'CASCADE'
+        },
+        losingTeamId: {
+            type: datatypes.INTEGER,
+            references: 'Teams',
+            referencesKey: 'id',
+            // if the team gets deleted, delete this too
+            onDelete: 'CASCADE',
+            onUpdate: 'CASCADE'
         }
     });
-
-    // fields added via association
-    // teams
-    // winner 121
-    // loser 121
 
     return Game;
 };
