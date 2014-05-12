@@ -281,6 +281,15 @@
                     });
                 };
 
+		$scope.delete = function(gameId){
+			gamesService.delete(gameId).then(function(){
+				$scope.$digest();
+			}).catch(function(err){
+				console.log(err);
+				throw err;
+			});
+		};
+
             }
         };
     }]).directive('headernav', ['users', '$location', function(usersService, $location){

@@ -39,6 +39,8 @@
                 <div class="form-group">
                     <button type="submit" class="btn btn-primary btn-sm" ng-click="save()">Save</button>
                     <button type="reset" ng-click="editing=false" class="btn btn-warning btn-sm">Cancel</button>
+		      <button type="button" class="btn btn-danger btn-sm pull-right" ng-click="delete(game.id)" ng-show="showDelete">Confirm?</button>
+		      <button type="button" class="btn btn-danger btn-sm pull-right" ng-click="showDelete=true">Delete</button>
                 </div>
             </form>
         </div>
