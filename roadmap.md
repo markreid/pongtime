@@ -3,7 +3,8 @@
 ## currently broken
 
 * PUT /games/x/ returns empty response, needs to return values
-* do the new game flow then go to teams, angular throws an error
+* do the new game flow then go to teams, angular throws an error - seems to be when a creategamewidget gets destroyed
+* what happened to head-to-head stats? no worky...
 
 
 ### to-do list
@@ -16,6 +17,8 @@
 
 #### serverside
 
+* Method for refreshing stats by team
+* Populate player stats
 * Add a dev/prod switch for the API 300ms delay
 * Auth for API
 * Stats refresh method

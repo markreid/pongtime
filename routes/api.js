@@ -192,6 +192,21 @@ router.get('/teams/:id/refreshstats', function(req, res, next){
 });
 
 /**
+ * Return the game history for a team
+ * @param  {[type]}   req  [description]
+ * @param  {[type]}   res  [description]
+ * @param  {Function} next [description]
+ * @return {[type]}        [description]
+ */
+router.get('/teams/:id/games', function(req, res, next){
+    db.methods.teams.getTeamWithGames(req.params.id).then(function(response){
+        res.send(200, response.games);
+    }).catch(function(err){
+        next(err);
+    });
+});
+
+/**
  * Create a team, given a name and player IDs
  */
 router.post('/teams', function(req, res, next){
@@ -262,19 +277,6 @@ router.get('/games/search/:teamids', function(req, res, next){
 
 });
 
-/**
- * Return all the games that a team has played in
- * todo - change this to /games?team=x
- */
-router.get('/games/team/:teamid', function(req, res, next){
-    if(!req.params.teamid) return res.send(400);
-    db.methods.games.getTeamGames(Number(req.params.teamid)).then(function(games){
-        res.send(200, games);
-    }).catch(function(err){
-        next(err);
-    });
-});
-
 router.post('/games', function(req, res, next){
     if(!req.body.teams || !req.body.teams.length) return res.send(400, 'No team IDs specified');
 
@@ -283,7 +285,6 @@ router.post('/games', function(req, res, next){
     }).catch(function(err){
         next(err);
     });
-
 
 });
 

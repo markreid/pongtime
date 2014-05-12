@@ -1,4 +1,5 @@
 var _ = require('underscore');
+var Sequelize = require('sequelize');
 
 module.exports = function(sequelize, models){
     'use strict';
@@ -44,21 +45,25 @@ module.exports = function(sequelize, models){
      * @param {Object} gameData     game model values
      */
     methods.teams.recordWin = function(gameData){
-        // 1. get the team and their stats.
-        // 2. get all the players and record an update.
-
         return models.Team.find({
             where: {
                 id: gameData.winningTeamId
             },
-            include: models.Stat
+            include: [{
+                model: models.Stat
+            }, {
+                model: models.Player,
+                include: [{
+                    model: models.Stat
+                }]
+            }]
         }).then(function(team){
             if(!team.stat) throw new Error('Unable to find stat model for team ' + team.values.id);
 
             var updatedStats = addWinToStats(team.stat.values, gameData);
 
             return team.stat.updateAttributes(updatedStats).then(function(stat){
-                return stat.values;
+                return methods.players.recordWins(team.players, gameData);
             });
         });
     };
@@ -72,13 +77,20 @@ module.exports = function(sequelize, models){
             where: {
                 id: gameData.losingTeamId
             },
-            include: models.Stat
+            include: [{
+                model: models.Stat
+            }, {
+                model: models.Player,
+                include: [{
+                    model: models.Stat
+                }]
+            }]
         }).then(function(team){
             if(!team.stat) throw new Error('Unable to find stat model for team ' + team.values.id);
 
             var updatedStats = addLossToStats(team.stat.values, gameData);
             return team.stat.updateAttributes(updatedStats).then(function(stat){
-                return stat.values;
+                return methods.players.recordLosses(team.players, gameData);
             });
         });
     };
@@ -146,8 +158,6 @@ module.exports = function(sequelize, models){
      * @return {Object}      model.values
      */
     methods.players.create = function(data){
-        console.log('createdata:');
-        console.log(data);
         // todo - validation here
         return models.Player.create(data).then(function(player){
             return models.Stat.create({}).then(function(stat){
@@ -184,57 +194,41 @@ module.exports = function(sequelize, models){
 
             return summed;
 
-
         }).catch(function(err){
             throw err;
         });
     };
 
     /**
-     * Record a win for a player
-     * @param {Number} playerId
+     * Record wins for 1 or more players
+     * @param {Array} players       player models array
      * @param {Object} gameData
+     * @return {Promise} chainer.run()
      */
-    methods.players.recordWin = function(playerId, gameData){
-        return models.Stat.find({
-            where: {
-                PlayerId: playerId
-            }
-        }).then(function(stat){
-            if(!stat) throw new Error('Unable to find Stat model for Player ' + playerId);
-
-            // recalculate the stats, given this win
-            var updatedStats = addWinToStats(stat.values, gameData);
-
-            // save the model and return values
-            return stat.updateAttributes(updatedStats).then(function(stat){
-                return stat.values;
-            });
+    methods.players.recordWins = function(players, gameData){
+        var chainer = new Sequelize.Utils.QueryChainer();
+        _.each(players, function(player){
+            var updatedStats = addWinToStats(player.stat.values, gameData);
+            chainer.add(player.stat.updateAttributes(updatedStats));
         });
+        return chainer.run();
     };
 
     /**
-     * Record a loss for a player
-     * @param {Number} playerId
+     * Record losses for 1 or more players
+     * @param {Array} players       player models array
      * @param {Object} gameData
+     * @return {Promise} chainer.run();
      */
-    methods.players.recordLoss = function(playerId, gameData){
-        return models.Stat.find({
-            where: {
-                PlayerId: playerId
-            }
-        }).then(function(stat){
-            if(!stat) throw new Error('Unable to find Stat model for Player ' + playerId);
-
-            // recalculate the stats given this loss
-            var updatedStats = addLossToStats(stat.values, gameData);
-
-            // save the model
-            return stat.updateAttributes(updatedStats).then(function(stat){
-                return stat.values;
-            });
+    methods.players.recordLosses = function(players, gameData){
+        console.log('recording losses!');
+        var chainer = new Sequelize.Utils.QueryChainer();
+        _.each(players, function(player){
+            var updatedStats = addLossToStats(player.stat.values, gameData);
+            console.log(updatedStats);
+            chainer.add(player.stat.updateAttributes(updatedStats));
         });
-
+        return chainer.run();
     };
 
     /**
@@ -316,36 +310,69 @@ module.exports = function(sequelize, models){
     methods.teams.refreshStats = function(teamID){
         teamID = Number(teamID);
 
-        // fetch all the games that this team has played in, from earliest to latest.
-        return methods.games.getTeamGames(teamID).then(function(games){
+        // get all the games this team has ever played in, from earliest to last.
+        // start with a fresh stat for the team, and a fresh stat for each player.
+        // iterate through the games, updating the team and player stats objects
+        // when you're done, save the all the stat objects to the db.
 
-            // start with a fresh stats object
-            // create an empty model and take default values,
-            // removing the ones we don't want to overwrite.
+        // fetch all the games that this team has played in, from earliest to latest.
+        return methods.teams.getTeamWithGames(teamID, true).then(function(team){
+
             var cleanStats = models.Stat.build({}).values;
             delete cleanStats.id;
 
-            // now let's iterate and count everything up
-            _.each(games, function(game){
-                if(game.winningTeamId === teamID){
-                    cleanStats = addWinToStats(cleanStats, game);
-                    return;
-                }
-                if(game.losingTeamId === teamID){
-                    cleanStats = addLossToStats(cleanStats, game);
-                    return;
-                }
-                // no result, ignore this game for now.
-            });
 
-            // now find the stats model for this team
-            return methods.stats.findByTeam(teamID, true).then(function(stat){
-                return stat.updateAttributes(cleanStats);
-            }).then(function(stat){
-                return stat.values;
-            }).catch(function(err){
-                throw err;
-            });
+
+        });
+
+        //     // start with a fresh stats object
+        //     // create an empty model and take default values,
+        //     // removing the ones we don't want to overwrite.
+        //     var cleanStats = models.Stat.build({}).values;
+        //     delete cleanStats.id;
+
+        //     // now let's iterate and count everything up
+        //     _.each(games, function(game){
+        //         if(game.winningTeamId === teamID){
+        //             cleanStats = addWinToStats(cleanStats, game);
+        //             return;
+        //         }
+        //         if(game.losingTeamId === teamID){
+        //             cleanStats = addLossToStats(cleanStats, game);
+        //             return;
+        //         }
+        //         // no result, ignore this game for now.
+        //     });
+
+        //     // now find the stats model for this team
+        //     return methods.stats.findByTeam(teamID, true).then(function(stat){
+        //         return stat.updateAttributes(cleanStats);
+        //     }).then(function(stat){
+        //         return stat.values;
+        //     }).catch(function(err){
+        //         throw err;
+        //     });
+        // });
+
+    };
+
+    /**
+     * Find a team, including its players and all its games.
+     */
+    methods.teams.getTeamWithGames = function(teamId, notValues){
+        return models.Team.find({
+            where: {
+                id: teamId
+            }, include: [{
+                model: models.Game
+            }, {
+                model: models.Player
+            }]
+        }).then(function(team){
+            if(notValues) return team;
+            return team.values;
+        }).catch(function(err){
+            throw err;
         });
 
     };
