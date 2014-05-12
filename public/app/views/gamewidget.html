@@ -12,7 +12,7 @@
             <p class="lead">The outcome of this game hasn't been recorded. <a ng-click="editing=true" style="white-space:nowrap;">Add the result &raquo;</a></p>
         </div>
 
-        <div class="results clearfix" ng-hide="editing" ng-show="game.hasResults">
+        <div class="results clearfix" ng-show="game.hasResults && !editing">
             <p class="lead">{{ game.winningTeam.name }} won.</p>
             <span class="label pull-right" ng-class="{'label-success': game.redemption, 'label-danger': !game.redemption}">{{ game.redemption ? 'REDEEMED' : 'REDEMPTION DENIED' }}.</span>
         </div>
