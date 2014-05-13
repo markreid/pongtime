@@ -116,6 +116,7 @@
                     $scope.readyTeamWidgetCount = 0;
                     $scope.stats = {};
                     $scope.showStats = false;
+		    $scope.noStats = false;
                     $scope.createdGame = null;
                 };
 
@@ -127,7 +128,8 @@
                 $scope.$watch('readyTeamWidgetCount', function(val){
                     if(val === 2){
                         $scope.teamsReady = true;
-                        fetchGameStats();
+                        // todo - what's the proper approach here? 
+			setTimeout(fetchGameStats, 0);
                     }
                 });
 
@@ -149,6 +151,7 @@
                         if(!stats){
                             $scope.stats = {};
                             $scope.showStats = false;
+			    $scope.noStats = true;
                             return;
                         }
 
