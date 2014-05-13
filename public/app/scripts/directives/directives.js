@@ -217,9 +217,11 @@
             scope: {
                 game: '=game',
                 teams: '=teams',
-                edit: '=?edit'
+                edit: '@edit'
             },
             link: function($scope, el, attrs){
+
+                $scope.edit = $scope.edit == 'true';
 
                 // observe the user
                 userService.onUserUpdate(function(user){

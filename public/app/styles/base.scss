@@ -88,6 +88,22 @@ gamewidget .table-match-history {
     }
 }
 
+
+// make an input look like regular text.
+// makes text editing look cool.
+.cleaninput, .cleaninput:disabled {
+    font: inherit;
+    background: none;
+    border: none;
+    padding: 0;
+    outline: none;
+
+    &:focus {
+        color: skyblue;
+    }
+}
+
+
 /** Better loader **/
 
 .loader {
