@@ -12,7 +12,9 @@
             <p>{{ hasHave|capitalize }} played {{ team.stat.games }} {{ 'game'|plural:team.stat.games }}, winning {{ team.stat.wins }} and losing {{ team.stat.losses }}. That's a win-rate of {{ team.stat.winPercentage }}%.</p>
             <p>{{ hasHave|capitalize }} won redemption {{ team.stat.redemptionsHad }} times.</p>
             <p>{{ hasHave|capitalize }} conceded redemption {{ team.stat.redemptionsGiven }} {{ 'time'|plural:team.stat.redemptionsGiven }}.</p>
-            <p ng-show="team.stat.streak > 1 || team.stat.streak < -1">Their current streak is {{ team.stat.streak }}.</p>
+            <p ng-show="team.stat.hottest > 1">Hottest streak was {{ team.stat.hottest }} wins.</p>
+            <p ng-show="team.stat.coldest > 1">Coldest streak was {{ team.stat.coldest }} losses.</p>
+            <p ng-show="team.stat.streak">Current streak is {{ team.stat.streak }}.</p>
         </div>
     </div>
 
