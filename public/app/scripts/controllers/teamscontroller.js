@@ -19,7 +19,7 @@
         $scope.getAllTeams = function(){
             return teamsService.getTeams().then(function(teams){
                 $scope.teams = teams;
-		$scope.predicate = ['-stat.winPercentage', '-stat.wins'];
+                $scope.predicate = ['-stat.winPercentage', '-stat.wins'];
             }).catch(function(err){
                 console.log('FUCK.');
             }).finally(function(){

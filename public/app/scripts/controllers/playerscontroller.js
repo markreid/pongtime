@@ -20,6 +20,7 @@
         function getPlayers(){
             return playersService.getPlayers().then(function(players){
                 $scope.players = players;
+                $scope.predicate = ['-stat.winPercentage', '-stat.wins'];
             }).catch(function(err){
                 console.log('FUCK.');
             }).finally(function(){
