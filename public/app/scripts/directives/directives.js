@@ -127,7 +127,8 @@
                 $scope.$watch('readyTeamWidgetCount', function(val){
                     if(val === 2){
                         $scope.teamsReady = true;
-                        fetchGameStats();
+                        // todo - what's the proper approach here? 
+			setTimeout(fetchGameStats, 0);
                     }
                 });
 
