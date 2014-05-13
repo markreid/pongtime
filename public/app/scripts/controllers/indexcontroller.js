@@ -1,7 +1,7 @@
 (function(){
     'use strict';
 
-    angular.module('pong').controller('indexController', ['$scope', '$timeout', 'players', 'teams', function($scope, $timeout, playersService, teamsService){
+    angular.module('pong').controller('indexController', ['$scope', '$timeout', 'players', 'teams', 'notifications', function($scope, $timeout, playersService, teamsService, notificationsService){
 
         /**
          * This controller has a kind-of complicated workflow, so here's a little description:
@@ -39,7 +39,8 @@
                     return _.extend(player, {active:true});
                 });
             }).catch(function(err){
-                throw err;
+                console.log(err);
+                notificationsService.apiError();
             });
         };
 
@@ -61,7 +62,10 @@
                 $scope.players.push(newPlayer);
                 $scope.newPlayerName = '';
             }).catch(function(err){
-                console.log(err);
+                if(err.status === 403){
+                    // no permissions
+                    notificationsService.unauthorised();
+                }
             });
         };
 
