@@ -82,14 +82,6 @@
                 paragraph += ', ';
 
                 if(stats.streak) paragraph += ' on a ';
-                if(stats.streak === 1){
-                    paragraph += '1 win ';
-                    streaktext = '1 win'  ;
-                }
-                if(stats.streak === -1){
-                    paragraph += '1 loss ';
-                    streaktext = '1 loss';
-                }
                 if(stats.streak < -1){
                     paragraph += Math.abs(stats.streak) + ' loss ';
                     streaktext = Math.abs(stats.streak) + ' losses';
@@ -102,10 +94,14 @@
 
                 if(stats.streak === stats.hottest) paragraph += ' (hottest!)';
                 if(stats.streak === stats.coldest) paragraph += ' (coldest!)';
-
-                stats.streak = streaktext;
             }
-
+            if(stats.streak === 1){
+                streaktext = '1 win'  ;
+            }
+            if(stats.streak === -1){
+                streaktext = '1 loss';
+            }
+            stats.streak = streaktext;
             stats.coldest = Math.abs(stats.coldest);
 
             // redemptions
