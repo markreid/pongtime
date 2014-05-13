@@ -12,11 +12,15 @@
         <div class="text-center">
             <button ng-repeat="player in players" type="button" class="btn btn-sm" ng-class="{'btn-success': player.active}" ng-click="toggleActive(this)">{{ player.name }}</button>
 
-            <a ng-click="toggleShowAddPlayer()">[+]</a>
+            <a ng-click="showAddPlayer=!showAddPlayer">[+]</a>
 
-            <form ng-show="showAddPlayer" style="margin-top: 20px;">
-                <input ng-model="newPlayerName" placeholder="name">
-                <button ng-click="addNewPlayer(newPlayerName)">Add</button>
+            <form class="row" ng-show="showAddPlayer" ng-submit="addNewPlayer(newPlayerName)" style="margin-top: 20px;">
+                <div class="input-group col-md-4 col-md-offset-4 col-xs-12 ">
+                    <input type="text" class="form-control" ng-model="newPlayerName" placeholder="name">
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" type="submit">Add</button>
+                    </span>
+                </div>
             </form>
         </div>
 

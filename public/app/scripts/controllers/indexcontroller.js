@@ -51,10 +51,6 @@
             childScope.player.active = !childScope.player.active;
         };
 
-        $scope.toggleShowAddPlayer = function(){
-            $scope.showAddPlayer = !$scope.showAddPlayer;
-        };
-
         $scope.addNewPlayer = function(name){
             playersService.add({
                 name: name
