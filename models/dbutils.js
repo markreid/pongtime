@@ -57,6 +57,7 @@ var calls = {
                     id: data.pk
                 }
             }).success(function(user){
+                if(!user) throw 'No user found';
                 user.updateAttributes({
                     auth: 3
                 }).success(function(user){

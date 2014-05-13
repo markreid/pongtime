@@ -280,9 +280,7 @@
                         losingTeamId: $scope.game.losingTeamId,
                         redemption: $scope.game.redemption
                     }).then(function(game){
-                        $scope.$apply(function(){
-                            $scope.game = parseGameData(game);
-                        });
+                        $scope.game = parseGameData(game);
                         $scope.edit = false;
                     }).catch(function(err){
                         console.log('error saving game:');

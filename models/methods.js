@@ -138,11 +138,11 @@ module.exports = function(sequelize, models){
     methods.players.findOne = function(where, notValues){
         return models.Player.find({
             where: where || {},
-            include: {
-                model: models.Team,
-                attributes: ['name', 'id']
-            },
-            attributes : ['name']
+            include: [{
+                model: models.Team
+            }, {
+                model: models.Stat
+            }]
         }).then(function(player){
             // if notValues is true, we want to return the model
             if(notValues) return player || null;

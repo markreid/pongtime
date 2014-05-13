@@ -1,7 +1,14 @@
 <div class="container">
     <div class="jumbotron">
         <h1>{{ player.name }}</h1>
+        <div ng-show="player.stat.games">
+            <p>Has played {{ player.stat.games }} {{ 'game'|plural:player.stat.games }}, winning {{ player.stat.wins }} and losing {{ player.stat.losses }}. That's a win-rate of {{ player.stat.winPercentage }}%.</p>
+            <p>Has won redemption {{ player.stat.redemptionsHad }} times.</p>
+            <p>Has conceded redemption {{ player.stat.redemptionsGiven }} {{ 'time'|plural:player.stat.redemptionsGiven }}.</p>
+            <p ng-show="player.stat.streak > 1 ">Their current streak is {{ player.stat.streak }}.</p>
+        </div>
     </div>
+
     <p class="lead">Has played in {{ player.teams.length }} teams:</p>
     <ul>
         <li ng-repeat="team in player.teams"><a href="{{ team.url }}">{{ team.name }}</a></li>
