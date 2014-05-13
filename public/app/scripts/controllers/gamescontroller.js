@@ -1,14 +1,16 @@
 (function(){
     'use strict';
 
-    angular.module('pong').controller('gamesController', ['$scope', 'games', function($scope, gamesService){
+    angular.module('pong').controller('gamesController', ['$scope', 'games', 'user', function($scope, gamesService, userService){
 
         $scope.reset = function(){
             $scope.refreshing = true;
             $scope.getGames();
-            // set defaults here
+        }
 
-        };
+        userService.onUserUpdate(function(user){
+            $scope.user = user;
+        });
 
         /**
          *

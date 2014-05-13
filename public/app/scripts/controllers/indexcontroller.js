@@ -1,7 +1,7 @@
 (function(){
     'use strict';
 
-    angular.module('pong').controller('indexController', ['$scope', '$timeout', 'players', 'teams', 'notifications', function($scope, $timeout, playersService, teamsService, notificationsService){
+    angular.module('pong').controller('indexController', ['$scope', '$timeout', 'players', 'teams', 'notifications', 'user', function($scope, $timeout, playersService, teamsService, notificationsService, userService){
 
         /**
          * This controller has a kind-of complicated workflow, so here's a little description:
@@ -30,6 +30,10 @@
 
         };
 
+        userService.onUserUpdate(function(user){
+            $scope.user = user;
+        });
+
         /**
          * Call the players service to fetch players from the DB
          */
@@ -55,6 +59,7 @@
             playersService.add({
                 name: name
             }).then(function (newPlayer){
+                newPlayer.active = true;
                 $scope.players.push(newPlayer);
                 $scope.newPlayerName = '';
             }).catch(function(err){

@@ -210,7 +210,7 @@
             }
         }
 
-    }]).directive('gamewidget', ['games', function(gamesService){
+    }]).directive('gamewidget', ['games', 'user', function(gamesService, userService){
         return {
             restrict: 'E',
             templateUrl: '/static/views/gamewidget.html',
@@ -221,7 +221,10 @@
             },
             link: function($scope, el, attrs){
 
-                var gamesService = angular.injector(['pong', 'ng']).get('games');
+                // observe the user
+                userService.onUserUpdate(function(user){
+                    $scope.user = user;
+                });
 
                 // if the teams object updates, attach it to .game
                 $scope.$watch('teams', function(teams){
@@ -299,12 +302,13 @@
                 };
             }
         };
-    }]).directive('headernav', ['users', '$location', function(usersService, $location){
+    }]).directive('headernav', ['user', '$location', function(userService, $location){
         return {
             restrict: 'E',
             templateUrl: '/static/views/headernav.html',
             replace: true,
-            link: function($scope, el, attrs){
+            scope: {},
+            link: function($scope, $el, $attrs){
 
                 // watch the $location provider and set .path every time it changes
                 // we use this to set .active on the nav items
@@ -314,19 +318,15 @@
                     $scope.path = path;
                 });
 
-
-                usersService.getCurrentUser().then(function(user){
+                // register a callback with the users service to keep an eye on the user object
+                userService.onUserUpdate(function(user){
                     $scope.user = user;
-                    $scope.signedIn = !!user;
+                    $scope.signedIn = user.signedIn;
+                });
 
-                    // todo - this is crap, should use angular bootstrap
-                    // when they mouse hover on the element, bind the dropdown
-                    // because it wasn't there when bootstrap initialized.
-                    el.one('mouseover', function(){
-                        $(el).find('.dropdown-toggle').dropdown();
-                    });
-                }).catch(function(err){
-                    $scope.signedIn = false;
+                // todo - this sucks, use proper angular directives instead of vanilla bootstrap
+                $el.one('mouseover', function(){
+                    $($el).find('.dropdown-toggle').dropdown();
                 });
             }
         }
@@ -347,6 +347,7 @@
             restrict: 'E',
             template: '<div id="messages"><div ng-repeat="message in messages" class="alert alert-warning" ng-class="message.class"><button type="button" class="close" ng-click="dismiss(this)">&times;</button>{{ message.text }}</div></div>',
             replace: true,
+            scope: {},
             link: function($scope, $el, $attrs){
 
                 $scope.messages = [];
@@ -367,6 +368,8 @@
 
             }
         }
-    }]);
+    }]).run(function($rootScope){
+        $rootScope.testVar = 'foo';
+    });
 
 })();
