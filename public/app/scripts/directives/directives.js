@@ -3,6 +3,7 @@
  */
 
 (function(){
+    'use strict';
 
     angular.module('pong').directive('teamwidget', ['teams', function(teamsService){
 
@@ -57,7 +58,7 @@
                         teamsService.getTeam($scope.teamId).then(fetchHandler).catch(fetchErrorHandler);
                         return;
                     }
-                };
+                }
 
                 function fetchHandler(team){
                     team.playerIds = _.pluck(team.players, 'id');
@@ -65,7 +66,7 @@
                     $scope.exists = true;
                     $scope.fetching = false;
                     $el.trigger('pongTeamWidgetSync');
-                };
+                }
 
                 function fetchErrorHandler(err){
                     // a 404 means the team doesn't exist
@@ -78,16 +79,16 @@
 
                     // todo - handle other errors here.
                     throw err;
-                };
+                }
 
                 function reset(){
                     $scope.fetching = true;
                     parseDataFromAttributes();
-                };
+                }
 
                 $scope.toggleDetailedStats = function(){
                     $scope.showDetailedStats = !$scope.showDetailedStats;
-                };
+                }
 
                 reset();
 
@@ -281,6 +282,16 @@
                     });
                 };
 
+                $scope.delete = function(gameId){
+                    gamesService.delete(gameId).then(function(){
+                        $scope.$apply(function(){
+                            $scope.deleted = true;
+                        });
+                    }).catch(function(err){
+                        console.log(err);
+                        throw err;
+                    });
+                };
             }
         };
     }]).directive('headernav', ['users', '$location', function(usersService, $location){
@@ -323,7 +334,7 @@
                 player: '=player'
             },
             link: function($scope, $el, $attrs){
-                console.log($scope.player);
+
             }
         };
     }]);

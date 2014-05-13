@@ -35,6 +35,13 @@
             });
         };
 
+		GamesService.prototype.delete = function(gameid){
+			return $http.delete('/api/v1/games/' + Number(gameid)).then(function(response){
+				return response.data;
+			});
+
+		};
+
         /**
          * Query the API for the history of games between two teams
          * Parse the results into a human readable format

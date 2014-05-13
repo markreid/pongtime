@@ -316,6 +316,13 @@ router.put('/games/:gameid', function(req, res, next){
 
 });
 
+router.delete('/games/:gameid', function(req, res, next){
+    db.methods.generic.destroyModel(req.game).then(function(){
+        res.send(200);
+    }).catch(function(err){
+        next(err);
+    });
+});
 
 // 404 everything else
 router.get('/*', function(req, res){
