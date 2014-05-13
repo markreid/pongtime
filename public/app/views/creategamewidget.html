@@ -25,6 +25,7 @@
 
         <p class="lead"><strong>Last 5 winners:</strong> {{ stats.streak }}</p>
     </section>
+    <p class="lead text-center" ng-show="noStats">This will be the first time these teams have played each other.</p>
 </div>
 
 <div class="text-center vspace" ng-show="teamsReady">

@@ -116,6 +116,7 @@
                     $scope.readyTeamWidgetCount = 0;
                     $scope.stats = {};
                     $scope.showStats = false;
+		    $scope.noStats = false;
                     $scope.createdGame = null;
                 };
 
@@ -150,6 +151,7 @@
                         if(!stats){
                             $scope.stats = {};
                             $scope.showStats = false;
+			    $scope.noStats = true;
                             return;
                         }
 
