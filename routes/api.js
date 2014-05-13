@@ -230,6 +230,19 @@ router.delete('/teams/:teamid', function(req, res, next){
     });
 });
 
+router.put('/teams/:teamid', function(req, res, next){
+    // for now, the only change you can make to a team is its name
+    if(!req.body.name) return res.send(400);
+
+    db.methods.generic.updateModel(req.team, {
+        name: req.body.name
+    }).then(function(player){
+        res.send(200, player.values);
+    }).catch(function(err){
+        next(err);
+    });
+});
+
 /**
  * Games
  */

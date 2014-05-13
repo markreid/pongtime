@@ -77,8 +77,8 @@
                         return;
                     }
 
-                    // todo - handle other errors here.
-                    throw err;
+                    console.log(err);
+                    notificationsService.apiError();
                 }
 
                 function reset(){
@@ -94,7 +94,7 @@
 
             }
         }
-    }]).directive('creategame', ['teams', 'games', '$q', function(teamsService, gamesService, $q){
+    }]).directive('creategame', ['teams', 'games', 'notifications', '$q', function(teamsService, gamesService, notificationsService, $q){
         return {
             templateUrl: '/static/views/creategamewidget.html',
             restrict: 'E',
@@ -116,6 +116,7 @@
                     $scope.readyTeamWidgetCount = 0;
                     $scope.stats = {};
                     $scope.showStats = false;
+		            $scope.noStats = false;
                     $scope.createdGame = null;
                 };
 
@@ -127,7 +128,8 @@
                 $scope.$watch('readyTeamWidgetCount', function(val){
                     if(val === 2){
                         $scope.teamsReady = true;
-                        fetchGameStats();
+                        // todo - what's the proper approach here?
+			            setTimeout(fetchGameStats, 0);
                     }
                 });
 
@@ -149,6 +151,7 @@
                         if(!stats){
                             $scope.stats = {};
                             $scope.showStats = false;
+			                $scope.noStats = true;
                             return;
                         }
 
@@ -163,8 +166,8 @@
                         $scope.showStats = true;
 
                     }).catch(function(err){
-                        // todo - handle me properly
-                        console.log('oh noooooo');
+                        console.log(err);
+                        notificationsService.publish('messages', 'ERROR');
                         $scope.showStats = false;
                     });
                 };
@@ -192,9 +195,11 @@
                     }).then(function(response){
                         $scope.createdGame = response;
                     }).catch(function(err){
-
-                        // todo - error handling
-                        console.log('m-m-m-m-meltdoooooooown');
+                        if(err.status === 403){
+                            // you don't have permission
+                            notificationsService.unauthorised();
+                        }
+                        $scope.showStats = false;
                     });
 
                     return;
@@ -337,6 +342,31 @@
 
             }
         };
+    }]).directive('messages', ['notifications', function(notificationsService){
+        return {
+            restrict: 'E',
+            template: '<div id="messages"><div ng-repeat="message in messages" class="alert alert-warning" ng-class="message.class"><button type="button" class="close" ng-click="dismiss(this)">&times;</button>{{ message.text }}</div></div>',
+            replace: true,
+            link: function($scope, $el, $attrs){
+
+                $scope.messages = [];
+
+                /**
+                 * Dismiss a message
+                 */
+                $scope.dismiss = function(childScope){
+                    var index = $scope.messages.indexOf(childScope.message);
+                    $scope.messages.splice(index, 1);
+                }
+
+                // use the notificationsService to subscribe to 'messages',
+                // and add them to the scope when we receive them.
+                notificationsService.subscribe('messages', function(messages){
+                    $scope.messages = $scope.messages.concat(messages);
+                });
+
+            }
+        }
     }]);
 
 })();

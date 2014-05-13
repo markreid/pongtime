@@ -18,6 +18,20 @@
     margin-left: 2em;
 }
 
+#messages {
+    position: fixed;
+    top: 55px;
+    left: 0;
+    z-index: 1031;
+    padding: 8px 10%;
+    width: 100%;
+
+    div {
+        position: relative;
+        -webkit-animation: fadeinanddrop 0.3s ease-out;
+    }
+}
+
 teamwidget .loader {
     display: block;
     margin: 0 auto;
@@ -149,3 +163,10 @@ gamewidget .table-match-history {
     100% { transform: scale(1); }
 }
 
+
+/** animations **/
+
+@-webkit-keyframes fadeinanddrop {
+    0% { opacity: 0; top: -20px; }
+    100% { opacity: 1; top: 0; }
+}
