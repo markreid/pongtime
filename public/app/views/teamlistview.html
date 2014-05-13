@@ -41,7 +41,7 @@
             </thead>
             <tbody>
                 <tr ng-repeat="team in teams | orderBy:predicate:reverse | filter:filterquery">
-                    <td><a href="{{ team.url }}">{{ team.name }}</a></td>
+                    <td><a href="{{ team.url }}">{{ team.name }}</a> <small ng-show="showPlayerNames">{{ team.playerNames }}</small></td>
                     <td>{{ team.stat.games }}</td>
                     <td>{{ team.stat.wins }}</td>
                     <td>{{ team.stat.winPercentage }}%</td>
