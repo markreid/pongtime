@@ -21,7 +21,7 @@ var sequelize = new Sequelize(config.DB.NAME, config.DB.USER, config.DB.PASS, {
 // attach the models
 // var models = {};
 // fs.readdirSync(__dirname).filter(function(file){
-//     return (file.indexOf('.') !== 0) && !~['index.js', 'dbutils.js', 'methods.js'].indexOf(file);
+//     return (file.indexOf('.') !== 0) && !~['index.js', 'dbutils.js', 'api.js'].indexOf(file);
 // }).forEach(function(file){
 //     console.info('loading models from ' + file);
 //     var model = sequelize.import(path.join(__dirname, file));
@@ -76,5 +76,5 @@ sequelize.sync().then(function(){
 
 module.exports = _.extend({
     sequelize: sequelize,
-    methods: require('./methods')(sequelize, models)
+    api: require('./api')(sequelize, models)
 }, models);
