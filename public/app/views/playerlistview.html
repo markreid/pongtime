@@ -30,6 +30,7 @@
                     <th ng-click="predicate='stat.winPercentage'">Win %</th>
                     <th ng-click="predicate='stat.losses'">Losses</th>
                     <th ng-click="predicate='stat.lossPercentage'">Loss %</th>
+		    <th ng-click="predicate='stat.streak'">Streak</th>
                 </tr>
             </thead>
             <tbody>
@@ -40,6 +41,7 @@
                     <td>{{ player.stat.winPercentage }}%</td>
                     <td>{{ player.stat.losses }}</td>
                     <td>{{ player.stat.lossPercentage }}%</td>
+		    <td>{{ player.stat.streak }}</td>
                 </tr>
             </tbody>
         </table>
