@@ -303,27 +303,30 @@ module.exports = function(sequelize, models){
     };
 
     /**
-     * Regenerate the stats table for a given team
-     * @param  {Number} teamID
-     * @return {Object}        updated stats model
+     * Regenerate the stats table
      */
-    methods.teams.refreshStats = function(teamID){
-        teamID = Number(teamID);
-
-        // get all the games this team has ever played in, from earliest to last.
-        // start with a fresh stat for the team, and a fresh stat for each player.
-        // iterate through the games, updating the team and player stats objects
-        // when you're done, save the all the stat objects to the db.
+    methods.stats.refreshAll = function(){
+        // fetch all the games, from earliest to last.
+        // generate a fresh stat model for every team and player ID.
 
         // fetch all the games that this team has played in, from earliest to latest.
-        return methods.teams.getTeamWithGames(teamID, true).then(function(team){
+        return methods.games.findAllWithPlayers().then(function(games){
+            console.log('updating stats for ' + games.length + ' games');
 
+            // make a clean stats model, removing values we don't want
             var cleanStats = models.Stat.build({}).values;
             delete cleanStats.id;
 
+            // now iterate through each game and record the statistic.
+
+            _()
 
 
         });
+
+
+
+//        });
 
         //     // start with a fresh stats object
         //     // create an empty model and take default values,
@@ -539,6 +542,27 @@ module.exports = function(sequelize, models){
             include: [{
                 model: models.Team,
                 attributes: ['name']
+            }]
+        }).then(function(games){
+            return _.pluck(games, 'values');
+        }).catch(function(err){
+            throw err;
+        });
+    };
+
+    /**
+     * Find all games, include teams and players
+     * @param  {Object} where
+     * @return {Array}
+     */
+    methods.games.findAllWithPlayers = function(where){
+        return models.Game.findAll({
+            where: where || {},
+            include: [{
+                model: models.Team,
+                include: [{
+                    model: models.Player
+                }]
             }]
         }).then(function(games){
             return _.pluck(games, 'values');

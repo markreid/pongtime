@@ -179,16 +179,13 @@ router.get('/teams/search/:players', function(req, res, next){
     });
 });
 
-/**
- * Force a refresh of the stats for a team
- * todo - rate limit, or restrict by auth?
- */
-router.get('/teams/:id/refreshstats', function(req, res, next){
-    db.methods.teams.refreshStats(req.params.id).then(function(response){
-        res.send(200, response);
-    }).catch(function(err){
-        next(err);
+// trigger a stats regeneration
+// todo - auth this or rate limit or something, it's heavy
+router.get('/stats/refresh', function(req, res, next){
+    db.methods.stats.refreshAll(function(){
+
     });
+    res.send(200);
 });
 
 /**
