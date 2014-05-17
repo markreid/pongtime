@@ -116,7 +116,7 @@ module.exports = function(sequelize, models){
     api.players.findAll = function(where){
         return models.Player.findAll({
             where: where || {},
-            attributes: ['name', 'id'],
+            attributes: ['name', 'id', 'leagueId'],
             include: [{
                 model: models.Team
             }, {
@@ -464,22 +464,28 @@ module.exports = function(sequelize, models){
      * @param {Array} playerIDs
      * @return {Object}
      */
-    api.teams.create = function(name, playerIDs){
-        if(!name || !playerIDs) throw {status:409, message: 'teams.create() requires 2 arguments'};
+    api.teams.create = function(data){
+        var name = data.name;
+        var playerIds = data.playerIds;
+        var leagueId = data.leagueId;
+
+        if(!name || !playerIds || !leagueId) throw {status:400, message: 'teams.create() requires 3 arguments'};
         // First we need to ensure a team doesn't exist with these players
-        return api.teams.getTeamIdByPlayers(playerIDs).then(function(teamId){
+        return api.teams.getTeamIdByPlayers(playerIds).then(function(teamId){
             if(teamId) throw {status:409, message: 'Team exists: ' + teamId};
 
             // now get the players
             return api.players.findAll({
-                id: playerIDs
+                id: playerIds,
+                leagueId: leagueId
             });
         }).then(function(players){
-            if(!players || !players.length || players.length !== playerIDs.length) throw {status:400, message: 'Invalid player IDs'};
+            if(!players || !players.length || players.length !== playerIds.length) throw {status:400, message: 'Invalid player IDs'};
 
             // add the team to the DB
             return models.Team.create({
-                name: name
+                name: name,
+                leagueId: leagueId
             }).then(function(team){
 
                 // ok it gets a bit crazy here because we need to
@@ -637,11 +643,18 @@ module.exports = function(sequelize, models){
      * @param  {Array} teamIds  array of team IDs
      * @return {Object}         game
      */
-    api.games.create = function(teamIds){
-        return api.teams.findAll({id: teamIds}).then(function(teams){
+    api.games.create = function(data){
+        var teamIds = data.teamIds;
+        var leagueId = data.leagueId;
+        return api.teams.findAll({
+            id: teamIds,
+            leagueId: leagueId
+        }).then(function(teams){
             if(!teams || teams.length !== 2) throw new Error('Invalid team IDs');
 
-            return models.Game.create({}).then(function(game){
+            return models.Game.create({
+                leagueId: leagueId
+            }).then(function(game){
                 return game.setTeams(teams).then(function(teams){
                     // return the game with the teams attached.
                     return _.extend({}, game.values, {
@@ -746,7 +759,6 @@ module.exports = function(sequelize, models){
         return models.League.findAll({
             where: where
         }).then(function(leagues){
-            console.log(leagues);
             return _.pluck(leagues, 'values');
         }).catch(function(err){
             throw err;

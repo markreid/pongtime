@@ -10,10 +10,33 @@ var Sequelize = require('sequelize');
 var db = require('../models');
 
 // middleware for simulating a slow API response time
-router.use(function(req, res, next){
+router.use(function apiSlowdownMiddleware(req, res, next){
     setTimeout(function(){
         next();
-    }, 0);
+    }, Math.random()*700);
+});
+
+
+/**
+ * League middleware.
+ * The last-viewed league is stashed in a cookie as a convenience.
+ */
+router.use(function leagueMiddleware(req, res, next){
+    // short-circuit if it's already set
+    if(req.cookies.ptLeagueId) return next();
+
+    // otherwise we need to look up the leagues and get the first one we're allowed to look at
+    db.api.leagues.findAll().then(function(leagues){
+        // no leagues available, set -1 so the client knows we're locked out
+        if(!leagues.length){
+            res.cookie('ptLeagueId', -1, {path: '/', secure:true});
+            return next();
+        }
+
+        res.cookie('ptLeagueId', leagues[0].id, {path: '/'});
+        next();
+    });
+
 });
 
 // if you're not a registered user with auth 3, you can only GET
@@ -22,12 +45,16 @@ router.use(function(req, res, next){
     next();
 });
 
-/**
- * Players
- */
+
+
+// players
 
 router.get('/players', function(req, res, next){
-    db.api.players.findAll().then(function(players){
+    var leagueId = getLeagueId(req);
+
+    db.api.players.findAll({
+        leagueId: leagueId
+    }).then(function(players){
         res.send(200, players);
     }).catch(function(err){
         next(err);
@@ -132,7 +159,11 @@ router.delete('/users/:userid', function(req, res, next){
  */
 
 router.get('/teams', function(req, res, next){
-    db.api.teams.findAll().then(function(teams){
+    var leagueId = getLeagueId(req);
+
+    db.api.teams.findAll({
+        leagueId: leagueId
+    }).then(function(teams){
         res.send(200, teams);
     }).catch(function(err){
         next(err);
@@ -207,11 +238,17 @@ router.get('/teams/:id/games', function(req, res, next){
  * Create a team, given a name and player IDs
  */
 router.post('/teams', function(req, res, next){
-    var playerIDs = _.map(req.body.players, function(player){
+    var leagueId = getLeagueId(req);
+
+    var playerIds = _.map(req.body.players, function(player){
         return Number(player);
     });
 
-    db.api.teams.create(req.body.name, playerIDs).then(function(team){
+    db.api.teams.create({
+        name: req.body.name,
+        playerIds: playerIds,
+        leagueId: leagueId
+    }).then(function(team){
         res.send(200, team);
     }).catch(function(err){
         next(err);
@@ -246,7 +283,10 @@ router.put('/teams/:teamid', function(req, res, next){
 
 // fetch all
 router.get('/games', function(req, res, next){
-    db.api.games.findAll().then(function(games){
+    var leagueId = getLeagueId(req);
+    db.api.games.findAll({
+        leagueId: leagueId
+    }).then(function(games){
         res.send(200, games);
     }).catch(function(err){
         next(err);
@@ -288,9 +328,14 @@ router.get('/games/search/:teamids', function(req, res, next){
 });
 
 router.post('/games', function(req, res, next){
-    if(!req.body.teams || !req.body.teams.length) return res.send(400, 'No team IDs specified');
+    var leagueId = getLeagueId(req);
 
-    db.api.games.create(req.body.teams).then(function(game){
+    if(!req.body.teamIds || !req.body.teamIds.length) return res.send(400, 'No team IDs specified');
+
+    db.api.games.create({
+        teamIds: req.body.teamIds,
+        leagueId: leagueId
+    }).then(function(game){
         res.send(201, game);
     }).catch(function(err){
         next(err);
@@ -342,17 +387,6 @@ router.delete('/games/:gameid', function(req, res, next){
 
 router.get('/leagues', function(req, res, next){
     db.api.leagues.findAll().then(function(leagues){
-        if(req.session.activeLeagueId){
-            leagues = _.map(leagues, function(league){
-                if(league.id === req.session.activeLeagueId){
-                    league.active = true;
-                }
-                return league;
-            });
-        } else {
-            console.log(leagues);
-            if(leagues.length) leagues[0].active = true;
-        }
         res.send(200, leagues);
     }).catch(function(err){
         next(err);
@@ -388,6 +422,16 @@ router.use(function(err, req, res, next) {
     if(err.message) return res.send({error: err.message});
     return res.send(err);
 });
+
+/**
+ * Return the leagueId the user is searching for
+ * Look at req.query, fall back to cookie value
+ * @param  {Express Request} req
+ * @return {Number}
+ */
+function getLeagueId(req){
+    return req.query.league || req.cookies.ptLeagueId || -1;
+}
 
 
 module.exports = router;
