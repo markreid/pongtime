@@ -12,7 +12,20 @@
 
         <div class="collapse navbar-collapse" id="header-nav-collapse">
 
+            <ul class="nav navbar-nav navbar-left">
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ activeLeague.name}} <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                        <li ng-repeat="league in leagues"><a ng-click="setActiveLeague(league.id)">{{ league.name }}</a></li>
+                        <li class="divider"></li>
+                        <li><a>New</a></li>
+                    </ul>
+                </li>
+
+            </ul>
+
             <ul class="nav navbar-nav navbar-right nav-user" ng-switch on="signedIn">
+
                 <li class="dropdown" ng-switch-when="true">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ user.name}} <b class="caret"></b></a>
                     <ul class="dropdown-menu">
@@ -20,7 +33,6 @@
                         <li class="divider"></li>
                         <li><a href="/auth/logout/" target="_self">Sign Out</a></li>
                     </ul>
-
                 </li>
 
                 <li class="dropdown" ng-switch-when="false">
