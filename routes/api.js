@@ -334,6 +334,47 @@ router.delete('/games/:gameid', function(req, res, next){
     });
 });
 
+
+
+/**
+ * Leagues
+ */
+
+router.get('/leagues', function(req, res, next){
+    db.api.leagues.findAll().then(function(leagues){
+        if(req.session.activeLeagueId){
+            leagues = _.map(leagues, function(league){
+                if(league.id === req.session.activeLeagueId){
+                    league.active = true;
+                }
+                return league;
+            });
+        } else {
+            console.log(leagues);
+            if(leagues.length) leagues[0].active = true;
+        }
+        res.send(200, leagues);
+    }).catch(function(err){
+        next(err);
+    });
+});
+
+router.post('/leagues', function(req, res, next){
+    db.api.leagues.create(req.body).then(function(league){
+        res.send(200, league);
+    }).catch(function(err){
+        next(err);
+    });
+});
+
+router.put('/leagues/:leagueid', function(req, res, next){
+    db.api.leagues.update(req.params.leagueid, req.body).then(function(league){
+        res.send(200, league);
+    }).catch(function(err){
+        next(err);
+    });
+});
+
 // 404 everything else
 router.get('/*', function(req, res){
     res.send(404);

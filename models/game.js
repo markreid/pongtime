@@ -33,6 +33,12 @@ module.exports = function(sequelize, datatypes){
             // if the team gets deleted, delete this too
             onDelete: 'CASCADE',
             onUpdate: 'CASCADE'
+        },
+        leagueId: {
+            type: datatypes.INTEGER,
+            references: 'Leagues',
+            referncesKey: 'id',
+            allowNull: false
         }
     });
 

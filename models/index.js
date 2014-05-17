@@ -37,7 +37,8 @@ var models = {
     Player: sequelizeImport('player.js'),
     Game: sequelizeImport('game.js'),
     Team: sequelizeImport('team.js'),
-    Stat: sequelizeImport('stats.js')
+    Stat: sequelizeImport('stats.js'),
+    League: sequelizeImport('league.js')
 };
 
 _.each(models, function(model){
@@ -67,6 +68,11 @@ models.Stat.hasOne(models.Player, {foreignKey: 'statId', onDelete:'RESTRICT', on
 models.Stat.hasOne(models.Team, {foreignKey: 'statId', onDelete:'RESTRICT', onUpdate:'CASCADE'});
 models.Player.belongsTo(models.Stat, {foreignKey: 'statId'});
 models.Team.belongsTo(models.Stat, {foreignKey: 'statId'});
+
+// players, games and teams all have a league
+models.League.hasOne(models.Player, {foreignKey: 'playerId'});
+models.League.hasOne(models.Team, {foreignKey: 'playerId'});
+models.League.hasOne(models.Game, {foreignKey: 'playerId'});
 
 
 // todo - this is an asynchronous task, it should have a success handler

@@ -10,6 +10,7 @@ module.exports = function(sequelize, models){
         stats: {},
         games: {},
         users: {},
+        leagues: {},
         generic: {}
     };
 
@@ -740,6 +741,44 @@ module.exports = function(sequelize, models){
         });
     };
 
+
+    api.leagues.findAll = function(where){
+        return models.League.findAll({
+            where: where
+        }).then(function(leagues){
+            console.log(leagues);
+            return _.pluck(leagues, 'values');
+        }).catch(function(err){
+            throw err;
+        });
+    };
+
+
+    api.leagues.create = function(data){
+        // todo - validation
+        return models.League.create(data).then(function(league){
+            return league.values;
+        }).catch(function(err){
+            throw err;
+        });
+    };
+
+    api.leagues.update = function(id, data){
+        // todo - validation
+        return models.League.find({
+            where: {
+                id: id
+            }
+        }).then(function(league){
+            if(!league) return null;
+
+            league.updateAttributes(data).then(function(leage){
+                return league.values;
+            });
+        }).catch(function(err){
+            throw err;
+        });
+    };
 
     return api;
 
