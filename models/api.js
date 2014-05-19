@@ -698,6 +698,9 @@ module.exports = function(sequelize, models){
         // was there previously a result set for this game?
         var hadResult = gameModel.values.winningTeamId || gameModel.values.losingTeamId;
 
+        // todo - check here if the results are actually different. if nothing changed (ie, they just hit save by mistake)
+        // then we don't need to do anything.
+
         // ok, arguments are all valid, let's update the game.
         return gameModel.updateAttributes({
             winningTeamId: updatedData.winningTeamId,
@@ -706,9 +709,15 @@ module.exports = function(sequelize, models){
             date: updatedData.date
         }).then(function(game){
 
+            // If this game previously had a result recorded, the stats table for the league needs to be regenerated.
+            // todo - it would be possible to create a shortcut here, provided that the game is the most recent game
+            // played in the league.  You could just roll back the results in the stats for each team/player without
+            // having to do a complete regeneration.
             if(hadResult){
-                // we need to trigger a stats refresh for the current league
-                return game;
+                console.log('Game had previously recorded result, updating league stats table');
+                return api.stats.refreshLeagueStats(gameModel.leagueId).then(function(){
+                    return game;
+                });
             }
 
             // otherwise, we're adding a result for the first time, so
