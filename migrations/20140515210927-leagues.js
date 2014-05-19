@@ -20,7 +20,7 @@ module.exports = {
   },
   down: function(migration, DataTypes, done) {
     // add reverting commands here, calling 'done' when finished
-    migration.removeTable('Leagues').success(function(){
+    migration.dropTable('Leagues').success(function(){
         done();
     }).fail(function(err){
         throw err;
