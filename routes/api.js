@@ -13,7 +13,8 @@ var db = require('../models');
 router.use(function apiSlowdownMiddleware(req, res, next){
     setTimeout(function(){
         next();
-    }, Math.random()*700);
+    //}, Math.random()*700);
+    }, 0);
 });
 
 
