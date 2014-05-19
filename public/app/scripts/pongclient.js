@@ -21,6 +21,9 @@
         }).when('/players/:id', {
             templateUrl: '/static/views/playerdetailview.html',
             controller: 'playersController'
+        }).when('/leagues/:id', {
+            templateUrl: '/static/views/leaguedetailview.html',
+            controller: 'leagueDetailController'
         }).otherwise({
             redirectTo: '/'
         });

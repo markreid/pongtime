@@ -4,7 +4,7 @@
 
 (function(){
     'use strict';
-    angular.module('pong').factory('leagues', ['$http', '$rootScope', '$cookies', function($http, $rootScope, $cookies){
+    angular.module('pong').factory('leagues', ['$http', '$cookies', '$location', function($http, $cookies, $location){
 
         var registeredObservers = [];
 
@@ -21,7 +21,7 @@
         };
 
         LeaguesService.prototype.reset = function(){
-            fetchLeagues().then(_.bind(function(leaguesArray){
+            return fetchLeagues().then(_.bind(function(leaguesArray){
                 leagues = this.parseLeagues(leaguesArray);
                 synced = true;
             }, this)).then(notifyObservers);
@@ -40,6 +40,13 @@
         LeaguesService.prototype.setActiveLeague = function(id){
             $cookies.ptLeagueId = Number(id);
             this.reset();
+        };
+
+        // single league APi fetch
+        LeaguesService.prototype.getLeagueDetail = function(id){
+            return $http.get('/api/v1/leagues/' + id).then(function(response){
+                return response.data;
+            });
         };
 
         /**
