@@ -70,9 +70,14 @@ models.Player.belongsTo(models.Stat, {foreignKey: 'statId'});
 models.Team.belongsTo(models.Stat, {foreignKey: 'statId'});
 
 // players, games and teams all have a league
-models.League.hasOne(models.Player, {foreignKey: 'playerId'});
-models.League.hasOne(models.Team, {foreignKey: 'playerId'});
-models.League.hasOne(models.Game, {foreignKey: 'playerId'});
+models.League.hasMany(models.Player, {foreignKey: 'leagueId'});
+models.League.hasMany(models.Team, {foreignKey: 'leagueId'});
+models.League.hasMany(models.Game, {foreignKey: 'leagueId'});
+
+models.Player.belongsTo(models.League, {foreignKey: 'leagueId'});
+models.Team.belongsTo(models.League, {foreignKey: 'leagueId'});
+models.Game.belongsTo(models.League, {foreignKey: 'leagueId'});
+
 
 
 // todo - this is an asynchronous task, it should have a success handler
