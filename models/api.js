@@ -316,49 +316,36 @@ module.exports = function(sequelize, models){
         }).then(function(games){
             console.log('updating stats for ' + games.length + ' games');
 
-            // make a clean stats model, removing values we don't want
+            // build a clean stats model, we'll use this as a template
             var cleanStats = models.Stat.build({}).values;
-            delete cleanStats.id;
 
-            // now iterate through each game and record the statistic.
+            var playerStats = {};
+            var teamStats = {};
 
-            _()
+            _.each(games, function(game){
+                teamStats[game.winningTeamId] = addWinToStats(teamStats[game.winningTeamId] || _.extend({}, cleanStats), game);
+                teamStats[game.losingTeamId] = addLossToStats(teamStats[game.losingTeamId] || _.extend({}, cleanStats), game);
 
+                _.each(game.teams, function(team){
+                    var winner = team.id === game.winningTeamId;
+
+                    _.each(team.players, function(player){
+                        if(winner){
+                            playerStats[player.id] = addWinToStats(playerStats[player.id] || _.extend({}, cleanStats), game);
+                        } else {
+                            playerStats[player.id] = addLossToStats(playerStats[player.id] || _.extend({}, cleanStats), game);
+                        }
+                    });
+
+                });
+            });
+
+            console.log(teamStats);
+            console.log(playerStats);
+
+            // todo - so, er, now what?
 
         });
-
-
-
-//        });
-
-        //     // start with a fresh stats object
-        //     // create an empty model and take default values,
-        //     // removing the ones we don't want to overwrite.
-        //     var cleanStats = models.Stat.build({}).values;
-        //     delete cleanStats.id;
-
-        //     // now let's iterate and count everything up
-        //     _.each(games, function(game){
-        //         if(game.winningTeamId === teamID){
-        //             cleanStats = addWinToStats(cleanStats, game);
-        //             return;
-        //         }
-        //         if(game.losingTeamId === teamID){
-        //             cleanStats = addLossToStats(cleanStats, game);
-        //             return;
-        //         }
-        //         // no result, ignore this game for now.
-        //     });
-
-        //     // now find the stats model for this team
-        //     return api.stats.findByTeam(teamID, true).then(function(stat){
-        //         return stat.updateAttributes(cleanStats);
-        //     }).then(function(stat){
-        //         return stat.values;
-        //     }).catch(function(err){
-        //         throw err;
-        //     });
-        // });
 
     };
 
@@ -572,7 +559,8 @@ module.exports = function(sequelize, models){
                 include: [{
                     model: models.Player
                 }]
-            }]
+            }],
+            order: 'date'
         }).then(function(games){
             return _.pluck(games, 'values');
         }).catch(function(err){

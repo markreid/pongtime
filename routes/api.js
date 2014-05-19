@@ -213,9 +213,7 @@ router.get('/teams/search/:players', function(req, res, next){
 // trigger a stats regeneration
 // todo - auth this or rate limit or something, it's heavy
 router.get('/stats/refresh', function(req, res, next){
-    db.api.stats.refreshAll(function(){
-
-    });
+    db.api.stats.refreshAll(1);
     res.send(200);
 });
 
