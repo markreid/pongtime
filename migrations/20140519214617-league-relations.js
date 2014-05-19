@@ -9,19 +9,19 @@ module.exports = {
     migration.addColumn('Games', 'leagueId', {
         type: DataTypes.INTEGER,
         references: 'Leagues',
-        referencesKey: 'leagueId',
+        referencesKey: 'id',
         allowNull: false
     }).success(function(){
         migration.addColumn('Players', 'leagueId', {
             type: DataTypes.INTEGER,
             references: 'Leagues',
-            referencesKey: 'leagueId',
+            referencesKey: 'id',
             allowNull: false
         }).success(function(){
             migration.addColumn('Teams', 'leagueId', {
                 type: DataTypes.INTEGER,
                 references: 'Leagues',
-                referencesKey: 'leagueId',
+                referencesKey: 'id',
                 allowNull: false
             }).success(function(){
                 done();

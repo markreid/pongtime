@@ -17,7 +17,7 @@ module.exports = function(sequelize, datatypes){
         leagueId: {
             type: datatypes.INTEGER,
             references: 'Leagues',
-            referncesKey: 'id',
+            referencesKey: 'id',
             allowNull: false
         }
     });
