@@ -10,24 +10,53 @@ module.exports = {
         type: DataTypes.INTEGER,
         references: 'Leagues',
         referencesKey: 'id',
-        allowNull: false
-    }).success(function(){
-        migration.addColumn('Players', 'leagueId', {
+        allowNull: false,
+        default: 1
+    }).then(function(){
+        // now remove the default
+        return migration.changeColumn('Games', 'leagueId', {
             type: DataTypes.INTEGER,
             references: 'Leagues',
             referencesKey: 'id',
             allowNull: false
-        }).success(function(){
-            migration.addColumn('Teams', 'leagueId', {
-                type: DataTypes.INTEGER,
-                references: 'Leagues',
-                referencesKey: 'id',
-                allowNull: false
-            }).success(function(){
-                done();
-            });
         });
+    }).then(function(){
+        return migration.addColumn('Players', 'leagueId', {
+            type: DataTypes.INTEGER,
+            references: 'Leagues',
+            referencesKey: 'id',
+            allowNull: false,
+            default: 1
+        });
+    }).then(function(){
+        // now remove the default
+        return migration.changeColumn('Players', 'leagueId', {
+            type: DataTypes.INTEGER,
+            references: 'Leagues',
+            referencesKey: 'id',
+            allowNull: false
+        });
+    }).then(function(){
+        return migration.addColumn('Teams', 'leagueId', {
+            type: DataTypes.INTEGER,
+            references: 'Leagues',
+            referencesKey: 'id',
+            allowNull: false,
+            default: 1
+        });
+    }).then(function(){
+        return migration.changeColumn('Teams', 'leagueId', {
+            type: DataTypes.INTEGER,
+            references: 'Leagues',
+            referencesKey: 'id',
+            allowNull: false
+        };
+    }).then(function(){
+        done();
+    }).catch(function(err){
+        throw err;
     });
+
   },
   down: function(migration, DataTypes, done) {
     // add reverting commands here, calling 'done' when finished
