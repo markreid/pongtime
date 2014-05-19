@@ -13,28 +13,12 @@ module.exports = {
         allowNull: false,
         default: 1
     }).then(function(){
-        // now remove the default
-        return migration.changeColumn('Games', 'leagueId', {
-            type: DataTypes.INTEGER,
-            references: 'Leagues',
-            referencesKey: 'id',
-            allowNull: false
-        });
-    }).then(function(){
         return migration.addColumn('Players', 'leagueId', {
             type: DataTypes.INTEGER,
             references: 'Leagues',
             referencesKey: 'id',
             allowNull: false,
             default: 1
-        });
-    }).then(function(){
-        // now remove the default
-        return migration.changeColumn('Players', 'leagueId', {
-            type: DataTypes.INTEGER,
-            references: 'Leagues',
-            referencesKey: 'id',
-            allowNull: false
         });
     }).then(function(){
         return migration.addColumn('Teams', 'leagueId', {
@@ -44,13 +28,6 @@ module.exports = {
             allowNull: false,
             default: 1
         });
-    }).then(function(){
-        return migration.changeColumn('Teams', 'leagueId', {
-            type: DataTypes.INTEGER,
-            references: 'Leagues',
-            referencesKey: 'id',
-            allowNull: false
-        };
     }).then(function(){
         done();
     }).catch(function(err){
