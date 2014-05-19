@@ -1,5 +1,6 @@
 var _ = require('underscore');
 var Sequelize = require('sequelize');
+var Q = require('Q');
 
 module.exports = function(sequelize, models){
     'use strict';
@@ -98,10 +99,14 @@ module.exports = function(sequelize, models){
 
     api.stats.findByTeam = function(teamId, notValues){
         return models.Stat.find({
-            where: {
-                TeamId: teamId
-            }
+            include: [{
+                model: models.Team,
+                where: {
+                    statId: teamId
+                }
+            }]
         }).then(function(stat){
+            if(!stat) return null;
             if(notValues) return stat;
             return stat.values;
         }).catch(function(err){
@@ -109,11 +114,15 @@ module.exports = function(sequelize, models){
         });
     };
 
+
+
     /**
      * Find all players
+     * @param {where} Object        where clause
+     * @param {Boolean} notValues   return .values or model instance?
      * @return {Object}     model.values
      */
-    api.players.findAll = function(where){
+    api.players.findAll = function(where, notValues){
         return models.Player.findAll({
             where: where || {},
             attributes: ['name', 'id', 'leagueId'],
@@ -124,6 +133,7 @@ module.exports = function(sequelize, models){
             }],
             order: 'id'
         }).then(function(players){
+            if(notValues) return players;
             return _.pluck(players, 'values');
         }).catch(function(err){
             throw err;
@@ -172,35 +182,6 @@ module.exports = function(sequelize, models){
     };
 
     /**
-     * Generate the stats for a player
-     * By tallying the stats for all the teams they're in
-     */
-    api.players.getStats = function(playerModel){
-        var teamIds = _.pluck(playerModel.values.teams, 'id');
-
-        // now fetch those teams
-        return api.teams.findAll({
-            id: teamIds
-        }).then(function(teams){
-            var stats = _.pluck(teams, 'stat');
-            var values = _.pluck(stats, 'values');
-
-            var summed = values.pop();
-
-            _.each(values, function(stat){
-                for(var key in stat){
-                    summed[key] += stat[key];
-                }
-            });
-
-            return summed;
-
-        }).catch(function(err){
-            throw err;
-        });
-    };
-
-    /**
      * Record wins for 1 or more players
      * @param {Array} players       player models array
      * @param {Object} gameData
@@ -222,11 +203,9 @@ module.exports = function(sequelize, models){
      * @return {Promise} chainer.run();
      */
     api.players.recordLosses = function(players, gameData){
-        console.log('recording losses!');
         var chainer = new Sequelize.Utils.QueryChainer();
         _.each(players, function(player){
             var updatedStats = addLossToStats(player.stat.values, gameData);
-            console.log(updatedStats);
             chainer.add(player.stat.updateAttributes(updatedStats));
         });
         return chainer.run();
@@ -237,7 +216,7 @@ module.exports = function(sequelize, models){
      * @param  {Object} where   filter params
      * @return {Object}         model.values
      */
-    api.teams.findAll = function(where){
+    api.teams.findAll = function(where, notValues){
         return models.Team.findAll({
             where: where || {},
             attributes: ['name', 'id'],
@@ -248,6 +227,7 @@ module.exports = function(sequelize, models){
                 model: models.Stat
             }]
         }).then(function(teams){
+            if(notValues) return teams;
             return _.pluck(teams, 'values');
         }).catch(function(err){
             throw err;
@@ -304,33 +284,40 @@ module.exports = function(sequelize, models){
     };
 
     /**
-     * Regenerate the stats table for a league
+     * Regenerates the stats for every team and player in the given league
+     * @param {Number} leagueId
+     * @returns {Promise} DB operations promise
      */
-    api.stats.refreshAll = function(leagueId){
-        // fetch all the games, from earliest to last.
-        // generate a fresh stat model for every team and player ID.
+    api.stats.refreshLeagueStats = function(leagueId){
 
-        // fetch all the games that this team has played in, from earliest to latest.
+        // We fetch every single game that's been played in the league, ordering chronologically.
+
         return api.games.findAllWithPlayers({
             leagueId: leagueId
         }).then(function(games){
-            console.log('updating stats for ' + games.length + ' games');
+            console.log('stats.refreshLeagueStats() found ' + games.length + ' games to process.');
 
-            // build a clean stats model, we'll use this as a template
+            // Generate a fresh Stat model, which we use as a template, and create an object to hold
+            // all of our player and team stats models.
             var cleanStats = models.Stat.build({}).values;
-
             var playerStats = {};
             var teamStats = {};
 
+            // Iterate through the games, checking the winningTeamId and losingTeamId.
+            // If this is the first time we've seen this team, clone cleanStats and put it in teamStats, referenced by ID.
+            // Otherwise, update the existing object in teamStats.
             _.each(games, function(game){
+
                 teamStats[game.winningTeamId] = addWinToStats(teamStats[game.winningTeamId] || _.extend({}, cleanStats), game);
                 teamStats[game.losingTeamId] = addLossToStats(teamStats[game.losingTeamId] || _.extend({}, cleanStats), game);
 
+                // Now we do the same with the players in each team.
                 _.each(game.teams, function(team){
-                    var winner = team.id === game.winningTeamId;
+
+                    var winningTeam = team.id === game.winningTeamId;
 
                     _.each(team.players, function(player){
-                        if(winner){
+                        if(winningTeam){
                             playerStats[player.id] = addWinToStats(playerStats[player.id] || _.extend({}, cleanStats), game);
                         } else {
                             playerStats[player.id] = addLossToStats(playerStats[player.id] || _.extend({}, cleanStats), game);
@@ -340,10 +327,44 @@ module.exports = function(sequelize, models){
                 });
             });
 
-            console.log(teamStats);
-            console.log(playerStats);
+            // We now have regenerated Stat models for every team and every player in the league.
+            // So we need to overwrite the DB Stats with our new values.
 
-            // todo - so, er, now what?
+            var teamIds = Object.keys(teamStats);
+            var playerIds = Object.keys(playerStats);
+
+            var teamOperations = [];
+            var playerOperations = [];
+
+            // Fetch all the relevant teams from the DB, and call updateAttributes on each of them,
+            // pushing the call into our teamOperations array.
+            return api.teams.findAll({
+                id: teamIds
+            }, true).then(function(teams){
+                _.each(teams, function(team){
+                    teamOperations.push(team.stat.updateAttributes(teamStats[team.id]));
+                });
+            }).then(function(){
+
+                // Do the same with each of the players
+                return api.players.findAll({
+                    id: playerIds
+                }, true).then(function(players){
+                    _.each(players, function(player){
+                        playerOperations.push(player.stat.updateAttributes(playerStats[player.id]));
+                    });
+                });
+            }).then(function(){
+                // teamOperations and playerOperations are now arrays full of promises for DB operations.
+                // Wrap them with Q.all so we can fire a response when they have all finished updating.
+                return Q.all(teamOperations.concat(playerOperations));
+
+            }).then(function(){
+                console.log('refreshed stats table for league ' + leagueId);
+                return true;
+            }).catch(function(err){
+                throw err;
+            });
 
         });
 

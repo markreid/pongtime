@@ -87,14 +87,6 @@ router.get('/players/:playerid', function(req, res, next){
     res.send(200, req.player.values);
 });
 
-router.get('/players/:playerid/stats', function(req, res, next){
-    db.api.players.getStats(req.player).then(function(response){
-        res.send(200, response);
-    }).catch(function(err){
-        next(err);
-    });
-});
-
 router.put('/players/:playerid', function(req, res, next){
     db.api.generic.updateModel(req.player, req.body).then(function(player){
         res.send(200, player.values);
@@ -208,13 +200,6 @@ router.get('/teams/search/:players', function(req, res, next){
     }, function(err){
         next(err);
     });
-});
-
-// trigger a stats regeneration
-// todo - auth this or rate limit or something, it's heavy
-router.get('/stats/refresh', function(req, res, next){
-    db.api.stats.refreshAll(1);
-    res.send(200);
 });
 
 /**
@@ -413,6 +398,17 @@ router.post('/leagues', function(req, res, next){
 router.put('/leagues/:leagueid', function(req, res, next){
     db.api.leagues.update(req.params.leagueid, req.body).then(function(league){
         res.send(200, league);
+    }).catch(function(err){
+        next(err);
+    });
+});
+
+// trigger stats refresh for a league
+// todo - this should be authed, rate limited or even restricted to
+// internal calls, because it's DB heavy and shouldn't be spammed.
+router.get('/leagues/:leagueid/stats/refresh', function(req, res, next){
+    db.api.stats.refreshLeagueStats(req.params.leagueid).then(function(result){
+        res.send(200, result);
     }).catch(function(err){
         next(err);
     });
