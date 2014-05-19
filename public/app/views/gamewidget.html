@@ -26,7 +26,7 @@
                 </div>
                 <div class="form-group">
                     <label for="winner">Who won?</label>
-                    <select ng-model="game.winningTeamId" ng-change="setLoser()" ng-options="team.id as team.name for team in game.teams"><option>lol!</option></select>
+                    <select ng-model="game.winningTeamId" ng-change="setLoser()" ng-options="team.id as team.name for team in game.teams"></select>
                 </div>
                 <div class="form-group">
                     <label for="loser">Who lost?</label>
