@@ -1,6 +1,6 @@
 var _ = require('underscore');
 var Sequelize = require('sequelize');
-var Q = require('Q');
+var Q = require('q');
 
 module.exports = function(sequelize, models){
     'use strict';
