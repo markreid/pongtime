@@ -10,17 +10,15 @@
 #### clientside
 
 * Keep a cache of team data in the teams service, so you can do a lookup by ID without hitting the server, and we don't need to pass teams around the views everywhere.
-* Players view
 
 
 #### serverside
 
-* Method for refreshing stats by team
-* Populate player stats
+* League stats refresh
+* Proper auth model
+* League defaults to -1 if they haven't chosen one before - the API needs to catch this and say "invalid league" so the client can tell them to choose one.
 * Add a dev/prod switch for the API 300ms delay
 * Auth for API
-* Stats refresh method
-* Player stats
 * Team slugs
 
 

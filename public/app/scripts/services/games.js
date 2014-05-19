@@ -29,7 +29,8 @@
             return $http.put('/api/v1/games/' + Number(data.id), {
                 winningTeamId: data.winningTeamId,
                 losingTeamId: data.losingTeamId,
-                redemption: data.redemption
+                redemption: data.redemption,
+                date: data.date
             }).then(function(response){
                 return response.data;
             });

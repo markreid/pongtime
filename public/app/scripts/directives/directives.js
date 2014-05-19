@@ -244,7 +244,12 @@
                 // parse the data the API returns to make it more readable and usable
                 var parseGameData = function(game){
                     // format the date as a "x minutes ago"
-                    game.date = moment(game.date).format('MMM D, YYYY');
+                    game.readableDate = moment(game.date).format('MMM D, YYYY');
+
+                    // create a duplicate date that we'll use for editing
+                    // if you use the original, the game widget will move around the page
+                    // if it's being sorted by date. hnnngg...
+                    game.editableDate = game.date;
 
                     // need to set redemption to false if it's null
                     game.redemption = game.redemption || false;
@@ -280,7 +285,8 @@
                         id: $scope.game.id,
                         winningTeamId: $scope.game.winningTeamId,
                         losingTeamId: $scope.game.losingTeamId,
-                        redemption: $scope.game.redemption
+                        redemption: $scope.game.redemption,
+                        date: $scope.game.editableDate
                     }).then(function(game){
                         $scope.game = parseGameData(game);
                         $scope.edit = false;

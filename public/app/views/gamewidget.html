@@ -3,7 +3,7 @@
         <h4 class="text-center">
             <b>{{ game.teams[0].name || game.teams[0].playersString}}</b> vs <b>{{ game.teams[1].name || game.teams[1].playersString}}</b>
             <br>
-            <small>{{ game.date }}</small>
+            <small>{{ game.readableDate }}</small>
         </h4>
     </div>
 
@@ -20,6 +20,10 @@
         <div class="form-results=" ng-show="editing">
             <form class="form">
             <fieldset>
+                <div class="form-group">
+                    <label for="date">When was it played?</label>
+                    <quick-datepicker ng-model="game.editableDate">
+                </div>
                 <div class="form-group">
                     <label for="winner">Who won?</label>
                     <select ng-model="game.winningTeamId" ng-change="setLoser()" ng-options="team.id as team.name for team in game.teams"><option>lol!</option></select>

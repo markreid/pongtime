@@ -1,7 +1,7 @@
 (function(){
     'use strict';
 
-    angular.module(['pong'], ['ngCookies', 'ngResource', 'ngSanitize', 'ngRoute'])
+    angular.module(['pong'], ['ngCookies', 'ngResource', 'ngSanitize', 'ngRoute', 'ngQuickDate'])
     .config(function($routeProvider, $locationProvider){
         $routeProvider.when('/', {
             templateUrl: '/static/views/indexview.html',

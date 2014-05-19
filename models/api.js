@@ -304,14 +304,16 @@ module.exports = function(sequelize, models){
     };
 
     /**
-     * Regenerate the stats table
+     * Regenerate the stats table for a league
      */
-    api.stats.refreshAll = function(){
+    api.stats.refreshAll = function(leagueId){
         // fetch all the games, from earliest to last.
         // generate a fresh stat model for every team and player ID.
 
         // fetch all the games that this team has played in, from earliest to latest.
-        return api.games.findAllWithPlayers().then(function(games){
+        return api.games.findAllWithPlayers({
+            leagueId: leagueId
+        }).then(function(games){
             console.log('updating stats for ' + games.length + ' games');
 
             // make a clean stats model, removing values we don't want
@@ -691,15 +693,13 @@ module.exports = function(sequelize, models){
         return gameModel.updateAttributes({
             winningTeamId: updatedData.winningTeamId,
             losingTeamId: updatedData.losingTeamId,
-            redemption: updatedData.redemption
+            redemption: updatedData.redemption,
+            date: updatedData.date
         }).then(function(game){
 
-            // if there was previously a result set for this game
-            // and we're editing it, we need to refresh the stats
-            // for the teams and players involved.
             if(hadResult){
-                // todo - trigger a stats refresh for the players and teams involved here.
-                return;
+                // we need to trigger a stats refresh for the current league
+                return game;
             }
 
             // otherwise, we're adding a result for the first time, so
