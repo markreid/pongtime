@@ -318,7 +318,7 @@
                     $scope.path = path;
                 });
 
-                $scope.setActiveLeague = function(id){
+                $scope.setLeague = function(id){
                     leaguesService.setActiveLeague(id);
                 };
 
@@ -356,7 +356,7 @@
     }]).directive('messages', ['notifications', function(notificationsService){
         return {
             restrict: 'E',
-            template: '<div id="messages"><div ng-repeat="message in messages" class="alert alert-warning" ng-class="message.class"><button type="button" class="close" ng-click="dismiss(this)">&times;</button>{{ message.text }}</div></div>',
+            template: '<div id="messages" ng-class="{active:messages.length}"><div ng-repeat="message in messages" class="alert alert-warning" ng-class="message.class"><button type="button" class="close" ng-click="dismiss(this)">&times;</button>{{ message.text }}</div></div>',
             replace: true,
             scope: {},
             link: function($scope, $el, $attrs){

@@ -25,6 +25,11 @@
     z-index: 1031;
     padding: 8px 10%;
     width: 100%;
+    display: none;
+
+    &.active {
+        display: block;
+    }
 
     div {
         position: relative;

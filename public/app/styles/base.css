@@ -7654,37 +7654,42 @@ td.visible-print {
   z-index: 1031;
   padding: 8px 10%;
   width: 100%;
+  display: none;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/Webapps\/pongtime\/public\/app\/styles\/base\.scss}line{font-family:\0000329}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/Webapps\/pongtime\/public\/app\/styles\/base\.scss}line{font-family:\0000330}}
+#messages.active {
+  display: block;
+}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/Webapps\/pongtime\/public\/app\/styles\/base\.scss}line{font-family:\0000334}}
 #messages div {
   position: relative;
   -webkit-animation: fadeinanddrop 0.3s ease-out;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/Webapps\/pongtime\/public\/app\/styles\/base\.scss}line{font-family:\0000335}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/Webapps\/pongtime\/public\/app\/styles\/base\.scss}line{font-family:\0000340}}
 teamwidget .loader {
   display: block;
   margin: 0 auto;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/Webapps\/pongtime\/public\/app\/styles\/base\.scss}line{font-family:\0000342}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/Webapps\/pongtime\/public\/app\/styles\/base\.scss}line{font-family:\0000347}}
 gamewidget .panel {
   position: relative;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/Webapps\/pongtime\/public\/app\/styles\/base\.scss}line{font-family:\0000346}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/Webapps\/pongtime\/public\/app\/styles\/base\.scss}line{font-family:\0000351}}
 gamewidget .btn-edit {
   position: absolute;
   top: 8px;
   right: 8px;
   color: #468847;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/Webapps\/pongtime\/public\/app\/styles\/base\.scss}line{font-family:\0000354}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/Webapps\/pongtime\/public\/app\/styles\/base\.scss}line{font-family:\0000359}}
 gamewidget .btn-edit:hover {
   color: #333;
   cursor: pointer;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/Webapps\/pongtime\/public\/app\/styles\/base\.scss}line{font-family:\0000363}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/Webapps\/pongtime\/public\/app\/styles\/base\.scss}line{font-family:\0000368}}
 #view-team-list .teams-table th {
   cursor: pointer;
 }
@@ -7692,7 +7697,7 @@ gamewidget .btn-edit:hover {
 /**
  * Old shit
  */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/Webapps\/pongtime\/public\/app\/styles\/base\.scss}line{font-family:\0000373}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/Webapps\/pongtime\/public\/app\/styles\/base\.scss}line{font-family:\0000378}}
 .section-players button {
   margin: 0 3px;
 }
@@ -7700,16 +7705,16 @@ gamewidget .btn-edit:hover {
 /**
  * Game widget
  */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/Webapps\/pongtime\/public\/app\/styles\/base\.scss}line{font-family:\0000382}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/Webapps\/pongtime\/public\/app\/styles\/base\.scss}line{font-family:\0000387}}
 gamewidget .table-match-history tr td, gamewidget .table-match-history tr th {
   text-align: center;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/Webapps\/pongtime\/public\/app\/styles\/base\.scss}line{font-family:\0000385}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/Webapps\/pongtime\/public\/app\/styles\/base\.scss}line{font-family:\0000390}}
 gamewidget .table-match-history tr td:first-child, gamewidget .table-match-history tr th:first-child {
   text-align: left;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/Webapps\/pongtime\/public\/app\/styles\/base\.scss}line{font-family:\0000394}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/Webapps\/pongtime\/public\/app\/styles\/base\.scss}line{font-family:\0000399}}
 .cleaninput, .cleaninput:disabled {
   font: inherit;
   background: none;
@@ -7717,13 +7722,13 @@ gamewidget .table-match-history tr td:first-child, gamewidget .table-match-histo
   padding: 0;
   outline: none;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/Webapps\/pongtime\/public\/app\/styles\/base\.scss}line{font-family:\00003101}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/Webapps\/pongtime\/public\/app\/styles\/base\.scss}line{font-family:\00003106}}
 .cleaninput:focus, .cleaninput:disabled:focus {
   color: skyblue;
 }
 
 /** Better loader **/
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/Webapps\/pongtime\/public\/app\/styles\/base\.scss}line{font-family:\00003109}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/Webapps\/pongtime\/public\/app\/styles\/base\.scss}line{font-family:\00003114}}
 .loader {
   width: 50px;
   height: 50px;
@@ -7735,7 +7740,7 @@ gamewidget .table-match-history tr td:first-child, gamewidget .table-match-histo
   -webkit-animation: loader-1 0.5s infinite linear;
   animation: loader-1 0.5s infinite linear;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/Webapps\/pongtime\/public\/app\/styles\/base\.scss}line{font-family:\00003120}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/Webapps\/pongtime\/public\/app\/styles\/base\.scss}line{font-family:\00003125}}
 .loader::before, .loader::after {
   border-radius: 50%;
   position: absolute;
@@ -7749,7 +7754,7 @@ gamewidget .table-match-history tr td:first-child, gamewidget .table-match-histo
   -webkit-animation: 0.5s infinite ease-in-out;
   animation: 0.5s infinite ease-in-out;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/Webapps\/pongtime\/public\/app\/styles\/base\.scss}line{font-family:\00003134}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/Webapps\/pongtime\/public\/app\/styles\/base\.scss}line{font-family:\00003139}}
 .loader::before {
   left: -5%;
   -webkit-animation: loader-2 0.5s infinite alternate ease-in-out;
@@ -7757,7 +7762,7 @@ gamewidget .table-match-history tr td:first-child, gamewidget .table-match-histo
   animation: loader-2 0.5s infinite alternate ease-in-out;
   transform-origin: 10% 50%;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/Webapps\/pongtime\/public\/app\/styles\/base\.scss}line{font-family:\00003142}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/Webapps\/pongtime\/public\/app\/styles\/base\.scss}line{font-family:\00003147}}
 .loader::after {
   left: auto;
   right: -5%;
@@ -7768,7 +7773,7 @@ gamewidget .table-match-history tr td:first-child, gamewidget .table-match-histo
   transform: scale(0);
   transform-origin: 90% 50%;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/Webapps\/pongtime\/public\/app\/styles\/base\.scss}line{font-family:\00003153}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/Webapps\/pongtime\/public\/app\/styles\/base\.scss}line{font-family:\00003158}}
 .loader.pageloader {
   position: fixed;
   top: 30%;
@@ -7777,48 +7782,48 @@ gamewidget .table-match-history tr td:first-child, gamewidget .table-match-histo
 }
 
 @-webkit-keyframes loader-1 {
-  /* line 163, base.scss */
+  /* line 168, base.scss */
   0% {
     -webkit-transform: rotate(20deg);
   }
 
-  /* line 164, base.scss */
+  /* line 169, base.scss */
   100% {
     -webkit-transform: rotate(380deg);
   }
 }
 
 @-webkit-keyframes loader-2 {
-  /* line 168, base.scss */
+  /* line 173, base.scss */
   0% {
     -webkit-transform: scale(0);
   }
 
-  /* line 169, base.scss */
+  /* line 174, base.scss */
   100% {
     -webkit-transform: scale(1);
   }
 }
 
 @keyframes loader-1 {
-  /* line 173, base.scss */
+  /* line 178, base.scss */
   0% {
     transform: rotate(20deg);
   }
 
-  /* line 174, base.scss */
+  /* line 179, base.scss */
   100% {
     transform: rotate(380deg);
   }
 }
 
 @keyframes loader-2 {
-  /* line 178, base.scss */
+  /* line 183, base.scss */
   0% {
     transform: scale(0);
   }
 
-  /* line 179, base.scss */
+  /* line 184, base.scss */
   100% {
     transform: scale(1);
   }
@@ -7826,13 +7831,13 @@ gamewidget .table-match-history tr td:first-child, gamewidget .table-match-histo
 
 /** animations **/
 @-webkit-keyframes fadeinanddrop {
-  /* line 186, base.scss */
+  /* line 191, base.scss */
   0% {
     opacity: 0;
     top: -20px;
   }
 
-  /* line 187, base.scss */
+  /* line 192, base.scss */
   100% {
     opacity: 1;
     top: 0;

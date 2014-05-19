@@ -16,7 +16,7 @@
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ activeLeague.name}} <b class="caret"></b></a>
                     <ul class="dropdown-menu">
-                        <li ng-repeat="league in leagues"><a ng-click="setActiveLeague(league.id)">{{ league.name }}</a></li>
+                        <li ng-repeat="league in leagues"><a href="/leagues/{{ league.id }}/" ng-click="setLeague(league.id)">{{ league.name }}</a></li>
                         <li class="divider"></li>
                         <li><a>New</a></li>
                     </ul>
