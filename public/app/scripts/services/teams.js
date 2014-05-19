@@ -98,7 +98,7 @@
             if(stats.streak === -1){
                 streaktext = '1 loss';
             }
-            stats.streak = streaktext;
+            stats.streakReadable = streaktext;
             stats.coldest = Math.abs(stats.coldest);
 
             // redemptions

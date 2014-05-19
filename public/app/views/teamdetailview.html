@@ -14,7 +14,7 @@
             <p>{{ hasHave|capitalize }} conceded redemption {{ team.stat.redemptionsGiven }} {{ 'time'|plural:team.stat.redemptionsGiven }}.</p>
             <p ng-show="team.stat.hottest > 1">Hottest streak was {{ team.stat.hottest }} wins.</p>
             <p ng-show="team.stat.coldest > 1">Coldest streak was {{ team.stat.coldest }} losses.</p>
-            <p ng-show="team.stat.streak">Current streak is {{ team.stat.streak }}.</p>
+            <p ng-show="team.stat.streak">Current streak is {{ team.stat.streakReadable }}.</p>
         </div>
     </div>
 
