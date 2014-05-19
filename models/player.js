@@ -22,6 +22,12 @@ module.exports = function(sequelize, datatypes){
             type: datatypes.INTEGER,
             references: 'Stats',
             referencesKey: 'id'
+        },
+        leagueId: {
+            type: datatypes.INTEGER,
+            references: 'Leagues',
+            referencesKey: 'id',
+            allowNull: false
         }
     });
 

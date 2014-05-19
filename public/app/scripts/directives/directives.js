@@ -190,7 +190,7 @@
 
                     $q.all(teamIdPromises).then(function(teams){
                         return gamesService.add({
-                            teams: teams
+                            teamIds: teams
                         });
                     }).then(function(response){
                         $scope.createdGame = response;
@@ -302,7 +302,7 @@
                 };
             }
         };
-    }]).directive('headernav', ['user', '$location', function(userService, $location){
+    }]).directive('headernav', ['user', 'leagues', '$location', function(userService, leaguesService, $location){
         return {
             restrict: 'E',
             templateUrl: '/static/views/headernav.html',
@@ -318,10 +318,21 @@
                     $scope.path = path;
                 });
 
+                $scope.setLeague = function(id){
+                    leaguesService.setActiveLeague(id);
+                };
+
                 // register a callback with the users service to keep an eye on the user object
                 userService.onUserUpdate(function(user){
                     $scope.user = user;
                     $scope.signedIn = user.signedIn;
+                });
+
+                leaguesService.onUpdate(function(leagues){
+                    $scope.leagues = leagues;
+                    $scope.activeLeague = _.find(leagues, function(league){
+                        return league.active;
+                    });
                 });
 
                 // todo - this sucks, use proper angular directives instead of vanilla bootstrap
@@ -345,7 +356,7 @@
     }]).directive('messages', ['notifications', function(notificationsService){
         return {
             restrict: 'E',
-            template: '<div id="messages"><div ng-repeat="message in messages" class="alert alert-warning" ng-class="message.class"><button type="button" class="close" ng-click="dismiss(this)">&times;</button>{{ message.text }}</div></div>',
+            template: '<div id="messages" ng-class="{active:messages.length}"><div ng-repeat="message in messages" class="alert alert-warning" ng-class="message.class"><button type="button" class="close" ng-click="dismiss(this)">&times;</button>{{ message.text }}</div></div>',
             replace: true,
             scope: {},
             link: function($scope, $el, $attrs){

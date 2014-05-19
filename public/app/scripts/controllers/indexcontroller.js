@@ -1,7 +1,7 @@
 (function(){
     'use strict';
 
-    angular.module('pong').controller('indexController', ['$scope', '$timeout', 'players', 'teams', 'notifications', 'user', function($scope, $timeout, playersService, teamsService, notificationsService, userService){
+    angular.module('pong').controller('indexController', ['$scope', '$timeout', '$q', 'players', 'teams', 'notifications', 'user', 'leagues', function($scope, $timeout, $q, playersService, teamsService, notificationsService, userService, leaguesService){
 
         /**
          * This controller has a kind-of complicated workflow, so here's a little description:
@@ -24,6 +24,9 @@
             $scope.playersPerTeam = 2;
             $scope.showAddPlayer = false;
 	        $scope.warning = false;
+
+
+            // fetch everything we need
             $scope.getPlayers().finally(function(){
                 $scope.refreshing = false;
             });
@@ -57,7 +60,8 @@
 
         $scope.addNewPlayer = function(name){
             playersService.add({
-                name: name
+                name: name,
+                leagueId: leaguesService.getActiveLeagueId()
             }).then(function (newPlayer){
                 newPlayer.active = true;
                 $scope.players.push(newPlayer);

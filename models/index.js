@@ -21,7 +21,7 @@ var sequelize = new Sequelize(config.DB.NAME, config.DB.USER, config.DB.PASS, {
 // attach the models
 // var models = {};
 // fs.readdirSync(__dirname).filter(function(file){
-//     return (file.indexOf('.') !== 0) && !~['index.js', 'dbutils.js', 'methods.js'].indexOf(file);
+//     return (file.indexOf('.') !== 0) && !~['index.js', 'dbutils.js', 'api.js'].indexOf(file);
 // }).forEach(function(file){
 //     console.info('loading models from ' + file);
 //     var model = sequelize.import(path.join(__dirname, file));
@@ -37,7 +37,8 @@ var models = {
     Player: sequelizeImport('player.js'),
     Game: sequelizeImport('game.js'),
     Team: sequelizeImport('team.js'),
-    Stat: sequelizeImport('stats.js')
+    Stat: sequelizeImport('stats.js'),
+    League: sequelizeImport('league.js')
 };
 
 _.each(models, function(model){
@@ -68,6 +69,16 @@ models.Stat.hasOne(models.Team, {foreignKey: 'statId', onDelete:'RESTRICT', onUp
 models.Player.belongsTo(models.Stat, {foreignKey: 'statId'});
 models.Team.belongsTo(models.Stat, {foreignKey: 'statId'});
 
+// players, games and teams all have a league
+models.League.hasMany(models.Player, {foreignKey: 'leagueId'});
+models.League.hasMany(models.Team, {foreignKey: 'leagueId'});
+models.League.hasMany(models.Game, {foreignKey: 'leagueId'});
+
+models.Player.belongsTo(models.League, {foreignKey: 'leagueId'});
+models.Team.belongsTo(models.League, {foreignKey: 'leagueId'});
+models.Game.belongsTo(models.League, {foreignKey: 'leagueId'});
+
+
 
 // todo - this is an asynchronous task, it should have a success handler
 sequelize.sync().then(function(){
@@ -76,5 +87,5 @@ sequelize.sync().then(function(){
 
 module.exports = _.extend({
     sequelize: sequelize,
-    methods: require('./methods')(sequelize, models)
+    api: require('./api')(sequelize, models)
 }, models);
