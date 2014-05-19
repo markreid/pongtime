@@ -10,23 +10,20 @@ module.exports = {
         type: DataTypes.INTEGER,
         references: 'Leagues',
         referencesKey: 'id',
-        allowNull: false,
-        default: 1
+        //allowNull: false
     }).then(function(){
         return migration.addColumn('Players', 'leagueId', {
             type: DataTypes.INTEGER,
             references: 'Leagues',
             referencesKey: 'id',
-            allowNull: false,
-            default: 1
+            //allowNull: false
         });
     }).then(function(){
         return migration.addColumn('Teams', 'leagueId', {
             type: DataTypes.INTEGER,
             references: 'Leagues',
             referencesKey: 'id',
-            allowNull: false,
-            default: 1
+            //allowNull: false
         });
     }).then(function(){
         done();
