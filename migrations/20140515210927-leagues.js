@@ -3,11 +3,11 @@ module.exports = {
     // add altering commands here, calling 'done' when finished
     migration.createTable('Leagues', {
         name: {
-            type: datatypes.STRING,
+            type: DataTypes.STRING,
             allowNull: false
         },
         'public': {
-            type: datatypes.BOOLEAN,
+            type: DataTypes.BOOLEAN,
             allowNull: false,
             default: true
         }
@@ -24,7 +24,7 @@ module.exports = {
         done();
     }).fail(function(err){
         throw err;
-    }
+    });
 
   }
 }
