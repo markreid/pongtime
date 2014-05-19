@@ -393,6 +393,17 @@ router.get('/leagues', function(req, res, next){
     });
 });
 
+router.get('/leagues/:leagueid', function(req, res, next){
+    db.api.leagues.findOne({
+        id: req.params.leagueid
+    }).then(function(league){
+        if(!league) return res.send(404);
+        res.send(league, 200);
+    }).catch(function(err){
+        next(err);
+    });
+})
+
 router.post('/leagues', function(req, res, next){
     db.api.leagues.create(req.body).then(function(league){
         res.send(200, league);
