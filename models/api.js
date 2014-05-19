@@ -765,6 +765,25 @@ module.exports = function(sequelize, models){
         });
     };
 
+    api.leagues.findOne = function(where, notValues){
+        return models.League.find({
+            where: where,
+            include: [{
+                model: models.Team
+            }, {
+                model: models.Game
+            }, {
+                model: models.Player
+            }]
+        }).then(function(league){
+            if(!league) return null;
+            if(notValues) return league;
+            return league.values
+        }).catch(function(err){
+            throw err;
+        })
+    };
+
 
     api.leagues.create = function(data){
         // todo - validation
