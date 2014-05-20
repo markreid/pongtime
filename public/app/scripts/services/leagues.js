@@ -42,12 +42,20 @@
             this.reset();
         };
 
-        // single league APi fetch
+        // single league API fetch
         LeaguesService.prototype.getLeagueDetail = function(id){
             return $http.get('/api/v1/leagues/' + id).then(function(response){
                 return response.data;
             });
         };
+
+        LeaguesService.prototype.save = function(leagueData){
+            var validFields = ['name'];
+            var validData = _.pick(leagueData, validFields);
+            return $http.put('/api/v1/leagues/' + leagueData.id + '/', validData).then(function(response){
+                return response.data;
+            });
+        }
 
         /**
          * Parse the leagues API response
