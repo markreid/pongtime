@@ -1,7 +1,7 @@
 (function(){
     'use strict';
 
-    angular.module('pong').controller('teamsController', ['$scope', '$routeParams', 'teams', function($scope, $routeParams, teamsService){
+    angular.module('pong').controller('teamsController', ['$scope', '$routeParams', 'teams', 'notifications', function($scope, $routeParams, teamsService, notificationsService){
         $scope.reset = function(){
             $scope.refreshing = true;
 
@@ -21,7 +21,8 @@
                 $scope.teams = teams;
                 $scope.predicate = ['-stat.winPercentage', '-stat.wins'];
             }).catch(function(err){
-                console.log('FUCK.');
+                notificationsService.generic();
+                console.log(err);
             }).finally(function(){
                 $scope.refreshing = false;
                 $scope.pageTitle = 'Teams';
@@ -34,7 +35,8 @@
                 $scope.pageTitle = team.name;
                 $scope.hasHave = team.players.length > 1 ? 'have' : 'has';
             }).catch(function(err){
-                //todo - handle
+                notificationsService.generic();
+                console.log(err);
             }).finally(function(){
                 $scope.refreshing = false;
             })

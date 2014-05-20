@@ -39,14 +39,14 @@
         NotificationsService.prototype.unauthorised = function(){
             this.publish('messages', {
                 class: 'alert-danger',
-                text: 'Whoa there, buddy.  You gotta be logged in to do that.'
+                text: 'Whoa there, buddy. You\'re not allowed to do that.'
             });
         };
 
-        NotificationsService.prototype.apiError = function(){
+        NotificationsService.prototype.generic = function(){
             this.publish('messages', {
                 class: 'alert-warning',
-                text: 'Sorry, we\'re having troubles hitting the server. Try again.'
+                text: 'Sheeeeeit. Can\'t get a response from the server. Try again.'
             });
         };
 

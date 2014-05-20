@@ -46,8 +46,8 @@
                     return _.extend(player, {active:true});
                 });
             }).catch(function(err){
+                notificationsService.generic();
                 console.log(err);
-                notificationsService.apiError();
             });
         };
 
@@ -70,6 +70,9 @@
                 if(err.status === 403){
                     // no permissions
                     notificationsService.unauthorised();
+                } else {
+                    notificationsService.generic();
+                    console.log(err);
                 }
             });
         };

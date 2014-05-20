@@ -5,7 +5,7 @@
 (function(){
     'use strict';
 
-    angular.module('pong').directive('teamwidget', ['teams', function(teamsService){
+    angular.module('pong').directive('teamwidget', ['teams', 'notifications', function(teamsService, notificationsService){
 
         /**
          * Team widget
@@ -77,8 +77,9 @@
                         return;
                     }
 
+                    // generic error
+                    notificationsService.generic();
                     console.log(err);
-                    notificationsService.apiError();
                 }
 
                 function reset(){
@@ -166,8 +167,8 @@
                         $scope.showStats = true;
 
                     }).catch(function(err){
+                        notificationsService.generic();
                         console.log(err);
-                        notificationsService.publish('messages', 'ERROR');
                         $scope.showStats = false;
                     });
                 };
@@ -195,9 +196,13 @@
                     }).then(function(response){
                         $scope.createdGame = response;
                     }).catch(function(err){
+                        // error handling
+                        // todo - what if we just put a generic API error handler in the notifications service? so you
+                        // just pass it the error and it determines if it's a 403, 404, etc.
                         if(err.status === 403){
-                            // you don't have permission
                             notificationsService.unauthorised();
+                        } else {
+                            notificationsService.generic();
                         }
                         $scope.showStats = false;
                     });
@@ -210,7 +215,7 @@
             }
         }
 
-    }]).directive('gamewidget', ['games', 'user', function(gamesService, userService){
+    }]).directive('gamewidget', ['games', 'user', 'notifications', function(gamesService, userService, notificationsService){
         return {
             restrict: 'E',
             templateUrl: '/static/views/gamewidget.html',
@@ -220,8 +225,10 @@
                 edit: '@edit'
             },
             link: function($scope, el, attrs){
+                console.log('new gamewidget');
 
-                $scope.edit = $scope.edit == 'true';
+                // not to be confused with 'editing'
+                $scope.editing = $scope.edit === 'true';
 
                 // observe the user
                 userService.onUserUpdate(function(user){
@@ -231,14 +238,17 @@
                 // if the teams object updates, attach it to .game
                 $scope.$watch('teams', function(teams){
                     if(teams && $scope.game){
+                        // todo - move this into a reset function
                         $scope.game.teams = teams;
                         $scope.game = parseGameData($scope.game);
+                        $scope.deleted = false;
                     }
                 });
 
                 $scope.$watch('game', function(game){
                     if(!game) return;
                     game = parseGameData(game);
+                    $scope.deleted = false;
                 });
 
                 // parse the data the API returns to make it more readable and usable
@@ -289,21 +299,27 @@
                         date: $scope.game.editableDate
                     }).then(function(game){
                         $scope.game = parseGameData(game);
-                        $scope.edit = false;
+                        $scope.editing = false;
                     }).catch(function(err){
-                        console.log('error saving game:');
-                        console.log(err);
+                        if(err.status === 403){
+                            notificationsService.unauthorised();
+                        } else {
+                            notificationsService.generic();
+                            console.log(err);
+                        }
                     });
                 };
 
                 $scope.delete = function(gameId){
                     gamesService.delete(gameId).then(function(){
-                        $scope.$apply(function(){
-                            $scope.deleted = true;
-                        });
+                        $scope.deleted = true;
                     }).catch(function(err){
-                        console.log(err);
-                        throw err;
+                        if(err.status === 403){
+                            notificationsService.unauthorised();
+                        } else {
+                            notificationsService.generic();
+                            console.log(err);
+                        }
                     });
                 };
             }

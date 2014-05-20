@@ -1,7 +1,7 @@
 (function(){
     'use strict';
 
-    angular.module('pong').controller('leagueDetailController', ['$scope', '$routeParams', 'leagues', function($scope, $routeParams, leaguesService){
+    angular.module('pong').controller('leagueDetailController', ['$scope', '$routeParams', 'leagues', 'notifications', function($scope, $routeParams, leaguesService, notificationsService){
 
         $scope.reset = function(){
             $scope.refreshing = true;
@@ -9,6 +9,9 @@
             getLeague($routeParams.id).then(function(league){
                 $scope.league = league;
                 $scope.stats = generateLeagueStats(league);
+            }).catch(function(err){
+                notificationsService.generic();
+                console.log(err);
             }).finally(function(){
                 $scope.refreshing = false;
             });

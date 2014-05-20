@@ -1,7 +1,7 @@
 (function(){
     'use strict';
 
-    angular.module('pong').controller('playersController', ['$scope', '$routeParams', 'players', function($scope, $routeParams, playersService){
+    angular.module('pong').controller('playersController', ['$scope', '$routeParams', 'players', 'notifications', function($scope, $routeParams, playersService, notificationsService){
 
         $scope.reset = function(){
             $scope.refreshing = true;
@@ -22,7 +22,8 @@
                 $scope.players = players;
                 $scope.predicate = ['-stat.winPercentage', '-stat.wins'];
             }).catch(function(err){
-                console.log('FUCK.');
+                notificationsService.generic();
+                console.log(err);
             }).finally(function(){
                 $scope.refreshing = false;
             });
@@ -32,7 +33,8 @@
             return playersService.getPlayer(id).then(function(player){
                 $scope.player = player;
             }).catch(function(err){
-                throw err;
+                notificationsService.generic();
+                console.log(err);
             }).finally(function(){
                 $scope.refreshing = false;
             })
