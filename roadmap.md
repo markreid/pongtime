@@ -1,10 +1,5 @@
 # pong time, gentlemen?
 
-## currently broken
-
-* PUT /games/x/ returns empty response, needs to return values
-
-
 ### to-do list
 
 #### clientside
@@ -29,7 +24,7 @@
 * Can SQL enforce that game.winningTeamId != game.losingTeamId ...?
 * Can we add a cascade so that deleting a player deletes the associated stat? Currently it works backwards with a Restrict (can't delete stat while it has a player/team)...
     * I think it's a no because there's no reference to the player/team from the stat, it's backwards. You might need a trigger instead.
-* 
+*
 
 
 
