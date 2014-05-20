@@ -7,6 +7,8 @@
  */
 
 var prompt = require('prompt');
+var _ = require('underscore');
+var Q = require('q');
 
 var db = require('./index');
 
@@ -104,17 +106,62 @@ var calls = {
             });
         })
     },
-    addplayer: function(){
+    simgames: function(){
         prompt.start();
-        prompt.get(['name'], function(err, data){
-            db.Player.create({
-                name: data.name
-            }).success(function(player){
-                console.log('created player:');
-                console.log(player.values);
-            }).fail(function(err){
+        prompt.get(['leagueId', 'numGames'], function(err, data){
+            var leagueId = Number(data.leagueId);
+            var numGames = Number(data.numGames);
+            if(isNaN(leagueId) || leagueId < 1 || isNaN(numGames) || numGames < 1) throw 'Bad inputs';
+
+            // fetch all the teams
+            db.api.teams.findAll({
+                leagueId: leagueId
+            }).then(function(teams){
+
+                var allTeamIds = _.pluck(teams, 'id');
+
+                var operations = [];
+
+                while(numGames--){
+                    (function(){
+                        // get two random team IDs
+                        var teamIds = _.sample(allTeamIds, 2);
+                        console.log('IDS:');
+                        console.log(teamIds);
+                        //return;
+
+                        operations.push(db.api.games.create({
+                            teamIds: teamIds,
+                            leagueId: leagueId
+                        }, true).then(function(game){
+                            // we need to fake this here. it's quite annoying.
+                            game.values.teams = _.map(game.values.teams, function(team, i){
+                                team.dataValues = {
+                                    id: teamIds[i]
+                                };
+                                return team;
+                            });
+
+                            return db.api.games.update(game, {
+                                winningTeamId: teamIds[0],
+                                losingTeamId: teamIds[1],
+                                redemption: Math.random() > 0.5,
+                                date: new Date()
+                            });
+
+                        }));
+                    })();
+                }
+
+                // use Q to queue up all our DB ops
+                return Q.all(operations)
+
+            }).then(function(){
+                console.log('Done. Simulated ' + data.numGames + ' games.');
+            }).catch(function(err){
                 throw err;
             });
+
         });
     }
 }

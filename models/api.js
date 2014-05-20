@@ -654,7 +654,7 @@ module.exports = function(sequelize, models){
      * @param  {Array} teamIds  array of team IDs
      * @return {Object}         game
      */
-    api.games.create = function(data){
+    api.games.create = function(data, notValues){
         var teamIds = data.teamIds;
         var leagueId = data.leagueId;
         return api.teams.findAll({
@@ -667,6 +667,10 @@ module.exports = function(sequelize, models){
                 leagueId: leagueId
             }).then(function(game){
                 return game.setTeams(teams).then(function(teams){
+                    if(notValues){
+                        game.values.teams = teams;
+                        return game;
+                    }
                     // return the game with the teams attached.
                     return _.extend({}, game.values, {
                       teams: teams
