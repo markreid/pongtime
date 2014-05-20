@@ -1,7 +1,7 @@
 (function(){
     'use strict';
 
-    angular.module('pong').controller('leagueDetailController', ['$scope', '$routeParams', 'leagues', 'notifications', function($scope, $routeParams, leaguesService, notificationsService){
+    angular.module('pong').controller('leagueDetailController', ['$scope', '$routeParams', 'leagues', 'notifications', 'stats', function($scope, $routeParams, leaguesService, notificationsService, statsService){
 
         $scope.reset = function(){
             $scope.refreshing = true;
@@ -47,62 +47,61 @@
             // player with most wins
             // player with most losses
 
-            var stats = [];
+            var first = _.extend({}, _.find(league.teams, function(team){
+                return team.stat.games
+            }));
+            first.stat = statsService.parseStats(first.stat);
 
-            return;
-
-            var teamStats = [];
-            var teamNameLookup = {};
-            var teamMostWins = [league.teams[0]];
-            var teamMostLosses = [league.teams[0]];
-            var teamBestPercentage = [league.teams[0]];
-            var teamWorstPercentage = [league.teams[0]];
+            var teamMostWins = [first];
+            var teamMostLosses = [first];
+            var teamBestPercentage = [first];
+            var teamWorstPercentage = [first];
 
             _.each(league.teams, function(team){
-                teamStats.push(team.stat);
-                teamNameLookup[team.id] = team.name;
+                if(!team.stat.games) return;
+                team.stat = statsService.parseStats(team.stat);
 
-                // most wins
-                if(team.stat.wins > teamMostWins[0].stat.wins) {
-                    teamMostWins = [team];
-                } else{
-                    if(team.stat.wins === teamMostWins[0].stat.wins && teamMostWins.id !== team.id) teamMostWins.push(team);
-                }
-
-                // most losses
-                if(team.stat.losses > teamMostLosses[0].stat.losses) {
-                    teamMostLosses = [team];
-                } else{
-                    if(team.stat.losses === teamMostLosses[0].stat.losses) teamMostLosses.push(team);
-                }
-
-                // best percentage
-                if(team.stat.losses > teamMostLosses[0].stat.losses) {
-                    teamMostLosses = [team];
-                } else{
-                    if(team.stat.losses === teamMostLosses[0].stat.losses) teamMostLosses.push(team);
-                }
+                setHighest(teamMostWins, team, 'wins');
+                setHighest(teamMostLosses, team, 'losses');
+                setHighest(teamBestPercentage, team, 'winPercentage');
+                setHighest(teamWorstPercentage, team, 'lossPercentage');
 
             });
 
-            if(teamMostWins.length < 4){
-                stats.push({
-                    title: 'Most wins',
-                    value: _.pluck(teamMostWins, 'name').join(', ') + ' (' + teamMostWins[0].stat.wins + ')'
-                });
-            }
-
-            if(teamMostLosses.length < 4){
-                stats.push({
-                    title: 'Most losses',
-                    value: _.pluck(teamMostLosses, 'name').join(', ') + ' (' + teamMostLosses[0].stat.losses + ')'
-                });
-            }
+            var stats = [];
+            stats.push(humanizeStat('Most wins', teamMostWins, 'wins'));
+            stats.push(humanizeStat('Most losses', teamMostLosses, 'losses'));
+            stats.push(humanizeStat('Best win-rate', teamBestPercentage, 'winPercentage'));
+            stats.push(humanizeStat('Worst loss-rate', teamWorstPercentage, 'lossPercentage'));
 
             return stats;
 
-
         }
+
+        /**
+         * [setHighest description]
+         * @param {[type]} arr  [description]
+         * @param {[type]} team [description]
+         * @param {[type]} prop [description]
+         */
+        function setHighest(arr, team, prop){
+            if(team.stat[prop] > arr[0].stat[prop]){
+                arr = [team]
+                return;
+            }
+            if(team.stat[prop] === arr[0].stat[prop] && arr[0].id !== team.id){
+                arr.push(team);
+                return;
+            }
+        }
+
+        function humanizeStat(title, teams, prop){
+            return {
+                title: title,
+                value: _.pluck(teams, 'name').join(', ') + ' (' + teams[0].stat[prop] + ')'
+            };
+        }
+
 
         $scope.reset();
 
