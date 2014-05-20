@@ -14,13 +14,13 @@
             controller: 'teamsController'
         }).when('/teams/:id', {
             templateUrl: '/static/views/teamdetailview.html',
-            controller: 'teamsController'
+            controller: 'teamDetailController'
         }).when('/players', {
             templateUrl: '/static/views/playerlistview.html',
             controller: 'playersController'
         }).when('/players/:id', {
             templateUrl: '/static/views/playerdetailview.html',
-            controller: 'playersController'
+            controller: 'playerDetailController'
         }).when('/leagues/:id', {
             templateUrl: '/static/views/leaguedetailview.html',
             controller: 'leagueDetailController'

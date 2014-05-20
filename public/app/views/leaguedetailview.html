@@ -3,23 +3,14 @@
 <div class="container" ng-hide="refreshing">
 
     <div class="jumbotron">
+        <button ng-show="hasBeenEdited" class="btn btn-primary btn-xs pull-right" ng-click="save()">Save</button>
         <h1>
-            <input ng-model="league.name" class="cleaninput">
-            <p class="lead">{{ league.players.length }} players have played {{ league.games.length }} games.</p>
+            <input ng-model="league.name" class="cleaninput" ng-change="hasBeenEdited=true">
         </h1>
-
-        <span ng-repeat="stat in stats">{{ stat.title }}: {{ stat.value }}</span>
-
-
-        <h3 class="team-members"><span ng-repeat="player in team.players"><a href="{{ player.url }}">{{ player.name }}</a> {{$last ? '' : ' and ' }}</span></h3>
-        <div ng-show="team.stat.games">
-            <p>{{ hasHave|capitalize }} played {{ team.stat.games }} {{ 'game'|plural:team.stat.games }}, winning {{ team.stat.wins }} and losing {{ team.stat.losses }}. That's a win-rate of {{ team.stat.winPercentage }}%.</p>
-            <p>{{ hasHave|capitalize }} won redemption {{ team.stat.redemptionsHad }} times.</p>
-            <p>{{ hasHave|capitalize }} conceded redemption {{ team.stat.redemptionsGiven }} {{ 'time'|plural:team.stat.redemptionsGiven }}.</p>
-            <p ng-show="team.stat.hottest > 1">Hottest streak was {{ team.stat.hottest }} wins.</p>
-            <p ng-show="team.stat.coldest > 1">Coldest streak was {{ team.stat.coldest }} losses.</p>
-            <p ng-show="team.stat.streak">Current streak is {{ team.stat.streak }}.</p>
-        </div>
+        <p class="lead">{{ numPlayers }} players have played {{ numGames }} games.</p>
     </div>
+
+    <h3>Quick Stats</h3>
+    <span ng-repeat="stat in stats"><b>{{ stat.title }}:</b> {{ stat.value }}</span>
 
 </div>

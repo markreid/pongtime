@@ -2,6 +2,7 @@
     'use strict';
 
     angular.module('pong').controller('teamsController', ['$scope', '$routeParams', 'teams', 'notifications', function($scope, $routeParams, teamsService, notificationsService){
+
         $scope.reset = function(){
             $scope.refreshing = true;
 
@@ -34,6 +35,7 @@
                 $scope.team = team;
                 $scope.pageTitle = team.name;
                 $scope.hasHave = team.players.length > 1 ? 'have' : 'has';
+                $scope.hasBeenEdited = false;
             }).catch(function(err){
                 notificationsService.generic();
                 console.log(err);

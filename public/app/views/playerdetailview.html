@@ -2,7 +2,11 @@
 
 <div class="container" ng-hide="refreshing">
     <div class="jumbotron">
-        <h1>{{ player.name }}</h1>
+        <button ng-show="hasBeenEdited" class="btn btn-primary btn-xs pull-right" ng-click="save()">Save</button>
+        <h1>
+            <input ng-model="player.name" class="cleaninput" ng-change="hasBeenEdited=true">
+        </h1>
+
         <div ng-show="player.stat.games">
             <p>Has played {{ player.stat.games }} {{ 'game'|plural:player.stat.games }}, winning {{ player.stat.wins }} and losing {{ player.stat.losses }}. That's a win-rate of {{ player.stat.winPercentage }}%.</p>
             <p>Has won redemption {{ player.stat.redemptionsHad }} times.</p>

@@ -3,8 +3,9 @@
 <div class="container" ng-hide="refreshing">
 
     <div class="jumbotron">
+        <button ng-show="hasBeenEdited" class="btn btn-primary btn-xs pull-right" ng-click="save()">Save</button>
         <h1>
-            <input ng-model="team.name" class="cleaninput">
+            <input ng-model="team.name" class="cleaninput" ng-change="hasBeenEdited=true">
         </h1>
 
         <h3 class="team-members"><span ng-repeat="player in team.players"><a href="{{ player.url }}">{{ player.name }}</a> {{$last ? '' : ' and ' }}</span></h3>

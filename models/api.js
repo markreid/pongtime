@@ -783,15 +783,22 @@ module.exports = function(sequelize, models){
         });
     };
 
+    // todo - is this fetching too much?
     api.leagues.findOne = function(where, notValues){
         return models.League.find({
             where: where,
             include: [{
-                model: models.Team
+                model: models.Team,
+                include: {
+                    model: models.Stat
+                }
             }, {
                 model: models.Game
             }, {
-                model: models.Player
+                model: models.Player,
+                include: {
+                    model: models.Stat
+                }
             }]
         }).then(function(league){
             if(!league) return null;
@@ -820,8 +827,7 @@ module.exports = function(sequelize, models){
             }
         }).then(function(league){
             if(!league) return null;
-
-            league.updateAttributes(data).then(function(leage){
+            return league.updateAttributes(data).then(function(league){
                 return league.values;
             });
         }).catch(function(err){
