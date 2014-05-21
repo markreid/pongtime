@@ -803,6 +803,12 @@ module.exports = function(sequelize, models){
                 include: {
                     model: models.Stat
                 }
+            }, {
+                model: models.User,
+                as: 'members'
+            }, {
+                model: models.User,
+                as: 'moderators'
             }]
         }).then(function(league){
             if(!league) return null;

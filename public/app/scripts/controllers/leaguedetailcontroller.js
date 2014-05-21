@@ -1,7 +1,7 @@
 (function(){
     'use strict';
 
-    angular.module('pong').controller('leagueDetailController', ['$scope', '$routeParams', 'leagues', 'notifications', 'stats', function($scope, $routeParams, leaguesService, notificationsService, statsService){
+    angular.module('pong').controller('leagueDetailController', ['$scope', '$routeParams', 'leagues', 'notifications', 'stats', 'user', function($scope, $routeParams, leaguesService, notificationsService, statsService, usersService){
 
         $scope.reset = function(){
             $scope.refreshing = true;
@@ -33,6 +33,18 @@
                 }
             });
         };
+
+        $scope.populateUsers = function(){
+            usersService.getUsers().then(function(users){
+                $scope.users = users;
+            });
+        };
+
+        $scope.logmems = function(){
+            console.log($scope.members);
+        }
+
+        $scope.populateUsers();
 
         // hit the leaguesService
         function getLeague(id){

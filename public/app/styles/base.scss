@@ -18,6 +18,28 @@
     margin-left: 2em;
 }
 
+
+// fix chosen because it looks fucked
+form .chosen-container {
+    display: block;
+    width: 100% !important;
+
+    ul.chosen-choices {
+        padding: 6px;
+        border-radius: 3px;
+
+        li.search-field {
+            width: 100%;
+
+            input[type=text] {
+                width: 100% !important;
+            }
+        }
+    }
+
+}
+
+
 #messages {
     position: fixed;
     top: 55px;

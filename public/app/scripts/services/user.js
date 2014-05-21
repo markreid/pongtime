@@ -52,6 +52,13 @@
             callback(user);
         };
 
+
+        UsersService.prototype.getUsers = function(){
+            return $http.get('/api/v1/users/').then(function(response){
+                return response.data;
+            });
+        };
+
         function parseUser(user){
             if(!user) user = {};
             user.isAdmin = user.auth > 2;
