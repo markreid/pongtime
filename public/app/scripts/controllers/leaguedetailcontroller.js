@@ -8,8 +8,8 @@
             leaguesService.setActiveLeague($routeParams.id);
             leaguesService.getLeagueDetail($routeParams.id).then(function(league){
                 $scope.league = league;
+                $scope.league.edited = _.extend({}, league);
                 $scope.stats = generateLeagueStats(league);
-                $scope.hasBeenEdited = false;
                 $scope.numPlayers = league.players.length;
                 $scope.numGames = league.games.length;
             }).catch(function(err){
@@ -20,10 +20,16 @@
             });
         };
 
-        $scope.save = function(){
-            leaguesService.save($scope.league).then(function(league){
+        $scope.saveLeagueSettings = function(){
+            $scope.saving = true;
+
+            var data = _.extend({}, $scope.league.edited);
+            data.members = _.pluck(data.members, 'id');
+            data.moderators = _.pluck(data.moderators, 'id');
+
+            leaguesService.save(data).then(function(league){
                 $scope.league = league;
-                $scope.hasBeenEdited = false;
+                $scope.league.edited = _.extend({}, league);
             }).catch(function(err){
                 if(err.status === 403){
                     notificationsService.unauthorised();
@@ -31,20 +37,22 @@
                     notificationsService.generic();
                     console.log(err);
                 }
+            }).finally(function(){
+                $scope.saving = false;
             });
         };
 
-        $scope.populateUsers = function(){
+        $scope.showLeagueSettings = function(){
             usersService.getUsers().then(function(users){
                 $scope.users = users;
+            }).catch(function(err){
+                notificationsService.generic();
+                console.log(err);
             });
+            $scope.editing = true;
         };
 
-        $scope.logmems = function(){
-            console.log($scope.members);
-        }
 
-        $scope.populateUsers();
 
         // hit the leaguesService
         function getLeague(id){
@@ -172,6 +180,11 @@
 
 
         $scope.reset();
+        // register a callback with the users service to keep an eye on the user object
+        usersService.onUserUpdate(function(user){
+            console.log(user);
+            $scope.canEdit = user.isAdmin;
+        });
 
     }]);
 })();

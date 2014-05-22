@@ -830,14 +830,30 @@ module.exports = function(sequelize, models){
     };
 
     api.leagues.update = function(id, data){
-        // todo - validation
+        // todo - more stringent validation
+        var validFields = ['name', 'public', 'membersAreMods'];
+        var members = data.members;
+        var moderators = data.moderators;
+        var validData = _.pick(data, validFields);
+
         return models.League.find({
             where: {
                 id: id
             }
         }).then(function(league){
             if(!league) return null;
-            return league.updateAttributes(data).then(function(league){
+            return league.updateAttributes(validData).then(function(league){
+                return league.setMembers({
+                    where: {
+                        id: members
+                    }
+                }).then(function(){
+                    return league.setModerators({
+                        where: {
+                            id: moderators
+                        }
+                    })
+                });
                 return league.values;
             });
         }).catch(function(err){

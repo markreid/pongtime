@@ -50,7 +50,7 @@
         };
 
         LeaguesService.prototype.save = function(leagueData){
-            var validFields = ['name'];
+            var validFields = ['name', 'public', 'membersAreMods', 'members', 'moderators'];
             var validData = _.pick(leagueData, validFields);
             return $http.put('/api/v1/leagues/' + leagueData.id + '/', validData).then(function(response){
                 return response.data;

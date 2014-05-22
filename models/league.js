@@ -14,6 +14,11 @@ module.exports = function(sequelize, datatypes){
             type: datatypes.BOOLEAN,
             allowNull: false,
             default: true
+        },
+        membersAreMods: {
+            type: datatypes.BOOLEAN,
+            allowNull: false,
+            default: false
         }
     });
 

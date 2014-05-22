@@ -124,6 +124,7 @@ gamewidget .table-match-history {
     border: none;
     padding: 0;
     outline: none;
+    color: inherit;
 
     &:focus {
         color: skyblue;
