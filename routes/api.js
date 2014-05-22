@@ -378,7 +378,7 @@ router.get('/leagues', function(req, res, next){
 });
 
 router.get('/leagues/:leagueid', function(req, res, next){
-    db.api.leagues.findOne({
+    db.api.leagues.findOneDetailed({
         id: req.params.leagueid
     }).then(function(league){
         if(!league) return res.send(404);

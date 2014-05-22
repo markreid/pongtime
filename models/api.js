@@ -743,11 +743,12 @@ module.exports = function(sequelize, models){
      * @param  {Object} where
      * @return {Array}
      */
-    api.users.findAll = function(where){
+    api.users.findAll = function(where, notValues){
         return models.User.findAll({
             where: where,
             attributes: ['name', 'id']
         }).then(function(users){
+            if(notValues) return users;
             return _.pluck(users, 'values');
         }).catch(function(err){
             throw err;
@@ -777,18 +778,30 @@ module.exports = function(sequelize, models){
     };
 
 
-    api.leagues.findAll = function(where){
+    api.leagues.findAll = function(where, notValues){
         return models.League.findAll({
             where: where
         }).then(function(leagues){
+            if(notValues) return leagues;
             return _.pluck(leagues, 'values');
         }).catch(function(err){
             throw err;
         });
     };
 
-    // todo - is this fetching too much?
     api.leagues.findOne = function(where, notValues){
+        return models.League.find({
+            where: where
+        }).then(function(league){
+            if(!league) return null;
+            if(notValues) return league;
+            return league.values;
+        }).catch(function(err){
+            throw err;
+        });
+    };
+
+    api.leagues.findOneDetailed = function(where, notValues){
         return models.League.find({
             where: where,
             include: [{
@@ -836,25 +849,27 @@ module.exports = function(sequelize, models){
         var moderators = data.moderators;
         var validData = _.pick(data, validFields);
 
-        return models.League.find({
-            where: {
-                id: id
-            }
-        }).then(function(league){
+        return api.leagues.findOne({
+            id: id
+        }, true).then(function(league){
             if(!league) return null;
+
             return league.updateAttributes(validData).then(function(league){
-                return league.setMembers({
-                    where: {
-                        id: members
-                    }
+
+                // now setmembers and setmoderators
+                return api.users.findAll({
+                    id: members
+                }, true).then(function(members){
+                    return league.setMembers(members);
+                }).then(function(members){
+                    return api.users.findAll({
+                        id: moderators
+                    }, true).then(function(moderators){
+                        return league.setModerators(moderators);
+                    });
                 }).then(function(){
-                    return league.setModerators({
-                        where: {
-                            id: moderators
-                        }
-                    })
+                    return league.values;
                 });
-                return league.values;
             });
         }).catch(function(err){
             throw err;
