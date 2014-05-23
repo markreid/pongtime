@@ -44,7 +44,15 @@
 
         $scope.showLeagueSettings = function(){
             usersService.getUsers().then(function(users){
-                $scope.users = users;
+                // need to set whether they're members or moderators of this league
+                var leagueMemberIds = _.pluck($scope.league.members, 'id');
+                var leagueModeratorIds = _.pluck($scope.league.moderators, 'id');
+                var parsedUsers = _.map(users, function(user){
+                    if(~leagueMemberIds.indexOf(user.id)) user.member = true;
+                    if(~leagueModeratorIds.indexOf(user.id)) user.moderator = true;
+                    return user;
+                });
+                $scope.users = parsedUsers;
             }).catch(function(err){
                 notificationsService.generic();
                 console.log(err);
@@ -182,7 +190,6 @@
         $scope.reset();
         // register a callback with the users service to keep an eye on the user object
         usersService.onUserUpdate(function(user){
-            console.log(user);
             $scope.canEdit = user.isAdmin;
         });
 
