@@ -866,9 +866,12 @@ module.exports = function(sequelize, models){
                         id: moderators
                     }, true).then(function(moderators){
                         return league.setModerators(moderators);
+                    }).then(function(moderators){
+                        return _.extend({}, league.values, {
+                            members: _.pluck(members, 'values'),
+                            moderators: _.pluck(moderators, 'values')
+                        });
                     });
-                }).then(function(){
-                    return league.values;
                 });
             });
         }).catch(function(err){
