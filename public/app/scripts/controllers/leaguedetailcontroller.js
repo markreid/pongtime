@@ -28,8 +28,10 @@
             data.moderators = _.pluck(data.moderators, 'id');
 
             leaguesService.save(data).then(function(league){
+                console.log(league);
                 $scope.league = league;
                 $scope.league.edited = _.extend({}, league);
+                parseMembersAndModerators();
             }).catch(function(err){
                 if(err.status === 403){
                     notificationsService.unauthorised();
@@ -44,15 +46,8 @@
 
         $scope.showLeagueSettings = function(){
             usersService.getUsers().then(function(users){
-                // need to set whether they're members or moderators of this league
-                var leagueMemberIds = _.pluck($scope.league.members, 'id');
-                var leagueModeratorIds = _.pluck($scope.league.moderators, 'id');
-                var parsedUsers = _.map(users, function(user){
-                    if(~leagueMemberIds.indexOf(user.id)) user.member = true;
-                    if(~leagueModeratorIds.indexOf(user.id)) user.moderator = true;
-                    return user;
-                });
-                $scope.users = parsedUsers;
+                $scope.users = users;
+                parseMembersAndModerators();
             }).catch(function(err){
                 notificationsService.generic();
                 console.log(err);
@@ -60,6 +55,17 @@
             $scope.editing = true;
         };
 
+        function parseMembersAndModerators(){
+            var leagueMemberIds = _.pluck($scope.league.members, 'id');
+            var leagueModeratorIds = _.pluck($scope.league.moderators, 'id');
+            $scope.league.edited.members = [];
+            $scope.league.edited.moderators = [];
+            _.each($scope.users, function(user){
+                // league.edited.members needs to be an array of references to $scope.users
+                if(~leagueMemberIds.indexOf(user.id)) $scope.league.edited.members.push(user);
+                if(~leagueModeratorIds.indexOf(user.id)) $scope.league.edited.moderators.push(user);
+            });
+        };
 
 
         // hit the leaguesService
@@ -68,12 +74,6 @@
         }
 
         function generateLeagueStats(league){
-            // team with most wins
-            // team with highest win rate
-            // team with most losses
-            // team with lowest win rate
-            // player with most wins
-            // player with most losses
 
             var firstTeam = _.extend({}, _.find(league.teams, function(team){
                 return team.stat.games;
