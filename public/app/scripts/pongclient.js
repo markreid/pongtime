@@ -21,6 +21,9 @@
         }).when('/players/:id', {
             templateUrl: '/static/views/playerdetailview.html',
             controller: 'playerDetailController'
+        }).when('/leagues/new', {
+            templateUrl: '/static/views/leaguecreateview.html',
+            controller: 'leagueCreateController'
         }).when('/leagues/:id', {
             templateUrl: '/static/views/leaguedetailview.html',
             controller: 'leagueDetailController'

@@ -55,7 +55,15 @@
             return $http.put('/api/v1/leagues/' + leagueData.id + '/', validData).then(function(response){
                 return response.data;
             });
-        }
+        };
+
+        LeaguesService.prototype.create = function(leagueData){
+            var validFields = ['name', 'public'];
+            var validData = _.pick(leagueData, validFields);
+            return $http.post('/api/v1/leagues/', validData).then(function(response){
+                return response.data;
+            });
+        };
 
         /**
          * Parse the leagues API response
