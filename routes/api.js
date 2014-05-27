@@ -49,7 +49,6 @@ router.use(function(req, res, next){
 
 
 // players
-
 router.get('/players', function(req, res, next){
     var leagueId = getLeagueId(req);
 
@@ -369,8 +368,20 @@ router.delete('/games/:gameid', function(req, res, next){
  * Leagues
  */
 
+/**
+ * Get Leagues
+ */
 router.get('/leagues', function(req, res, next){
-    db.api.leagues.findAll().then(function(leagues){
+    // You can only see public leagues, or leagues that you're a member/moderator of.
+    var filter = Sequelize.or({
+        public: true
+    }, {
+        id: req.user.visibleLeagues
+    });
+    // unless you're an admin, then you can see everything.
+    if(req.user.isAdmin) filter = {};
+
+    db.api.leagues.findAll(filter).then(function(leagues){
         res.send(200, leagues);
     }).catch(function(err){
         next(err);
@@ -378,9 +389,20 @@ router.get('/leagues', function(req, res, next){
 });
 
 router.get('/leagues/:leagueid', function(req, res, next){
-    db.api.leagues.findOneDetailed({
+    // todo - this can probably be abstracted
+    var filter = Sequelize.and({
         id: req.params.leagueid
-    }).then(function(league){
+    }, Sequelize.or({
+        public: true,
+    }, {
+        id: req.user.visibleLeagues
+    }));
+
+    if(req.user.isAdmin) filter = {
+        id: req.params.leagueid
+    };
+
+    db.api.leagues.findOneDetailed(filter).then(function(league){
         if(!league) return res.send(404);
         res.send(league, 200);
     }).catch(function(err){

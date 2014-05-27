@@ -764,14 +764,13 @@ module.exports = function(sequelize, models){
     api.users.findOne = function(where, notValues){
         return models.User.find({
             where: where,
-            attributes: ['name', 'id'],
-            include: {
-                model: models.Player,
-                attributes: ['name', 'id']
-            }
+            attributes: ['name', 'id']
         }).then(function(user){
+            // todo - bad error
             if(!user) throw {status:404};
-            return user;
+
+            if(notValues) return user;
+            return user.values;
         }).catch(function(err){
             throw err;
         });
@@ -779,6 +778,7 @@ module.exports = function(sequelize, models){
 
 
     api.leagues.findAll = function(where, notValues){
+        console.log(where);
         return models.League.findAll({
             where: where
         }).then(function(leagues){
