@@ -879,6 +879,23 @@ module.exports = function(sequelize, models){
         });
     };
 
+    // todo - if sequelize isn't cleaning up all related moels, we need to do it manually here
+    // probably safest to perform a transaction
+    api.leagues.delete = function(id){
+        return models.League.find({
+            where: {
+                id: id
+            }
+        }).then(function(league){
+            if(!league) return false;
+            return league.destroy();
+        }).then(function(){
+            return true;
+        }).catch(function(err){
+            throw err;
+        });
+    };
+
     return api;
 
 };
