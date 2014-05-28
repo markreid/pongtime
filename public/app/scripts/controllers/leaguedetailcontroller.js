@@ -12,11 +12,13 @@
                 $scope.stats = generateLeagueStats(league);
                 $scope.numPlayers = league.players.length;
                 $scope.numGames = league.games.length;
+                $scope.refreshing = false;
             }).catch(function(err){
+                if(err.status === 404){
+                    return notificationsService.notFound();
+                }
                 notificationsService.generic();
                 console.log(err);
-            }).finally(function(){
-                $scope.refreshing = false;
             });
         };
 

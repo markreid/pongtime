@@ -6,7 +6,7 @@
         $scope.reset = function(){
             $scope.league = {
                 name: '',
-                public: null
+                public: false
             };
             $scope.saving = false;
             $scope.refreshing = false;
