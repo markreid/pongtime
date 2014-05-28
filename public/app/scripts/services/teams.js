@@ -5,7 +5,7 @@
 (function(){
     'use strict';
 
-    angular.module('pong').factory('teams', ['$http', 'stats', function($http, statsService){
+    angular.module('pong').factory('teams', ['$http', 'stats', 'leagues', function($http, statsService, leaguesService){
 
         var TeamsService = function(){};
 
@@ -40,6 +40,7 @@
         TeamsService.prototype.addTeam = function(players, name){
             if(!players || !players.length || !name) throw new Error('shitty arguments, bro.');
             return $http.post('/api/v1/teams/', {
+                leagueId: leaguesService.getActiveLeagueId(),
                 players: players,
                 name: name
             }).then(function(response){
