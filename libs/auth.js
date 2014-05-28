@@ -34,12 +34,21 @@ passport.use(new passportGoogle({
     }).then(function(user){
 
         // User exists. Parse the model into something more friendly and return.
+        // todo - needs to be moved to deserializeUser because if any of this changes we don't realise
+        // until they've logged out and in again.  Could cache and flag for invalidation to minimize DB hits.
         if(user){
-            // get arrays of league IDs that the user is a member or moderator of
-            var returnData = user.values;
-            returnData.moderators = _.pluck(user.values.moderators, 'id');
-            returnData.members = _.pluck(user.values.members, 'id');
-            returnData.visibleLeagues = returnData.moderators.concat(returnData.members);
+
+            // We store league details and permissions here.
+            // So we want a list of league IDs that the user is allowed to look at,
+            // and a list of league IDs that the user has permission to modify.
+            var returnData = _.extend({}, user.values);
+
+            var moderatorOf = _.pluck(returnData.moderators, 'id');
+            var memberOf = _.pluck(returnData.members, 'id');
+            var memberModeratorOf = _.pluck(_.where(returnData.members, {membersAreMods: true}), 'id');
+
+            returnData.visibleLeagues = _.unique(memberOf.concat(moderatorOf));
+            returnData.writeableLeagues = _.unique(moderatorOf.concat(memberModeratorOf));
             returnData.isAdmin = user.values.auth === 3;
             return done(null, returnData);
         }
