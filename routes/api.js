@@ -68,7 +68,7 @@ router.get('/players', function(req, res, next){
 
 router.post('/players', function(req, res, next){
     // if the user doesn't have write access to the specified league, it's a 403.
-    if(!leagueIsWritable(req.body.leagueId, req.user)) throw {status:403};
+    if(!leagueIsWritable(req.body.leagueId, req.user)) return next({status:403});
 
     db.api.players.create(req.body).then(function(player){
         res.send(201, player);
@@ -234,7 +234,6 @@ router.get('/teams/:teamid', function(req, res, next){
 router.get('/teams/search/:players', function(req, res, next){
     // todo - how to auth this?
 
-
     // sanitization
     var players = req.params.players.split(',');
     var safePlayers = _.map(players, function(p){
@@ -303,10 +302,9 @@ router.put('/teams/:teamid', function(req, res, next){
 
 // fetch all
 router.get('/games', function(req, res, next){
-    var leagueId = getLeagueId(req);
-    db.api.games.findAll({
-        leagueId: leagueId
-    }).then(function(games){
+    var filter = visibleOrPublicFilter(req);
+
+    db.api.games.findAll(filter).then(function(games){
         res.send(200, games);
     }).catch(function(err){
         next(err);
@@ -321,7 +319,8 @@ router.get('/games', function(req, res, next){
  * @return {[type]}        [description]
  */
 router.get('/games/open/', function(req, res, next){
-    db.api.games.findAll(Sequelize.or('"winningTeamId" IS NULL', '"losingTeamId" IS NULL')).then(function(games){
+    var filter = visibleOrPublicFilter(req);
+    db.api.games.findAll(Sequelize.and(filter, Sequelize.or('"winningTeamId" IS NULL', '"losingTeamId" IS NULL'))).then(function(games){
         res.send(200, games);
     }).catch(function(err){
         next(err);
@@ -333,6 +332,8 @@ router.get('/games/open/', function(req, res, next){
  * Returns only games with *both* teams
  */
 router.get('/games/search/:teamids', function(req, res, next){
+    // todo - auth this
+
     if(!req.params.teamids) return res.send(400);
 
     var teamsArray = _.map(req.params.teamids.split(','), function(team){
@@ -348,7 +349,9 @@ router.get('/games/search/:teamids', function(req, res, next){
 });
 
 router.post('/games', function(req, res, next){
+    // if the user doesn't have write access to this league, it's a 403.
     var leagueId = getLeagueId(req);
+    if(!leagueIsWritable(leagueId, req.user)) return next({status:403});
 
     if(!req.body.teamIds || !req.body.teamIds.length) return res.send(400, 'No team IDs specified');
 
@@ -365,10 +368,11 @@ router.post('/games', function(req, res, next){
 
 // when a gameid parameter is specified, attach the game to the request
 router.param('gameid', function(req, res, next, id){
-    db.api.games.findOne({
-        id: id
-    }, true).then(function(game){
-        if(!game) throw {status: 404, message: 'Game not found'};
+    var filter = visibleOrPublicFilter(req);
+    filter.id = id;
+
+    db.api.games.findOne(filter, true).then(function(game){
+        if(!game) return next({status: 404});
         req.game = game;
         next();
     }).catch(function(err){
@@ -377,13 +381,17 @@ router.param('gameid', function(req, res, next, id){
 });
 
 router.get('/games/:gameid', function(req, res, next){
+    // auth and errors are handled by 'gameid' param route above, so all we do here
+    // is return the values.
     res.send(200, req.game.values);
 });
 
 router.put('/games/:gameid', function(req, res, next){
-    // todo - only submit the relevant data to the db method
+    // 403 if the user doesn't have write permission on this league
+    if(!leagueIsWritable(req.game.leagueId, req.user)) return next({status:403});
 
-    db.api.games.update(req.game, req.body).then(function(game){
+    var validProperties = _.pick(req.body, ['winningTeamId', 'losingTeamId', 'redemption']);
+    db.api.games.update(req.game, validProperties).then(function(game){
         res.send(200, game);
     }).catch(function(err){
         next(err);
@@ -392,6 +400,9 @@ router.put('/games/:gameid', function(req, res, next){
 });
 
 router.delete('/games/:gameid', function(req, res, next){
+    // 403 if the user doesn't have write permission on this league
+    if(!leagueIsWritable(req.game.leagueId, req.user)) return next({status:403});
+
     db.api.generic.destroyModel(req.game).then(function(){
         res.send(200);
     }).catch(function(err){
@@ -505,7 +516,7 @@ router.use(function(err, req, res, next) {
  * @return {Number}
  */
 function getLeagueId(req){
-    return req.query.league || req.cookies.ptLeagueId || -1;
+    return Number(req.query.league) || Number(req.cookies.ptLeagueId) || -1;
 }
 
 

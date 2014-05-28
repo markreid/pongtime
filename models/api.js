@@ -294,6 +294,7 @@ module.exports = function(sequelize, models){
                 },
                 include: [models.Player, models.Stat]
             }).then(function(team){
+                if(!team) return null;
                 return team.values;
             });
         });
@@ -578,6 +579,10 @@ module.exports = function(sequelize, models){
             include: [{
                 model: models.Team,
                 attributes: ['name']
+            },
+            {
+                model: models.League,
+                attributes: ['id']
             }]
         }).then(function(games){
             return _.pluck(games, 'values');
@@ -622,8 +627,9 @@ module.exports = function(sequelize, models){
                 attributes: ['name']
             }]
         }).then(function(game){
-            if(!game) throw {status:404, message: 'Game not found'};
-            return game;
+            if(!game) return null;
+            if(notValues) return game;
+            return game.values;
         }).catch(function(err){
             throw err;
         });
