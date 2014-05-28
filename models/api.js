@@ -161,10 +161,12 @@ module.exports = function(sequelize, models){
             }],
             order: 'id',
             limit: 1
-        }).then(function(player){
+        }).then(function(players){
+            if(!players.length) return null;
+
             // if notValues is true, we want to return the model
-            if(notValues) return player || null;
-            return player && player.values || null;
+            if(notValues) return players[0];
+            return players[0].values
         }).catch(function(err){
             throw err;
         });
@@ -226,12 +228,15 @@ module.exports = function(sequelize, models){
     api.teams.findAll = function(where, notValues){
         return models.Team.findAll({
             where: where || {},
-            attributes: ['name', 'id'],
+            attributes: ['name', 'id', 'leagueId'],
             include: [{
                 model: models.Player,
                 attributes: ['name', 'id']
             }, {
                 model: models.Stat
+            }, {
+                model: models.League,
+                attributes: ['id']
             }]
         }).then(function(teams){
             if(notValues) return teams;
@@ -263,7 +268,11 @@ module.exports = function(sequelize, models){
      * @param  {Array} playerIDs
      * @return {Number}
      */
-    api.teams.getTeamIdByPlayers = function(playerIDs){
+    api.teams.getTeamIdByPlayers = function(playerIDs, leagueId){
+        // todo - utilize the leagueId parameter
+        // theoretically it makes no difference but you're allowing information
+        // leak if you let people search across leagues.
+
         var playersString = playerIDs.join(',');
         return sequelize.query('SELECT "TeamId" FROM "PlayersTeams" GROUP BY "TeamId" HAVING COUNT(*) = SUM(CASE WHEN "PlayerId" IN(' + playersString + ') THEN 1 ELSE 0 END) AND COUNT (*) = ' + playerIDs.length + ';').then(function(data){
             if(data && data.length) return data[0].TeamId;
@@ -380,16 +389,16 @@ module.exports = function(sequelize, models){
     /**
      * Find a team, including its players and all its games.
      */
-    api.teams.getTeamWithGames = function(teamId, notValues){
+    api.teams.getTeamWithGames = function(where, notValues){
         return models.Team.find({
-            where: {
-                id: teamId
-            }, include: [{
+            where: where,
+            include: [{
                 model: models.Game
             }, {
                 model: models.Player
             }]
         }).then(function(team){
+            if(!team) return null;
             if(notValues) return team;
             return team.values;
         }).catch(function(err){
@@ -529,6 +538,9 @@ module.exports = function(sequelize, models){
      */
     api.teams.delete = function(model){
         var teamId = Number(model.values.id);
+
+        // todo
+        // THIS IS BROKEN. NEEDS A FIX.
 
         // todo - this can probably be handled by the ORM
         // but for now it's done manually.
@@ -773,9 +785,7 @@ module.exports = function(sequelize, models){
             where: where,
             attributes: ['name', 'id']
         }).then(function(user){
-            // todo - bad error
-            if(!user) throw {status:404};
-
+            if(!user) return null;
             if(notValues) return user;
             return user.values;
         }).catch(function(err){

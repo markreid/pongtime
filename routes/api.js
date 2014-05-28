@@ -80,9 +80,10 @@ router.post('/players', function(req, res, next){
 // Whenever we're given the playerid parameter, add the player to the request
 router.param('playerid', function(req, res, next, id){
     var filter = visibleOrPublicFilter(req);
+    filter.id = req.params.playerid;
 
     db.api.players.findOne(filter, true).then(function(player){
-        if(!player) return next({status:404, message: 'Unable to find player'});
+        if(!player) return next({status:404});
         req.player = player;
         next();
     }).catch(function(err){
@@ -91,10 +92,15 @@ router.param('playerid', function(req, res, next, id){
 });
 
 router.get('/players/:playerid', function(req, res, next){
+    // auth and errors are handled by the param route above, so all we need to do here
+    // is return the values.
     res.send(200, req.player.values);
 });
 
 router.put('/players/:playerid', function(req, res, next){
+    // 403 if the user doesn't have write permission on this league
+    if(!leagueIsWritable(req.player.leagueId, req.user)) return next({status:403});
+
     db.api.generic.updateModel(req.player, req.body).then(function(player){
         res.send(200, player.values);
     }).catch(function(err){
@@ -103,6 +109,9 @@ router.put('/players/:playerid', function(req, res, next){
 });
 
 router.delete('/players/:playerid', function(req, res, next){
+    // 403 if the user doesn't have write permission on this league
+    if(!leagueIsWritable(req.player.leagueId, req.user)) return next({status:403});
+
     db.api.generic.destroyModel(req.player).then(function(){
         res.send(200);
     }).catch(function(err){
@@ -128,11 +137,12 @@ router.get('/users', function(req, res, next){
     });
 });
 
-// if we're given a userid param, try to attach the user to the request
+// if we're given a userid param, attach the user to the request
+// note - we attach as .foundUser because .user is the currently logged in user.
 router.param('userid', function(req, res, next, id){
     db.api.users.findOne({
         id: id
-    }).then(function(user){
+    }, true).then(function(user){
         req.foundUser = user;
         next();
     }).catch(function(err){
@@ -146,6 +156,9 @@ router.get('/users/:userid', function(req, res, next){
 
 
 router.delete('/users/:userid', function(req, res, next){
+    // only admins can delete users
+    if(!req.user || !req.user.isAdmin) return next({status:403});
+
     req.foundUser.destroy().then(function(){
         res.send(200);
     }).catch(function(err){
@@ -158,23 +171,47 @@ router.delete('/users/:userid', function(req, res, next){
  */
 
 router.get('/teams', function(req, res, next){
-    var leagueId = getLeagueId(req);
+    // league must be public or visible to the current user
+    var filter = visibleOrPublicFilter(req);
 
-    db.api.teams.findAll({
-        leagueId: leagueId
-    }).then(function(teams){
+    db.api.teams.findAll(filter).then(function(teams){
         res.send(200, teams);
     }).catch(function(err){
         next(err);
     });
 });
 
+/**
+ * Create a team, given a name and player IDs
+ */
+router.post('/teams', function(req, res, next){
+    // user needs write permission on the league
+    var leagueId = Number(req.body.leagueId);
+    if(!leagueIsWritable(leagueId, req.user)) return next({status:403});
+
+    var playerIds = _.map(req.body.players, function(player){
+        return Number(player);
+    });
+
+    db.api.teams.create({
+        leagueId: leagueId,
+        name: req.body.name,
+        playerIds: playerIds,
+    }).then(function(team){
+        res.send(200, team);
+    }).catch(function(err){
+        next(err);
+    });
+
+});
+
 // whenever a route has a teamdid parameter, put the team on the request
 router.param('teamid', function(req, res, next, id){
-    db.api.teams.findOne({
-        id: id
-    }, true).then(function(team){
-        if(!team) return next({status:404, message: 'Unable to find team'});
+    var filter = visibleOrPublicFilter(req);
+    filter.id = req.params.teamid;
+
+    db.api.teams.findOne(filter, true).then(function(team){
+        if(!team) return next({status:404});
         req.team = team;
         next();
     }).catch(function(err){
@@ -183,6 +220,8 @@ router.param('teamid', function(req, res, next, id){
 });
 
 router.get('/teams/:teamid', function(req, res, next){
+    // auth and errors handled by the 'teamid' param route, so all we need to do here
+    // is return the values.
     res.send(200, req.team);
 });
 
@@ -193,6 +232,8 @@ router.get('/teams/:teamid', function(req, res, next){
  * _Technically_ could return more than one.
  */
 router.get('/teams/search/:players', function(req, res, next){
+    // todo - how to auth this?
+
 
     // sanitization
     var players = req.params.players.split(',');
@@ -217,36 +258,22 @@ router.get('/teams/search/:players', function(req, res, next){
  * @return {[type]}        [description]
  */
 router.get('/teams/:id/games', function(req, res, next){
-    db.api.teams.getTeamWithGames(req.params.id).then(function(response){
+    var filter = visibleOrPublicFilter(req);
+    filter.id = req.params.id;
+
+    db.api.teams.getTeamWithGames(filter).then(function(response){
+        if(!response) return next({status:404});
         res.send(200, response.games);
     }).catch(function(err){
         next(err);
     });
 });
 
-/**
- * Create a team, given a name and player IDs
- */
-router.post('/teams', function(req, res, next){
-    var leagueId = getLeagueId(req);
-
-    var playerIds = _.map(req.body.players, function(player){
-        return Number(player);
-    });
-
-    db.api.teams.create({
-        name: req.body.name,
-        playerIds: playerIds,
-        leagueId: leagueId
-    }).then(function(team){
-        res.send(200, team);
-    }).catch(function(err){
-        next(err);
-    });
-
-});
 
 router.delete('/teams/:teamid', function(req, res, next){
+    // 403 if the user doesn't have write permission on this league
+    if(!leagueIsWritable(req.team.leagueId, req.user)) return next({status:403});
+
     db.api.teams.delete(req.team).then(function(){
         res.send(200);
     }).catch(function(err){
@@ -255,6 +282,9 @@ router.delete('/teams/:teamid', function(req, res, next){
 });
 
 router.put('/teams/:teamid', function(req, res, next){
+    // 403 if the user doesn't have write permission on this league
+    if(!leagueIsWritable(req.team.leagueId, req.user)) return next({status:403});
+
     // for now, the only change you can make to a team is its name
     if(!req.body.name) return res.send(400);
 
@@ -396,16 +426,16 @@ router.get('/leagues', function(req, res, next){
 });
 
 router.get('/leagues/:leagueid', function(req, res, next){
-    // todo - this can probably be abstracted
+    // only leagues that are public or you're allowed to see
     var filter = Sequelize.and({
         id: req.params.leagueid
     }, Sequelize.or({
         public: true,
     }, {
-        // todo - abstract the user checking stuff
         id: req.user && req.user.visibleLeagues || []
     }));
 
+    // admins see all
     if(req.user && req.user.isAdmin) filter = {
         id: req.params.leagueid
     };
@@ -419,6 +449,9 @@ router.get('/leagues/:leagueid', function(req, res, next){
 })
 
 router.post('/leagues', function(req, res, next){
+    // must be logged in and admin
+    if(!req.user || !req.user.isAdmin) return next({status:403});
+
     db.api.leagues.create(req.body).then(function(league){
         res.send(200, league);
     }).catch(function(err){
@@ -427,6 +460,9 @@ router.post('/leagues', function(req, res, next){
 });
 
 router.put('/leagues/:leagueid', function(req, res, next){
+    // 403 if you don't have permission
+    if(!leagueIsWritable(req.params.leagueid, req.user)) return next({status:403});
+
     db.api.leagues.update(req.params.leagueid, req.body).then(function(league){
         res.send(200, league);
     }).catch(function(err){
@@ -438,6 +474,9 @@ router.put('/leagues/:leagueid', function(req, res, next){
 // todo - this should be authed, rate limited or even restricted to
 // internal calls, because it's DB heavy and shouldn't be spammed.
 router.get('/leagues/:leagueid/stats/refresh', function(req, res, next){
+    // admin only for now
+    if(!req.user || !req.user.isAdmin) return next({status:403});
+
     db.api.stats.refreshLeagueStats(req.params.leagueid).then(function(result){
         res.send(200, result);
     }).catch(function(err){
