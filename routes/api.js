@@ -27,7 +27,11 @@ router.use(function leagueMiddleware(req, res, next){
     if(req.cookies.ptLeagueId) return next();
 
     // otherwise we need to look up the leagues and get the first one we're allowed to look at
-    db.api.leagues.findAll().then(function(leagues){
+    db.api.leagues.findAll(Sequelize.or({
+        public: true
+    }, {
+        id: req.user && req.user.visibleLeagues || []
+    })).then(function(leagues){
         // no leagues available, set -1 so the client knows we're locked out
         if(!leagues.length){
             res.cookie('ptLeagueId', -1, {path: '/', secure:true});
@@ -40,28 +44,32 @@ router.use(function leagueMiddleware(req, res, next){
 
 });
 
-// if you're not a registered user with auth 3, you can only GET
+// super hacky auth middleware - if you're not a registered user with auth 3, you can only GET
 router.use(function(req, res, next){
-    if(req.method !== 'GET' && (!req.user || req.user.auth !== 3)) throw {status:403};
+    //if(req.method !== 'GET' && (!req.user || req.user.auth !== 3)) throw {status:403};
     next();
 });
 
 
+/**
+ * Players
+ */
 
-// players
 router.get('/players', function(req, res, next){
-    var leagueId = getLeagueId(req);
+    var filter = visibleOrPublicFilter(req);
 
-    db.api.players.findAll({
-        leagueId: leagueId
-    }).then(function(players){
+    db.api.players.findAll(filter).then(function(players){
         res.send(200, players);
     }).catch(function(err){
         next(err);
     });
 });
 
+
 router.post('/players', function(req, res, next){
+    // if the user doesn't have write access to the specified league, it's a 403.
+    if(!leagueIsWritable(req.body.leagueId, req.user)) throw {status:403};
+
     db.api.players.create(req.body).then(function(player){
         res.send(201, player);
     }).catch(function(err){
@@ -69,12 +77,11 @@ router.post('/players', function(req, res, next){
     });
 });
 
-// Whenever we're given the playerid parameter, add the player
-// to the request.
+// Whenever we're given the playerid parameter, add the player to the request
 router.param('playerid', function(req, res, next, id){
-    db.api.players.findOne({
-        id: id
-    }, true).then(function(player){
+    var filter = visibleOrPublicFilter(req);
+
+    db.api.players.findOne(filter, true).then(function(player){
         if(!player) return next({status:404, message: 'Unable to find player'});
         req.player = player;
         next();
@@ -376,10 +383,10 @@ router.get('/leagues', function(req, res, next){
     var filter = Sequelize.or({
         public: true
     }, {
-        id: req.user.visibleLeagues
+        id: req.user && req.user.visibleLeagues || []
     });
     // unless you're an admin, then you can see everything.
-    if(req.user.isAdmin) filter = {};
+    if(req.user && req.user.isAdmin) filter = {};
 
     db.api.leagues.findAll(filter).then(function(leagues){
         res.send(200, leagues);
@@ -395,10 +402,11 @@ router.get('/leagues/:leagueid', function(req, res, next){
     }, Sequelize.or({
         public: true,
     }, {
-        id: req.user.visibleLeagues
+        // todo - abstract the user checking stuff
+        id: req.user && req.user.visibleLeagues || []
     }));
 
-    if(req.user.isAdmin) filter = {
+    if(req.user && req.user.isAdmin) filter = {
         id: req.params.leagueid
     };
 
@@ -460,6 +468,56 @@ router.use(function(err, req, res, next) {
 function getLeagueId(req){
     return req.query.league || req.cookies.ptLeagueId || -1;
 }
+
+
+/**
+ * Return whether a league is visible to the current user
+ * This doesn't take league.public into account! Just whether they have permission.
+ * @param  {Number} leagueId
+ * @param  {Object} user
+ * @return {Boolean}
+ */
+function leagueIsVisible(leagueId, user){
+    if(!user) return false;
+    if(user.isAdmin) return true;
+
+    leagueId = Number(leagueId);
+    return !!~user.visibleLeagues.indexOf(leagueId);
+}
+
+/**
+ * Return whether a league is writeable to the current user
+ * @param  {Number} leagueId
+ * @param  {Object} user
+ * @return {Boolean}
+ */
+function leagueIsWritable(leagueId, user){
+    if(!user) return false;
+    if(user.isAdmin) return true;
+
+    leagueId = Number(leagueId);
+    return !!~user.writeableLeagues.indexOf(leagueId);
+}
+
+/**
+ * Returns a Sequelize WHERE filter specifying that if the requested league
+ * isn't visible to the user, the league must be public.
+ * @param  {Express.Request} req
+ * @return {Object}             WHERE filter
+ */
+function visibleOrPublicFilter(req){
+    var leagueId = getLeagueId(req);
+    var filter = {
+        leagueId: leagueId
+    };
+    if(!leagueIsVisible(leagueId, req.user)){
+        filter['League.public'] = true;
+    }
+    return filter;
+}
+
+
+
 
 
 module.exports = router;

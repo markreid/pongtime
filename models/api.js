@@ -130,6 +130,9 @@ module.exports = function(sequelize, models){
                 model: models.Team
             }, {
                 model: models.Stat
+            }, {
+                model: models.League,
+                attributes: ['id']
             }],
             order: 'id'
         }).then(function(players){
@@ -147,13 +150,17 @@ module.exports = function(sequelize, models){
      * @return {Object}         model.values
      */
     api.players.findOne = function(where, notValues){
-        return models.Player.find({
+        return models.Player.findAll({
             where: where || {},
             include: [{
                 model: models.Team
             }, {
                 model: models.Stat
-            }]
+            }, {
+                model: models.League
+            }],
+            order: 'id',
+            limit: 1
         }).then(function(player){
             // if notValues is true, we want to return the model
             if(notValues) return player || null;
@@ -778,7 +785,6 @@ module.exports = function(sequelize, models){
 
 
     api.leagues.findAll = function(where, notValues){
-        console.log(where);
         return models.League.findAll({
             where: where
         }).then(function(leagues){
@@ -801,6 +807,8 @@ module.exports = function(sequelize, models){
         });
     };
 
+    // todo - this is a pretty ridiculous query, we can probably soften it up a bit? or maybe just need the frontend
+    // to break it into parts...
     api.leagues.findOneDetailed = function(where, notValues){
         return models.League.find({
             where: where,
@@ -818,10 +826,12 @@ module.exports = function(sequelize, models){
                 }
             }, {
                 model: models.User,
-                as: 'members'
+                as: 'members',
+                attributes: ['id', 'name']
             }, {
                 model: models.User,
-                as: 'moderators'
+                as: 'moderators',
+                attributes: ['id', 'name']
             }]
         }).then(function(league){
             if(!league) return null;
