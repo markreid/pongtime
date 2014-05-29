@@ -150,6 +150,7 @@ module.exports = function(sequelize, models){
      * @return {Object}         model.values
      */
     api.players.findOne = function(where, notValues){
+        console.log(where);
         return models.Player.findAll({
             where: where || {},
             include: [{
@@ -802,7 +803,16 @@ module.exports = function(sequelize, models){
 
     api.leagues.findAll = function(where, notValues){
         return models.League.findAll({
-            where: where
+            where: where,
+            include: [{
+                model: models.User,
+                as: 'members',
+                attributes: ['id', 'name']
+            }, {
+                model: models.User,
+                as: 'moderators',
+                attributes: ['id', 'name']
+            }]
         }).then(function(leagues){
             if(notValues) return leagues;
             return _.pluck(leagues, 'values');
@@ -810,6 +820,8 @@ module.exports = function(sequelize, models){
             throw err;
         });
     };
+
+
 
     api.leagues.findOne = function(where, notValues){
         return models.League.find({
