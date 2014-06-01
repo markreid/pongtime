@@ -1,22 +1,26 @@
 /**
- * User service
+ * Leagues service
  */
 
 (function(){
     'use strict';
-    angular.module('pong').factory('leagues', ['$http', '$cookies', '$location', function($http, $cookies, $location){
+    angular.module('pong').factory('leagues', ['$http', 'ipCookie', '$location', 'user', function($http, ipCookie, $location, usersService){
 
         var registeredObservers = [];
 
         // defaults
         var synced = false;
         var leagues = [];
+        var user = null;
 
         /**
          * Constructor
          * fetches and parses the leagues from the API
          */
         var LeaguesService = function(){
+            usersService.onUserUpdate(function(fetchedUser){
+                user = fetchedUser;
+            });
             this.reset();
         };
 
@@ -27,6 +31,10 @@
             }, this)).then(notifyObservers);
         };
 
+        LeaguesService.prototype.getLeagues = function(){
+            return fetchLeagues();
+        };
+
         LeaguesService.prototype.getActiveLeague = function(){
             return _.find(leagues, function(league){
                 return league.active;
@@ -34,11 +42,11 @@
         };
 
         LeaguesService.prototype.getActiveLeagueId = function(){
-            return $cookies.ptLeagueId || -1;
+            return ipCookie('ptLeagueId') || -1;
         };
 
         LeaguesService.prototype.setActiveLeague = function(id){
-            $cookies.ptLeagueId = Number(id);
+            ipCookie('ptLeagueId', Number(id), {path:'/', expires: 7});
             this.reset();
         };
 
@@ -50,12 +58,20 @@
         };
 
         LeaguesService.prototype.save = function(leagueData){
-            var validFields = ['name'];
+            var validFields = ['name', 'public', 'membersAreMods', 'members', 'moderators'];
             var validData = _.pick(leagueData, validFields);
             return $http.put('/api/v1/leagues/' + leagueData.id + '/', validData).then(function(response){
                 return response.data;
             });
-        }
+        };
+
+        LeaguesService.prototype.create = function(leagueData){
+            var validFields = ['name', 'public'];
+            var validData = _.pick(leagueData, validFields);
+            return $http.post('/api/v1/leagues/', validData).then(function(response){
+                return response.data;
+            });
+        };
 
         /**
          * Parse the leagues API response
@@ -65,7 +81,7 @@
          * @return {Array} parsed leagues
          */
         LeaguesService.prototype.parseLeagues = function(leagues){
-            var cookieLeagueId = Number($cookies.ptLeagueId);
+            var cookieLeagueId = Number(ipCookie('ptLeagueId'));
 
             // If the cookie was set to -1 or we weren't returned anything,
             // give an empty array.  The current user is unable to view
@@ -76,6 +92,7 @@
 
             var returnLeagues = _.map(leagues, function(league){
                 if(league.id === cookieLeagueId) league.active = true;
+                league.writable = isWritable(league);
                 return league;
             });
             return returnLeagues;
@@ -98,11 +115,21 @@
         }
 
         /**
+         * Return whether the current user can write to this league
+         */
+        function isWritable(league){
+            if(!user) return false;
+            if(user.isAdmin) return true;
+            var leagueModerators = _.pluck(league.moderators, 'id');
+            return !!~leagueModerators.indexOf(user.id);
+        }
+
+        /**
          * Register an observer callback, that will be notified whenever
          * the leagues are updated.  Calls back immediately if we've already
          * synced with the server.
          */
-        LeaguesService.prototype.onUpdate = function(callback){
+        LeaguesService.prototype.onFetch = function(callback){
             registeredObservers.push(callback);
             if(synced) callback(leagues);
         };

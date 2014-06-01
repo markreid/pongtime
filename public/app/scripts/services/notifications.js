@@ -50,6 +50,13 @@
             });
         };
 
+        NotificationsService.prototype.notFound = function(){
+            this.publish('messages', {
+                class: 'alert-warning',
+                text: 'Sorry dude, I can\'t find what you\'re looking for.'
+            });
+        };
+
         return new NotificationsService();
 
     }]);

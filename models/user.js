@@ -23,14 +23,6 @@ module.exports = function(sequelize, datatypes){
             type: datatypes.STRING,
             allowNull: false,
             unique: true
-        },
-        playerId: {
-            type: datatypes.INTEGER,
-            references: 'Players',
-            referencesKey: 'id',
-            // if the player gets deleted, set this to null
-            onDelete: 'SET NULL',
-            onUpdate: 'CASCADE'
         }
     });
 

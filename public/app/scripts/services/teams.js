@@ -5,12 +5,12 @@
 (function(){
     'use strict';
 
-    angular.module('pong').factory('teams', ['$http', 'stats', function($http, statsService){
+    angular.module('pong').factory('teams', ['$http', 'stats', 'leagues', function($http, statsService, leaguesService){
 
         var TeamsService = function(){};
 
         TeamsService.prototype.getTeams = function(){
-            return $http.get('/api/v1/teams/').then(function(response){
+            return $http.get(apiRoot()).then(function(response){
                 response.data = _.map(response.data, function(team){
                     team = parseTeam(team);
                     team.stat = statsService.parseStats(team.stat);
@@ -21,7 +21,14 @@
         };
 
         TeamsService.prototype.getTeam = function(id){
-            return $http.get('/api/v1/teams/' + id + '/').then(function(response){
+            return $http.get(apiRoot() + id + '/').then(function(response){
+                var team = parseTeam(response.data);
+                return team;
+            });
+        };
+
+        TeamsService.prototype.getTeamWithDetails = function(id){
+            return $http.get(apiRoot() + id + '/all/').then(function(response){
                 var team = parseTeam(response.data);
                 team.stat = statsService.parseStats(team.stat);
                 return team;
@@ -30,7 +37,7 @@
 
         TeamsService.prototype.getTeamByPlayers = function(players){
             var playersString = players.join(',');
-            return $http.get('/api/v1/teams/search/' + playersString +'/').then(function(response){
+            return $http.get(apiRoot() + 'search/' + playersString +'/').then(function(response){
                 var team = parseTeam(response.data);
                 team.stat = statsService.parseStats(team.stat);
                 return team;
@@ -39,7 +46,8 @@
 
         TeamsService.prototype.addTeam = function(players, name){
             if(!players || !players.length || !name) throw new Error('shitty arguments, bro.');
-            return $http.post('/api/v1/teams/', {
+            return $http.post(apiRoot(), {
+                leagueId: leaguesService.getActiveLeagueId(),
                 players: players,
                 name: name
             }).then(function(response){
@@ -54,7 +62,7 @@
             var validData = _.pick(teamData, validFields);
             console.log(validData);
 
-            return $http.put('/api/v1/teams/' + teamData.id + '/', teamData).then(function(response){
+            return $http.put(apiRoot() + teamData.id + '/', teamData).then(function(response){
                 var team = parseTeam(response.data);
                 team.stat = statsService.parseStats(team.stat);
                 return team;
@@ -70,6 +78,12 @@
             });
             return team;
         };
+
+        // return the teams API root URL
+        // checks the leagues service for the current active League Id
+        function apiRoot(){
+            return '/api/v1/leagues/' + leaguesService.getActiveLeagueId() + '/teams/';
+        }
 
         return new TeamsService();
 

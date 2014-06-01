@@ -5,18 +5,18 @@
 (function(){
     'use strict';
 
-    angular.module('pong').factory('games', ['$http', '$q', function($http, $q){
+    angular.module('pong').factory('games', ['$http', '$q', 'leagues', function($http, $q, leaguesService){
 
         var GamesService = function(){};
 
         GamesService.prototype.getGames = function(){
-            return $http.get('/api/v1/games').then(function(response){
+            return $http.get(apiRoot()).then(function(response){
                 return response.data;
             });
         };
 
         GamesService.prototype.add = function(data){
-            return $http.post('/api/v1/games', data).then(function(response){
+            return $http.post(apiRoot(), data).then(function(response){
                 return response.data;
             });
         };
@@ -26,18 +26,18 @@
             // we require .id, .winningTeamId:num, .losingTeamId:num and .redemption:bool
             if(~[data.id, data.winningTeamId, data.losingTeamId, data.redemption].indexOf(null)) throw new Error('missing parameters.');
 
-            return $http.put('/api/v1/games/' + Number(data.id), {
+            return $http.put(apiRoot() + Number(data.id), {
                 winningTeamId: data.winningTeamId,
                 losingTeamId: data.losingTeamId,
                 redemption: data.redemption,
-                date: data.date
+                date: data.date.toString()
             }).then(function(response){
                 return response.data;
             });
         };
 
 		GamesService.prototype.delete = function(gameid){
-			return $http.delete('/api/v1/games/' + Number(gameid)).then(function(response){
+			return $http.delete(apiRoot() + Number(gameid)).then(function(response){
 				return response.data;
 			});
 
@@ -51,7 +51,7 @@
             var t1 = teamIds[0];
             var t2 = teamIds[1];
             var teamIdString = teamIds.join(',');
-            return $http.get('/api/v1/games/search/' + teamIdString + '/').then(function(response){
+            return $http.get(apiRoot() + 'search/' + teamIdString + '/').then(function(response){
                 var games = response.data;
                 var gamesPlayed = games.length;
                 if(!gamesPlayed) return null;
@@ -147,6 +147,12 @@
                 };
             });
         };
+
+        // return the games API root URL
+        // checks the leagues service for the current active League Id
+        function apiRoot(){
+            return '/api/v1/leagues/' + leaguesService.getActiveLeagueId() + '/games/';
+        }
 
         return new GamesService();
 

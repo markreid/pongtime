@@ -130,6 +130,9 @@ module.exports = function(sequelize, models){
                 model: models.Team
             }, {
                 model: models.Stat
+            }, {
+                model: models.League,
+                attributes: ['id']
             }],
             order: 'id'
         }).then(function(players){
@@ -141,23 +144,27 @@ module.exports = function(sequelize, models){
     };
 
     /**
-     * Find a single player,
+     * Find a single player with extra associated models
      * @param  {Object} where   filter data
      * @param  {Boolean} notValues  set true to pass the model, not the values
      * @return {Object}         model.values
      */
-    api.players.findOne = function(where, notValues){
-        return models.Player.find({
+    api.players.findOneDetailed = function(where, notValues){
+        return models.Player.findAll({
             where: where || {},
             include: [{
                 model: models.Team
             }, {
                 model: models.Stat
-            }]
-        }).then(function(player){
+            }],
+            order: 'id',
+            limit: 1
+        }).then(function(players){
+            if(!players.length) return null;
+
             // if notValues is true, we want to return the model
-            if(notValues) return player || null;
-            return player && player.values || null;
+            if(notValues) return players[0];
+            return players[0].values
         }).catch(function(err){
             throw err;
         });
@@ -219,12 +226,15 @@ module.exports = function(sequelize, models){
     api.teams.findAll = function(where, notValues){
         return models.Team.findAll({
             where: where || {},
-            attributes: ['name', 'id'],
+            attributes: ['name', 'id', 'leagueId'],
             include: [{
                 model: models.Player,
                 attributes: ['name', 'id']
             }, {
                 model: models.Stat
+            }, {
+                model: models.League,
+                attributes: ['id']
             }]
         }).then(function(teams){
             if(notValues) return teams;
@@ -234,7 +244,7 @@ module.exports = function(sequelize, models){
         });
     };
 
-    api.teams.findOne = function(where, notValues){
+    api.teams.findOneDetailed = function(where, notValues){
         return models.Team.find({
             where: where || {},
             include: [{
@@ -278,6 +288,7 @@ module.exports = function(sequelize, models){
                 },
                 include: [models.Player, models.Stat]
             }).then(function(team){
+                if(!team) return null;
                 return team.values;
             });
         });
@@ -373,16 +384,16 @@ module.exports = function(sequelize, models){
     /**
      * Find a team, including its players and all its games.
      */
-    api.teams.getTeamWithGames = function(teamId, notValues){
+    api.teams.getTeamWithGames = function(where, notValues){
         return models.Team.find({
-            where: {
-                id: teamId
-            }, include: [{
+            where: where,
+            include: [{
                 model: models.Game
             }, {
                 model: models.Player
             }]
         }).then(function(team){
+            if(!team) return null;
             if(notValues) return team;
             return team.values;
         }).catch(function(err){
@@ -523,6 +534,9 @@ module.exports = function(sequelize, models){
     api.teams.delete = function(model){
         var teamId = Number(model.values.id);
 
+        // todo
+        // THIS IS BROKEN. NEEDS A FIX.
+
         // todo - this can probably be handled by the ORM
         // but for now it's done manually.
         // When a team is removed, we need to remove its
@@ -600,11 +614,12 @@ module.exports = function(sequelize, models){
             where: where || {},
             include: [{
                 model: models.Team,
-                attributes: ['name']
+                attributes: ['name', 'id']
             }]
         }).then(function(game){
-            if(!game) throw {status:404, message: 'Game not found'};
-            return game;
+            if(!game) return null;
+            if(notValues) return game;
+            return game.values;
         }).catch(function(err){
             throw err;
         });
@@ -612,8 +627,6 @@ module.exports = function(sequelize, models){
 
     /**
      * Return an array of games matching the provided team IDs
-     * Not the same as .getTeamGames - this will return only
-     * games that all given teams played in
      * @param  {Array} teamIds
      * @return {Array}
      */
@@ -622,28 +635,6 @@ module.exports = function(sequelize, models){
         var teamsString = teamIds.join(',');
         return sequelize.query('SELECT "Games".* FROM "Games" LEFT OUTER JOIN "GamesTeams" AS "Teams.GamesTeam" ON "Games"."id" = "Teams.GamesTeam"."GameId" LEFT OUTER JOIN "Teams" AS "Teams" ON "Teams"."id" = "Teams.GamesTeam"."TeamId" WHERE "Teams".id IN (' + teamsString + ') GROUP BY "Games".id  HAVING COUNT(*) = 2 ORDER BY "Games".id;').then(function(games){
             return games;
-        }).catch(function(err){
-            throw err;
-        });
-    };
-
-    /**
-     * Return games that a team has played in, ordered by date.
-     * Not the same as .findByTeams - this will find all the games
-     * that one team has played in.
-     * todo - this query is wrong, it should return both teams
-     */
-    api.games.getTeamGames = function(team, notValues){
-        return models.Game.findAll({
-            include: {
-                model: models.Team,
-                attributes: ['id'],
-            }, where: {
-                'Teams.id': team
-            }, order: 'date'
-        }).then(function(games){
-            if(notValues) return games;
-            return _.pluck(games, 'values');
         }).catch(function(err){
             throw err;
         });
@@ -697,6 +688,8 @@ module.exports = function(sequelize, models){
         var teams = _.map(gameModel.values.teams, function(team){
             return team.dataValues.id;
         });
+        console.log('teams are ');
+        console.dir(teams);
         if(!~teams.indexOf(updatedData.winningTeamId) || !~teams.indexOf(updatedData.losingTeamId) || updatedData.winningTeamId === updatedData.losingTeamId) throw new Error('invalid winningTeamId and losingTeamId team IDs');
 
         // was there previously a result set for this game?
@@ -743,11 +736,12 @@ module.exports = function(sequelize, models){
      * @param  {Object} where
      * @return {Array}
      */
-    api.users.findAll = function(where){
+    api.users.findAll = function(where, notValues){
         return models.User.findAll({
             where: where,
             attributes: ['name', 'id']
         }).then(function(users){
+            if(notValues) return users;
             return _.pluck(users, 'values');
         }).catch(function(err){
             throw err;
@@ -763,32 +757,63 @@ module.exports = function(sequelize, models){
     api.users.findOne = function(where, notValues){
         return models.User.find({
             where: where,
-            attributes: ['name', 'id'],
-            include: {
-                model: models.Player,
-                attributes: ['name', 'id']
-            }
+            attributes: ['name', 'id']
         }).then(function(user){
-            if(!user) throw {status:404};
-            return user;
+            if(!user) return null;
+            if(notValues) return user;
+            return user.values;
         }).catch(function(err){
             throw err;
         });
     };
 
 
-    api.leagues.findAll = function(where){
+    api.leagues.findAll = function(where, notValues){
         return models.League.findAll({
-            where: where
+            where: where,
+            include: [{
+                model: models.User,
+                as: 'members',
+                attributes: ['id', 'name']
+            }, {
+                model: models.User,
+                as: 'moderators',
+                attributes: ['id', 'name']
+            }]
         }).then(function(leagues){
+            if(notValues) return leagues;
             return _.pluck(leagues, 'values');
         }).catch(function(err){
             throw err;
         });
     };
 
-    // todo - is this fetching too much?
+
+
     api.leagues.findOne = function(where, notValues){
+        return models.League.find({
+            where: where,
+            include: [{
+                model: models.User,
+                as: 'members',
+                attributes: ['id', 'name']
+            }, {
+                model: models.User,
+                as: 'moderators',
+                attributes: ['id', 'name']
+            }]
+        }).then(function(league){
+            if(!league) return null;
+            if(notValues) return league;
+            return league.values;
+        }).catch(function(err){
+            throw err;
+        });
+    };
+
+    // todo - this is a pretty ridiculous query, we can probably soften it up a bit? or maybe just need the frontend
+    // to break it into parts...
+    api.leagues.findOneDetailed = function(where, notValues){
         return models.League.find({
             where: where,
             include: [{
@@ -803,6 +828,14 @@ module.exports = function(sequelize, models){
                 include: {
                     model: models.Stat
                 }
+            }, {
+                model: models.User,
+                as: 'members',
+                attributes: ['id', 'name']
+            }, {
+                model: models.User,
+                as: 'moderators',
+                attributes: ['id', 'name']
             }]
         }).then(function(league){
             if(!league) return null;
@@ -824,16 +857,54 @@ module.exports = function(sequelize, models){
     };
 
     api.leagues.update = function(id, data){
-        // todo - validation
+        // todo - more stringent validation
+        var validFields = ['name', 'public', 'membersAreMods'];
+        var members = data.members;
+        var moderators = data.moderators;
+        var validData = _.pick(data, validFields);
+
+        return api.leagues.findOne({
+            id: id
+        }, true).then(function(league){
+            if(!league) return null;
+
+            return league.updateAttributes(validData).then(function(league){
+
+                // now setmembers and setmoderators
+                return api.users.findAll({
+                    id: members
+                }, true).then(function(members){
+                    return league.setMembers(members);
+                }).then(function(members){
+                    return api.users.findAll({
+                        id: moderators
+                    }, true).then(function(moderators){
+                        return league.setModerators(moderators);
+                    }).then(function(moderators){
+                        return _.extend({}, league.values, {
+                            members: _.pluck(members, 'values'),
+                            moderators: _.pluck(moderators, 'values')
+                        });
+                    });
+                });
+            });
+        }).catch(function(err){
+            throw err;
+        });
+    };
+
+    // todo - if sequelize isn't cleaning up all related moels, we need to do it manually here
+    // probably safest to perform a transaction
+    api.leagues.delete = function(id){
         return models.League.find({
             where: {
                 id: id
             }
         }).then(function(league){
-            if(!league) return null;
-            return league.updateAttributes(data).then(function(league){
-                return league.values;
-            });
+            if(!league) return false;
+            return league.destroy();
+        }).then(function(){
+            return true;
         }).catch(function(err){
             throw err;
         });

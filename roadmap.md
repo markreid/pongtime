@@ -4,17 +4,14 @@
 
 #### clientside
 
-* Keep a cache of team data in the teams service, so you can do a lookup by ID without hitting the server, and we don't need to pass teams around the views everywhere.
+* Saving team/player names breaks because the API doesn't return everything (stats etc) but the client expects it
 
 
 #### serverside
 
-* Proper auth model
-* Validation on all internal & REST API calls
 * When updating a previously saved game, we should only call the stats refresh method if any of the values have actually changed
 * Shortcut for changing the most recent game results only (without triggering complete stats refresh)
 * Require auth to use the stats refresh call in REST API
-* League defaults to -1 if they haven't chosen one before - the API needs to catch this and say "invalid league" so the client can tell them to choose one.
 * Add a dev/prod switch for the API 300ms delay
 * Team slugs
 
