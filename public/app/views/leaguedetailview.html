@@ -6,6 +6,7 @@
         <a class="pull-right" ng-show="canEdit" ng-click="showLeagueSettings()"><span class="glyphicon glyphicon-cog"></span></a>
         <h1>{{ league.name }}</h1>
         <p class="lead">{{ numPlayers }} players have played {{ numGames }} games.</p>
+        <p><a href="/newgame/" class="btn btn-primary btn-lg">Start a Game</a></p>
     </div>
 
     <div class="well" ng-show="editing">

@@ -43,12 +43,12 @@ passport.use(new passportGoogle({
             // and a list of league IDs that the user has permission to modify.
             var returnData = _.extend({}, user.values);
 
-            var moderatorOf = _.pluck(returnData.moderators, 'id');
-            var memberOf = _.pluck(returnData.members, 'id');
-            var memberModeratorOf = _.pluck(_.where(returnData.members, {membersAreMods: true}), 'id');
+            // var moderatorOf = _.pluck(returnData.moderators, 'id');
+            // var memberOf = _.pluck(returnData.members, 'id');
+            // var memberModeratorOf = _.pluck(_.where(returnData.members, {membersAreMods: true}), 'id');
 
-            returnData.visibleLeagues = _.unique(memberOf.concat(moderatorOf));
-            returnData.writeableLeagues = _.unique(moderatorOf.concat(memberModeratorOf));
+            // returnData.visibleLeagues = _.unique(memberOf.concat(moderatorOf));
+            // returnData.writeableLeagues = _.unique(moderatorOf.concat(memberModeratorOf));
             returnData.isAdmin = user.values.auth === 3;
             return done(null, returnData);
         }

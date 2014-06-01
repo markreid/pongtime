@@ -182,7 +182,7 @@ router.route('/leagues/:leagueId')
     });
 }).put(function(req, res, next){
     // auth is handled by the :leagueId parameter middleware
-    db.api.leagues.update(req.params.leagueid, req.body).then(function(league){
+    db.api.leagues.update(req.params.leagueId, req.body).then(function(league){
         res.send(200, league);
     }).catch(function(err){
         next(err);

@@ -27,6 +27,10 @@
             }, this)).then(notifyObservers);
         };
 
+        LeaguesService.prototype.getLeagues = function(){
+            return fetchLeagues();
+        };
+
         LeaguesService.prototype.getActiveLeague = function(){
             return _.find(leagues, function(league){
                 return league.active;

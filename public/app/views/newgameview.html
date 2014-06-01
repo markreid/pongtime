@@ -1,0 +1,50 @@
+<div class="loader pageloader" ng-show="refreshing"></div>
+
+<div class="container" ng-hide="refreshing">
+
+    <header class="page-header">
+        <h1>New Game</h1>
+    </header>
+
+    <section class="section-players">
+        <h3>Players</h3>
+
+        <div class="text-center">
+            <button ng-repeat="player in players" type="button" class="btn btn-sm" ng-class="{'btn-success': player.active}" ng-click="toggleActive(this)">{{ player.name }}</button>
+
+            <a ng-show="user.isAdmin" ng-click="showAddPlayer=!showAddPlayer">[+]</a>
+
+            <form class="row" ng-show="showAddPlayer" ng-submit="addNewPlayer(newPlayerName)" style="margin-top: 20px;">
+                <div class="input-group col-md-4 col-md-offset-4 col-xs-12 ">
+                    <input type="text" class="form-control" ng-model="newPlayerName" placeholder="name">
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" type="submit">Add</button>
+                    </span>
+                </div>
+            </form>
+        </div>
+
+
+    </section>
+
+    <section>
+        <label>Players per team</label>
+        <select id="select-players-per-team" ng-model="playersPerTeam" class="form-control input-sm">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+        </select>
+
+        <div class="text-center vspace">
+            <button ng-click="runTeamGenerator()" type="button" class="btn btn-md btn-primary">Generate Teams</button>
+            <div class="alert alert-danger" ng-show="warning" id="warnings"><strong>Ba-bow! </strong>{{ warning }}</div>
+        </div>
+
+    </section>
+
+    <section ng-show="gameReady">
+        <creategame teams="teams"></creategame>
+    </section>
+
+</div>
