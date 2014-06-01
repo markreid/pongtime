@@ -6,7 +6,7 @@
                 <span class="sr-only">Toggle Nav</span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand">Pong Time?</a>
+            <a href="/" class="navbar-brand">Pong Time?</a>
         </div>
 
 
@@ -14,11 +14,12 @@
 
             <ul class="nav navbar-nav navbar-left">
                 <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ activeLeague.name}} <b class="caret"></b></a>
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ activeLeague.name || 'Select a league...'}} <b class="caret"></b></a>
                     <ul class="dropdown-menu">
+                        <li ng-show="!leagues.length"><a>No leagues available</a></li>
                         <li ng-repeat="league in leagues"><a href="/leagues/{{ league.id }}/" ng-click="setLeague(league.id)">{{ league.name }}</a></li>
-                        <!-- <li class="divider"></li>
-                        <li><a>New</a></li> -->
+                        <li class="divider"></li>
+                        <li ng-show="user.isAdmin"><a href="/leagues/new/">Add League...</a></li>
                     </ul>
                 </li>
 
@@ -44,9 +45,9 @@
 
             </ul>
 
-            <ul class="nav navbar-nav navbar-right">
-                <li ng-class="{active:path==='/'}"><a href="/">New Game</a></li>
-                <li ng-class="{active:path==='/games'}"><a href="/games/">Played Games</a></li>
+            <ul class="nav navbar-nav navbar-right" ng-show="activeLeague">
+                <li ng-class="{active:path==='/newgame'}"><a href="/newgame/">New Game</a></li>
+                <li ng-class="{active:path==='/games'}"><a href="/games/">Games</a></li>
                 <li ng-class="{active:path==='/teams'}"><a href="/teams">Teams</a></li>
                 <li ng-class="{active:path==='/players'}"><a href="/players">Players</a></li>
             </ul>

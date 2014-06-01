@@ -5,7 +5,7 @@
 
         $scope.reset = function(){
             $scope.refreshing = true;
-            playersService.getPlayer($routeParams.id).then(function(player){
+            playersService.getPlayerDetailed($routeParams.id).then(function(player){
                 $scope.player = player;
                 $scope.hasBeenEdited = false;
             }).catch(function(err){

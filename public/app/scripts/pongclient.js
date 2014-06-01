@@ -1,11 +1,16 @@
 (function(){
     'use strict';
 
-    angular.module(['pong'], ['ngCookies', 'ngResource', 'ngSanitize', 'ngRoute', 'ngQuickDate'])
+    angular.module(['pong'], ['ipCookie', 'ngResource', 'ngSanitize', 'ngRoute', 'ngQuickDate', 'localytics.directives'])
     .config(function($routeProvider, $locationProvider){
+
+        // configure the route provider
         $routeProvider.when('/', {
             templateUrl: '/static/views/indexview.html',
             controller: 'indexController'
+        }).when('/newgame', {
+            templateUrl: '/static/views/newgameview.html',
+            controller: 'newGameController'
         }).when('/games', {
             templateUrl: '/static/views/gamesview.html',
             controller: 'gamesController'
@@ -21,13 +26,27 @@
         }).when('/players/:id', {
             templateUrl: '/static/views/playerdetailview.html',
             controller: 'playerDetailController'
+        }).when('/leagues', {
+            templateUrl: '/static/views/leaguelistview.html',
+            controller: 'leagueListController'
+        }).when('/leagues/new', {
+            templateUrl: '/static/views/leaguecreateview.html',
+            controller: 'leagueCreateController'
         }).when('/leagues/:id', {
             templateUrl: '/static/views/leaguedetailview.html',
             controller: 'leagueDetailController'
         }).otherwise({
             redirectTo: '/'
         });
+
+        // configure the location provider
         $locationProvider.html5Mode(true);
+
+    }).run(function(ipCookie, $location){
+
+        // Redirect to the leagues list if the user hasn't selected a league yet
+        if(!ipCookie('ptLeagueId')) $location.path('/s');
+
     }).filter('plural', function(){
         // a super dodgy plural filter. use like this:
         // {{ 'some thing' | plural:count:'some things'}}

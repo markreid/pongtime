@@ -73,39 +73,6 @@ var calls = {
             });
         });
     },
-    linkuserwithplayer: function(){
-        prompt.start();
-        prompt.get(['user', 'playerID'], function(err, data){
-            db.User.find({
-                where: {
-                    id: data.user
-                }
-            }).success(function(user){
-                if(!user){
-                    console.warn('unknown user with PK ' + data.user);
-                    process.exit(1);
-                }
-                db.Player.find({
-                    where: {
-                        id: data.playerID
-                    }
-                }).success(function(player){
-                    console.log('found player ' + data.playerID);
-                    user.setPlayer(player).success(function(user){
-                        console.log('updated User model: \n');
-                        console.log(user.values);
-                        process.exit();
-                    }).fail(function(err){
-                        throw(err);
-                    });
-                }).fail(function(err){
-                    throw err;
-                });
-            }).fail(function(err){
-                throw err;
-            });
-        })
-    },
     simgames: function(){
         prompt.start();
         prompt.get(['leagueId', 'numGames'], function(err, data){

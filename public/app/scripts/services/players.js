@@ -5,7 +5,7 @@
 (function(){
     'use strict';
 
-    angular.module('pong').factory('players', ['$http', 'stats', function($http, statsService){
+    angular.module('pong').factory('players', ['$http', 'stats', 'leagues', function($http, statsService, leaguesService){
 
         var PlayersService = function(){};
 
@@ -16,7 +16,13 @@
          * @return {Object}
          */
         PlayersService.prototype.getPlayer = function(id){
-            return $http.get('/api/v1/players/' + id).then(function(response){
+            return $http.get(apiRoot() + id).then(function(response){
+                return parsePlayer(response.data);
+            });
+        };
+
+        PlayersService.prototype.getPlayerDetailed = function(id){
+            return $http.get(apiRoot() + id + '/all/').then(function(response){
                 return parsePlayer(response.data);
             });
         };
@@ -26,7 +32,7 @@
          * @return {Array}
          */
         PlayersService.prototype.getPlayers = function(){
-            return $http.get('/api/v1/players').then(function(response){
+            return $http.get(apiRoot()).then(function(response){
                 var players = _.map(response.data, parsePlayer);
                 return players;
             });
@@ -39,7 +45,7 @@
         PlayersService.prototype.add = function(data){
             // add a slug, if we don't have one.
             if(!data.slug) data.slug = slugify(data.name);
-            return $http.post('/api/v1/players', data).then(function(response){
+            return $http.post(apiRoot(), data).then(function(response){
                 return response.data;
             });
         };
@@ -48,7 +54,7 @@
             var validFields = ['name'];
             var validData = _.pick(playerData, validFields);
 
-            return $http.put('/api/v1/players/' + playerData.id + '/', validData).then(function(response){
+            return $http.put(apiRoot() + playerData.id + '/', validData).then(function(response){
                 return parsePlayer(response.data);
             });
         };
@@ -85,7 +91,13 @@
 
             str = str.replace(/[^\w\s-]/g, '');
             return str.trim(str).replace(/([A-Z])/g, '-$1').replace(/[-_\s]+/g, '-').toLowerCase();
-        };
+        }
+
+        // return the players API root URL
+        // checks the leagues service for the current active League Id
+        function apiRoot(){
+            return '/api/v1/leagues/' + leaguesService.getActiveLeagueId() + '/players/';
+        }
 
         return new PlayersService();
 

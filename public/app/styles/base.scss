@@ -9,14 +9,35 @@
 }
 
 #view-container {
-  // account for the fixed nav at the top
-  padding-top: 40px;
+  padding-top: 90px;
 }
 
 // give the user menu in the header a bit of space
 .nav-user {
     margin-left: 2em;
 }
+
+
+// fix chosen because it looks fucked
+form .chosen-container {
+    display: block;
+    width: 100% !important;
+
+    ul.chosen-choices {
+        padding: 6px;
+        border-radius: 3px;
+
+        li.search-field {
+            width: 100%;
+
+            input[type=text] {
+                width: 100% !important;
+            }
+        }
+    }
+
+}
+
 
 #messages {
     position: fixed;
@@ -102,6 +123,7 @@ gamewidget .table-match-history {
     border: none;
     padding: 0;
     outline: none;
+    color: inherit;
 
     &:focus {
         color: skyblue;

@@ -350,7 +350,7 @@
                     $scope.signedIn = user.signedIn;
                 });
 
-                leaguesService.onUpdate(function(leagues){
+                leaguesService.onFetch(function(leagues){
                     $scope.leagues = leagues;
                     $scope.activeLeague = _.find(leagues, function(league){
                         return league.active;

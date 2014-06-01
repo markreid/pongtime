@@ -1,7 +1,7 @@
 (function(){
     'use strict';
 
-    angular.module('pong').controller('indexController', ['$scope', '$routeParams', 'ipCookie', 'leagues', function($scope, $routeParams, ipCookie, leaguesService){
+    angular.module('pong').controller('leagueListController', ['$scope', '$routeParams', 'ipCookie', 'leagues', function($scope, $routeParams, ipCookie, leaguesService){
 
         $scope.reset = function(){
             $scope.refreshing = true;

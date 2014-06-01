@@ -47,10 +47,6 @@ _.each(models, function(model){
 
 // set up our associations
 
-// player and user are one-to-one
-models.Player.hasOne(models.User, {foreignKey: 'playerId'});
-models.User.belongsTo(models.Player, {foreignKey: 'playerId'});
-
 // games have a winning team and a losing team
 models.Team.hasMany(models.Game, {foreignKey: 'winningTeamId'});
 models.Team.hasMany(models.Game, {foreignKey: 'losingTeamId'});
@@ -78,6 +74,13 @@ models.Player.belongsTo(models.League, {foreignKey: 'leagueId'});
 models.Team.belongsTo(models.League, {foreignKey: 'leagueId'});
 models.Game.belongsTo(models.League, {foreignKey: 'leagueId'});
 
+// create join tables for league moderators and league members: league <-> user m2m
+models.LeagueModerators = sequelize.define('LeagueModerators', {});
+models.LeagueMembers = sequelize.define('LeagueMembers', {});
+models.League.hasMany(models.User, {as:'moderators', through: models.LeagueModerators});
+models.User.hasMany(models.League, {as:'moderators', through: models.LeagueModeators});
+models.League.hasMany(models.User, {as:'members', through: models.LeagueMembers});
+models.User.hasMany(models.League, {as:'members', through: models.LeagueMembers});
 
 
 // todo - this is an asynchronous task, it should have a success handler
