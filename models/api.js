@@ -267,12 +267,8 @@ module.exports = function(sequelize, models){
      * @return {Number}
      */
     api.teams.getTeamIdByPlayers = function(playerIDs, leagueId){
-        // todo - utilize the leagueId parameter
-        // theoretically it makes no difference but you're allowing information
-        // leak if you let people search across leagues.
-
         var playersString = playerIDs.join(',');
-        return sequelize.query('SELECT "TeamId" FROM "PlayersTeams" GROUP BY "TeamId" HAVING COUNT(*) = SUM(CASE WHEN "PlayerId" IN(' + playersString + ') THEN 1 ELSE 0 END) AND COUNT (*) = ' + playerIDs.length + ';').then(function(data){
+        return sequelize.query('SELECT "TeamId" FROM "PlayersTeams" GROUP BY "TeamId" HAVING COUNT(*) = SUM(CASE WHEN "PlayerId" IN(' + playersString + ') THEN 1 ELSE 0 END) AND COUNT (*) = ' + playerIDs.length + ' WHERE "Team.leagueId"=' + leagueId + ';').then(function(data){
             if(data && data.length) return data[0].TeamId;
             return null;
         });
@@ -284,7 +280,7 @@ module.exports = function(sequelize, models){
      * @return {Object}     team
      */
     api.teams.getTeamByPlayers = function(playerIDs, leagueId){
-        return api.teams.getTeamIdByPlayers(playerIDs).then(function(teamId){
+        return api.teams.getTeamIdByPlayers(playerIDs, leagueId).then(function(teamId){
             if(!teamId) return null;
             return models.Team.find({
                 where: {
@@ -631,38 +627,14 @@ module.exports = function(sequelize, models){
 
     /**
      * Return an array of games matching the provided team IDs
-     * Not the same as .getTeamGames - this will return only
-     * games that all given teams played in
      * @param  {Array} teamIds
      * @return {Array}
      */
-    api.games.findByTeams = function(teamIds){
+    api.games.findByTeams = function(teamIds, leagueId){
         if(!teamIds instanceof Array) throw new Error('teamIds must be an array');
         var teamsString = teamIds.join(',');
-        return sequelize.query('SELECT "Games".* FROM "Games" LEFT OUTER JOIN "GamesTeams" AS "Teams.GamesTeam" ON "Games"."id" = "Teams.GamesTeam"."GameId" LEFT OUTER JOIN "Teams" AS "Teams" ON "Teams"."id" = "Teams.GamesTeam"."TeamId" WHERE "Teams".id IN (' + teamsString + ') GROUP BY "Games".id  HAVING COUNT(*) = 2 ORDER BY "Games".id;').then(function(games){
+        return sequelize.query('SELECT "Games".* FROM "Games" LEFT OUTER JOIN "GamesTeams" AS "Teams.GamesTeam" ON "Games"."id" = "Teams.GamesTeam"."GameId" LEFT OUTER JOIN "Teams" AS "Teams" ON "Teams"."id" = "Teams.GamesTeam"."TeamId" WHERE "Teams".id IN (' + teamsString + ') GROUP BY "Games".id  HAVING COUNT(*) = 2 ORDER BY "Games".id WHERE "Games.leagueId=' + leagueId + ';').then(function(games){
             return games;
-        }).catch(function(err){
-            throw err;
-        });
-    };
-
-    /**
-     * Return games that a team has played in, ordered by date.
-     * Not the same as .findByTeams - this will find all the games
-     * that one team has played in.
-     * todo - this query is wrong, it should return both teams
-     */
-    api.games.getTeamGames = function(team, notValues){
-        return models.Game.findAll({
-            include: {
-                model: models.Team,
-                attributes: ['id'],
-            }, where: {
-                'Teams.id': team
-            }, order: 'date'
-        }).then(function(games){
-            if(notValues) return games;
-            return _.pluck(games, 'values');
         }).catch(function(err){
             throw err;
         });
