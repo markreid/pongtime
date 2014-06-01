@@ -324,8 +324,6 @@ router.route('/leagues/:leagueId/teams/:teamId')
     res.send(200, req.team.values);
 
 }).put(function(req, res, next){
-    // 403 if the user doesn't have write permission on this league
-    if(!leagueIsWritable(req.team.leagueId, req.user)) return next({status:403});
 
     // for now, the only change you can make to a team is its name
     if(!req.body.name) return res.send(400);

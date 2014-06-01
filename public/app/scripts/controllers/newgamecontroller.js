@@ -33,9 +33,13 @@
 
         };
 
-        userService.onUserUpdate(function(user){
-            $scope.user = user;
+        // attach the active league to the scope
+        leaguesService.onFetch(function(leagues){
+            $scope.league = _.find(leagues, function(league){
+                return league.active;
+            });
         });
+
 
         /**
          * Call the players service to fetch players from the DB

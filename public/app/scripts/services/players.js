@@ -45,7 +45,7 @@
         PlayersService.prototype.add = function(data){
             // add a slug, if we don't have one.
             if(!data.slug) data.slug = slugify(data.name);
-            return $http.post('/api/v1/players', data).then(function(response){
+            return $http.post(apiRoot(), data).then(function(response){
                 return response.data;
             });
         };
@@ -54,7 +54,7 @@
             var validFields = ['name'];
             var validData = _.pick(playerData, validFields);
 
-            return $http.put('/api/v1/players/' + playerData.id + '/', validData).then(function(response){
+            return $http.put(apiRoot() + playerData.id + '/', validData).then(function(response){
                 return parsePlayer(response.data);
             });
         };

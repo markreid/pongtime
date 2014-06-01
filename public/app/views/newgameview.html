@@ -12,7 +12,7 @@
         <div class="text-center">
             <button ng-repeat="player in players" type="button" class="btn btn-sm" ng-class="{'btn-success': player.active}" ng-click="toggleActive(this)">{{ player.name }}</button>
 
-            <a ng-show="user.isAdmin" ng-click="showAddPlayer=!showAddPlayer">[+]</a>
+            <a ng-show="league.writable" ng-click="showAddPlayer=!showAddPlayer">[+]</a>
 
             <form class="row" ng-show="showAddPlayer" ng-submit="addNewPlayer(newPlayerName)" style="margin-top: 20px;">
                 <div class="input-group col-md-4 col-md-offset-4 col-xs-12 ">

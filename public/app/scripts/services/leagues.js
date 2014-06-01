@@ -1,22 +1,26 @@
 /**
- * User service
+ * Leagues service
  */
 
 (function(){
     'use strict';
-    angular.module('pong').factory('leagues', ['$http', 'ipCookie', '$location', function($http, ipCookie, $location){
+    angular.module('pong').factory('leagues', ['$http', 'ipCookie', '$location', 'user', function($http, ipCookie, $location, usersService){
 
         var registeredObservers = [];
 
         // defaults
         var synced = false;
         var leagues = [];
+        var user = null;
 
         /**
          * Constructor
          * fetches and parses the leagues from the API
          */
         var LeaguesService = function(){
+            usersService.onUserUpdate(function(fetchedUser){
+                user = fetchedUser;
+            });
             this.reset();
         };
 
@@ -88,6 +92,7 @@
 
             var returnLeagues = _.map(leagues, function(league){
                 if(league.id === cookieLeagueId) league.active = true;
+                league.writable = isWritable(league);
                 return league;
             });
             return returnLeagues;
@@ -110,11 +115,21 @@
         }
 
         /**
+         * Return whether the current user can write to this league
+         */
+        function isWritable(league){
+            if(!user) return false;
+            if(user.isAdmin) return true;
+            var leagueModerators = _.pluck(league.moderators, 'id');
+            return !!~leagueModerators.indexOf(user.id);
+        }
+
+        /**
          * Register an observer callback, that will be notified whenever
          * the leagues are updated.  Calls back immediately if we've already
          * synced with the server.
          */
-        LeaguesService.prototype.onUpdate = function(callback){
+        LeaguesService.prototype.onFetch = function(callback){
             registeredObservers.push(callback);
             if(synced) callback(leagues);
         };
