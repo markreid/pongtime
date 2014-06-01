@@ -612,6 +612,10 @@ function isLeagueVisible(league, user){
     var leagueMembers = _.pluck(league.members, 'id');
     if(~leagueMembers.indexOf(user.id)) return true;
 
+    // current user is a moderator, they can see it.
+    var leagueModerators = _.pluck(league.moderators, 'id');
+    if(~leagueModerators.indexOf(user.id)) return true;
+
     // league isn't public, user isn't admin, isn't a member. can't see it.
     return false;
 }

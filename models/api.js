@@ -792,7 +792,16 @@ module.exports = function(sequelize, models){
 
     api.leagues.findOne = function(where, notValues){
         return models.League.find({
-            where: where
+            where: where,
+            include: [{
+                model: models.User,
+                as: 'members',
+                attributes: ['id', 'name']
+            }, {
+                model: models.User,
+                as: 'moderators',
+                attributes: ['id', 'name']
+            }]
         }).then(function(league){
             if(!league) return null;
             if(notValues) return league;
