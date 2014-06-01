@@ -373,8 +373,12 @@ router.get('/leagues/:leagueId/teams/search/:playerIds', function(req, res, next
         return Number(p);
     });
 
-    db.api.teams.getTeamByPlayers(safePlayers, req.params.leagueId).then(function(team){
-        if(!team) return res.send(404);
+    // this api method will ignore the leagueId, so we need to double check
+    // what we're given back to to ensure it matches the league.
+    db.api.teams.getTeamByPlayers(safePlayers).then(function(team){
+        if(!team) return next({status:404});
+        // needs to belong to the league that we're looking at
+        if(team.leagueId !== Number(req.params.leagueId)) return next({status:404});
         res.send(200, team);
 
     }, function(err){
@@ -447,8 +451,11 @@ router.get('/leagues/:leagueId/games/search/:teamIds', function(req, res, next){
         return Number(team);
     });
 
-    db.api.games.findByTeams(teamIds, req.params.leagueId).then(function(games){
-        res.send(200, games);
+    // this api call ignores the leagueId so we need to check what
+    // we get returned
+    db.api.games.findByTeams(teamIds).then(function(games){
+        var gamesFromThisLeague = _.where(games, {leagueId:Number(req.params.leagueId)});
+        res.send(200, gamesFromThisLeague);
     }).catch(function(err){
         next(err);
     });

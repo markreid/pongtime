@@ -266,9 +266,9 @@ module.exports = function(sequelize, models){
      * @param  {Array} playerIDs
      * @return {Number}
      */
-    api.teams.getTeamIdByPlayers = function(playerIDs, leagueId){
+    api.teams.getTeamIdByPlayers = function(playerIDs){
         var playersString = playerIDs.join(',');
-        return sequelize.query('SELECT "TeamId" FROM "PlayersTeams" GROUP BY "TeamId" HAVING COUNT(*) = SUM(CASE WHEN "PlayerId" IN(' + playersString + ') THEN 1 ELSE 0 END) AND COUNT (*) = ' + playerIDs.length + ' WHERE "Team.leagueId"=' + leagueId + ';').then(function(data){
+        return sequelize.query('SELECT "TeamId" FROM "PlayersTeams" GROUP BY "TeamId" HAVING COUNT(*) = SUM(CASE WHEN "PlayerId" IN(' + playersString + ') THEN 1 ELSE 0 END) AND COUNT (*) = ' + playerIDs.length + ';').then(function(data){
             if(data && data.length) return data[0].TeamId;
             return null;
         });
@@ -279,8 +279,8 @@ module.exports = function(sequelize, models){
      * @param  {Array} playerIDs
      * @return {Object}     team
      */
-    api.teams.getTeamByPlayers = function(playerIDs, leagueId){
-        return api.teams.getTeamIdByPlayers(playerIDs, leagueId).then(function(teamId){
+    api.teams.getTeamByPlayers = function(playerIDs){
+        return api.teams.getTeamIdByPlayers(playerIDs).then(function(teamId){
             if(!teamId) return null;
             return models.Team.find({
                 where: {
@@ -630,10 +630,10 @@ module.exports = function(sequelize, models){
      * @param  {Array} teamIds
      * @return {Array}
      */
-    api.games.findByTeams = function(teamIds, leagueId){
+    api.games.findByTeams = function(teamIds){
         if(!teamIds instanceof Array) throw new Error('teamIds must be an array');
         var teamsString = teamIds.join(',');
-        return sequelize.query('SELECT "Games".* FROM "Games" LEFT OUTER JOIN "GamesTeams" AS "Teams.GamesTeam" ON "Games"."id" = "Teams.GamesTeam"."GameId" LEFT OUTER JOIN "Teams" AS "Teams" ON "Teams"."id" = "Teams.GamesTeam"."TeamId" WHERE "Teams".id IN (' + teamsString + ') GROUP BY "Games".id  HAVING COUNT(*) = 2 ORDER BY "Games".id WHERE "Games.leagueId=' + leagueId + ';').then(function(games){
+        return sequelize.query('SELECT "Games".* FROM "Games" LEFT OUTER JOIN "GamesTeams" AS "Teams.GamesTeam" ON "Games"."id" = "Teams.GamesTeam"."GameId" LEFT OUTER JOIN "Teams" AS "Teams" ON "Teams"."id" = "Teams.GamesTeam"."TeamId" WHERE "Teams".id IN (' + teamsString + ') GROUP BY "Games".id  HAVING COUNT(*) = 2 ORDER BY "Games".id;').then(function(games){
             return games;
         }).catch(function(err){
             throw err;
