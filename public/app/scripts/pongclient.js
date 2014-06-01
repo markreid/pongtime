@@ -1,7 +1,7 @@
 (function(){
     'use strict';
 
-    angular.module(['pong'], ['ngCookies', 'ngResource', 'ngSanitize', 'ngRoute', 'ngQuickDate', 'localytics.directives'])
+    angular.module(['pong'], ['ipCookie', 'ngResource', 'ngSanitize', 'ngRoute', 'ngQuickDate', 'localytics.directives'])
     .config(function($routeProvider, $locationProvider){
 
         // configure the route provider
@@ -42,10 +42,10 @@
         // configure the location provider
         $locationProvider.html5Mode(true);
 
-    }).run(function($cookies, $location){
+    }).run(function(ipCookie, $location){
 
         // Redirect to the leagues list if the user hasn't selected a league yet
-        if(!$cookies.ptLeagueId) $location.path('/s');
+        if(!ipCookie('ptLeagueId')) $location.path('/s');
 
     }).filter('plural', function(){
         // a super dodgy plural filter. use like this:

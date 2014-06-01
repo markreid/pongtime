@@ -4,7 +4,7 @@
 
 (function(){
     'use strict';
-    angular.module('pong').factory('leagues', ['$http', '$cookies', '$location', function($http, $cookies, $location){
+    angular.module('pong').factory('leagues', ['$http', 'ipCookie', '$location', function($http, ipCookie, $location){
 
         var registeredObservers = [];
 
@@ -38,11 +38,11 @@
         };
 
         LeaguesService.prototype.getActiveLeagueId = function(){
-            return $cookies.ptLeagueId || -1;
+            return ipCookie('ptLeagueId') || -1;
         };
 
         LeaguesService.prototype.setActiveLeague = function(id){
-            $cookies.ptLeagueId = Number(id);
+            ipCookie('ptLeagueId', Number(id), {path:'/', expires: 7});
             this.reset();
         };
 
@@ -77,7 +77,7 @@
          * @return {Array} parsed leagues
          */
         LeaguesService.prototype.parseLeagues = function(leagues){
-            var cookieLeagueId = Number($cookies.ptLeagueId);
+            var cookieLeagueId = Number(ipCookie('ptLeagueId'));
 
             // If the cookie was set to -1 or we weren't returned anything,
             // give an empty array.  The current user is unable to view

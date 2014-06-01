@@ -1,11 +1,11 @@
 (function(){
     'use strict';
 
-    angular.module('pong').controller('leagueListController', ['$scope', '$routeParams', '$cookies', 'leagues', function($scope, $routeParams, $cookies, leaguesService){
+    angular.module('pong').controller('leagueListController', ['$scope', '$routeParams', 'ipCookie', 'leagues', function($scope, $routeParams, ipCookie, leaguesService){
 
         $scope.reset = function(){
             $scope.refreshing = true;
-            $scope.noLeagueSelected = !!($cookies.ptLeagueId);
+            $scope.noLeagueSelected = !!(ipCookie('ptLeagueId'));
             leaguesService.getLeagues().then(function(leagues){
                 $scope.leagues = leagues;
             }).finally(function(){
