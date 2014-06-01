@@ -77,16 +77,18 @@ router.param('leagueId', function(req, res, next){
     });
 });
 
-// Whenever we're giveen the :playerId parameter, find the matching player
+// Whenever we're given the :playerId parameter, find the matching player
 // This parameter can't be used without the :leagueId parameter
 router.param('playerId', function(req, res, next, id){
     if(!req.params.leagueId) throw new Error(':playerId route param used without :leagueId');
-    db.api.players.findOne({
-        id: req.params.playerId,
-        leagueId: req.params.leagueId
-    }, true).then(function(player){
-        if(!player) return next({status:404});
-        req.player = player;
+
+    req.league.getPlayers({
+        where: {
+            id: req.params.playedId
+        }
+    }).then(function(players){
+        if(!players || !players.length) return next({status:404});
+        req.player = players[0];
         next();
     }).catch(function(err){
         next(err);
@@ -98,12 +100,31 @@ router.param('playerId', function(req, res, next, id){
 router.param('teamId', function(req, res, next){
     if(!req.params.leagueId) throw new Error(':teamId route param used without :leagueId');
 
-    db.api.teams.findOne({
-        id: req.params.teamId,
-        leagueId: req.params.leagueId
-    }, true).then(function(team){
-        if(!team) return next({status:404});
-        req.team = team;
+    req.league.getTeams({
+        where: {
+            id: req.params.teamId
+        }
+    }).then(function(teams){
+        if(!teams || !teams.length) return next({status:404});
+        req.team = teams[0];
+        next();
+    }).catch(function(err){
+        next(err);
+    });
+
+});
+
+// when a gameid parameter is specified, attach the game to the request
+router.param('gameId', function(req, res, next, id){
+    if(!req.params.leagueId) throw new Error(':teamId route param used without :leagueId');
+
+    req.league.getGames({
+        where: {
+            id: req.params.gameId
+        }
+    }).then(function(games){
+        if(!games || !games.length) return next({status:404});
+        req.game = games[0];
         next();
     }).catch(function(err){
         next(err);
@@ -264,7 +285,7 @@ router.get('/leagues/:leagueId/teams/search/:players', function(req, res, next){
         return Number(p);
     });
 
-    db.api.teams.getTeamByPlayers(safePlayers).then(function(team){
+    db.api.teams.getTeamByPlayers(safePlayers, req.params.leagueId).then(function(team){
         if(!team) return res.send(404);
         res.send(200, team);
 
@@ -328,10 +349,8 @@ router.put('/leagues/:leagueId/teams/:teamId', function(req, res, next){
 
 // fetch all
 router.get('/leagues/:leagueId/games', function(req, res, next){
-    var filter = visibleOrPublicFilter(req);
-
-    db.api.games.findAll(filter).then(function(games){
-        res.send(200, games);
+    req.league.getGames().then(function(games){
+        res.send(200, _.pluck(games, 'values'));
     }).catch(function(err){
         next(err);
     });
@@ -345,8 +364,9 @@ router.get('/leagues/:leagueId/games', function(req, res, next){
  * @return {[type]}        [description]
  */
 router.get('/leagues/:leagueId/games/open/', function(req, res, next){
-    var filter = visibleOrPublicFilter(req);
-    db.api.games.findAll(Sequelize.and(filter, Sequelize.or('"winningTeamId" IS NULL', '"losingTeamId" IS NULL'))).then(function(games){
+    db.api.games.findAll(Sequelize.and({
+        leagueId: req.params.leagueId
+    }, Sequelize.or('"winningTeamId" IS NULL', '"losingTeamId" IS NULL'))).then(function(games){
         res.send(200, games);
     }).catch(function(err){
         next(err);
@@ -392,19 +412,7 @@ router.post('/leagues/:leagueId/games', function(req, res, next){
 
 });
 
-// when a gameid parameter is specified, attach the game to the request
-router.param('gameId', function(req, res, next, id){
-    var filter = visibleOrPublicFilter(req);
-    filter.id = id;
 
-    db.api.games.findOne(filter, true).then(function(game){
-        if(!game) return next({status: 404});
-        req.game = game;
-        next();
-    }).catch(function(err){
-        next(err);
-    });
-});
 
 router.get('/leagues/:leagueId/games/:gameId', function(req, res, next){
     // auth and errors are handled by 'gameid' param route above, so all we do here

@@ -286,7 +286,7 @@ module.exports = function(sequelize, models){
      * @param  {Array} playerIDs
      * @return {Object}     team
      */
-    api.teams.getTeamByPlayers = function(playerIDs){
+    api.teams.getTeamByPlayers = function(playerIDs, leagueId){
         return api.teams.getTeamIdByPlayers(playerIDs).then(function(teamId){
             if(!teamId) return null;
             return models.Team.find({
