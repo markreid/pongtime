@@ -84,7 +84,7 @@ router.param('playerId', function(req, res, next, id){
 
     req.league.getPlayers({
         where: {
-            id: req.params.playedId
+            id: req.params.playerId
         }
     }).then(function(players){
         if(!players || !players.length) return next({status:404});
@@ -118,17 +118,19 @@ router.param('teamId', function(req, res, next){
 router.param('gameId', function(req, res, next, id){
     if(!req.params.leagueId) throw new Error(':teamId route param used without :leagueId');
 
-    req.league.getGames({
-        where: {
-            id: req.params.gameId
-        }
-    }).then(function(games){
-        if(!games || !games.length) return next({status:404});
-        req.game = games[0];
+    // can't use league.getGames because it gets confused by:
+    // error: column reference "leagueId" is ambiguous
+    db.api.games.findOne({
+        leagueId: req.league.id,
+        id: req.params.gameId
+    }, true).then(function(game){
+        if(!game) next({status:404});
+        req.game = game;
         next();
     }).catch(function(err){
         next(err);
     });
+
 });
 
 /**
@@ -166,12 +168,24 @@ router.get('/leagues', function(req, res, next){
 // League detail route, return the league's values.
 // Errors are caught by the :leagueId param route.
 router.get('/leagues/:leagueId', function(req, res, next){
-    res.send(200, req.league.values);
+    // todo - this queries twice
+    // because we already have the league in req.league
+    db.api.leagues.findOneDetailed({
+        id: req.league.id
+    }).then(function(league){
+        res.send(200, league);
+    }).catch(function(err){
+        next(err);
+    });
 });
 
 // GET players list
 router.get('/leagues/:leagueId/players', function(req, res, next){
-    req.league.getPlayers().then(function(players){
+    req.league.getPlayers({
+        include: [{
+            model: db.Stat
+        }]
+    }).then(function(players){
         res.send(200, _.pluck(players, 'values'));
     }).catch(function(err){
         next(err);
@@ -196,6 +210,31 @@ router.post('/leagues/:leagueId/players', function(req, res, next){
 // GET player detail
 router.get('/leagues/:leagueId/players/:playerId', function(req, res, next){
     res.send(200, req.player.values);
+});
+
+// GET player detail with stats
+router.get('/leagues/:leagueId/players/:playerId/stats', function(req, res, next){
+    req.player.getStat().then(function(stats){
+        if(!stats) return next({status:404});
+        var returnData = _.extend({}, req.player.values);
+        returnData.stat = stats.values;
+        res.send(200, returnData);
+    }).catch(function(err){
+        next(err);
+    });
+});
+
+// GET player with all details
+router.get('/leagues/:leagueId/players/:thePlayerId/all', function(req, res, next){
+    db.api.players.findOneDetailed({
+        leagueId: req.league.id,
+        id: req.params.thePlayerId
+    }).then(function(player){
+        if(!player) return next({status:404});
+        res.send(200, player);
+    }).catch(function(err){
+        next(err);
+    });
 });
 
 // PUT player detail
@@ -231,7 +270,11 @@ router.delete('/leagues/:leagueId/players/:playerId', function(req, res, next){
  */
 
 router.get('/leagues/:leagueId/teams', function(req, res, next){
-    req.league.getTeams().then(function(teams){
+    req.league.getTeams({
+        include: [{
+            model: db.Stat
+        }]
+    }).then(function(teams){
         res.send(200, teams);
     }).catch(function(err){
         next(err);
@@ -264,7 +307,20 @@ router.post('/leagues/:leagueId/teams', function(req, res, next){
 
 
 router.get('/leagues/:leagueId/teams/:teamId', function(req, res, next){
-    res.send(200, req.team);
+    res.send(200, req.team.values);
+});
+
+router.get('/leagues/:leagueId/teams/:theTeamId/all', function(req, res, next){
+    db.api.teams.findOneDetailed({
+        leagueId: req.params.leagueId,
+        id: req.params.theTeamId,
+    }).then(function(team){
+        if(!team) next({status:404});
+        res.send(200, team);
+    }).catch(function(err){
+        next(err);
+    });
+
 });
 
 /**
@@ -349,7 +405,12 @@ router.put('/leagues/:leagueId/teams/:teamId', function(req, res, next){
 
 // fetch all
 router.get('/leagues/:leagueId/games', function(req, res, next){
-    req.league.getGames().then(function(games){
+    req.league.getGames({
+        include: [{
+            model: db.Team,
+            attributes: ['name', 'id']
+        }]
+    }).then(function(games){
         res.send(200, _.pluck(games, 'values'));
     }).catch(function(err){
         next(err);
@@ -363,7 +424,7 @@ router.get('/leagues/:leagueId/games', function(req, res, next){
  * @param  {Function} next [description]
  * @return {[type]}        [description]
  */
-router.get('/leagues/:leagueId/games/open/', function(req, res, next){
+router.get('/leagues/:leagueId/games/open', function(req, res, next){
     db.api.games.findAll(Sequelize.and({
         leagueId: req.params.leagueId
     }, Sequelize.or('"winningTeamId" IS NULL', '"losingTeamId" IS NULL'))).then(function(games){
@@ -396,14 +457,13 @@ router.get('/leagues/:leagueId/games/search/:teamids', function(req, res, next){
 
 router.post('/leagues/:leagueId/games', function(req, res, next){
     // if the user doesn't have write access to this league, it's a 403.
-    var leagueId = getLeagueId(req);
-    if(!leagueIsWritable(leagueId, req.user)) return next({status:403});
+    if(!isLeagueWritable(req.league, req.user)) return next({status:403});
 
     if(!req.body.teamIds || !req.body.teamIds.length) return res.send(400, 'No team IDs specified');
 
     db.api.games.create({
         teamIds: req.body.teamIds,
-        leagueId: leagueId
+        leagueId: req.league.id
     }).then(function(game){
         res.send(201, game);
     }).catch(function(err){
@@ -422,9 +482,9 @@ router.get('/leagues/:leagueId/games/:gameId', function(req, res, next){
 
 router.put('/leagues/:leagueId/games/:gameId', function(req, res, next){
     // 403 if the user doesn't have write permission on this league
-    if(!leagueIsWritable(req.game.leagueId, req.user)) return next({status:403});
+    if(!isLeagueWritable(req.league, req.user)) return next({status:403});
 
-    var validProperties = _.pick(req.body, ['winningTeamId', 'losingTeamId', 'redemption']);
+    var validProperties = _.pick(req.body, ['winningTeamId', 'losingTeamId', 'redemption', 'date']);
     db.api.games.update(req.game, validProperties).then(function(game){
         res.send(200, game);
     }).catch(function(err){

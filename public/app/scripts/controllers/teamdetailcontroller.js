@@ -5,7 +5,7 @@
 
         $scope.reset = function(){
             $scope.refreshing = true;
-            teamsService.getTeam($routeParams.id).then(function(team){
+            teamsService.getTeamWithDetails($routeParams.id).then(function(team){
                 $scope.team = team;
                 $scope.pageTitle = team.name;
                 $scope.hasHave = team.players.length > 1 ? 'have' : 'has';

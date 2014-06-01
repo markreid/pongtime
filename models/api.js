@@ -144,21 +144,18 @@ module.exports = function(sequelize, models){
     };
 
     /**
-     * Find a single player,
+     * Find a single player with extra associated models
      * @param  {Object} where   filter data
      * @param  {Boolean} notValues  set true to pass the model, not the values
      * @return {Object}         model.values
      */
-    api.players.findOne = function(where, notValues){
-        console.log(where);
+    api.players.findOneDetailed = function(where, notValues){
         return models.Player.findAll({
             where: where || {},
             include: [{
                 model: models.Team
             }, {
                 model: models.Stat
-            }, {
-                model: models.League
             }],
             order: 'id',
             limit: 1
@@ -247,7 +244,7 @@ module.exports = function(sequelize, models){
         });
     };
 
-    api.teams.findOne = function(where, notValues){
+    api.teams.findOneDetailed = function(where, notValues){
         return models.Team.find({
             where: where || {},
             include: [{
@@ -580,10 +577,6 @@ module.exports = function(sequelize, models){
             include: [{
                 model: models.Team,
                 attributes: ['name']
-            },
-            {
-                model: models.League,
-                attributes: ['id']
             }]
         }).then(function(games){
             return _.pluck(games, 'values');
@@ -625,7 +618,7 @@ module.exports = function(sequelize, models){
             where: where || {},
             include: [{
                 model: models.Team,
-                attributes: ['name']
+                attributes: ['name', 'id']
             }]
         }).then(function(game){
             if(!game) return null;
@@ -723,6 +716,8 @@ module.exports = function(sequelize, models){
         var teams = _.map(gameModel.values.teams, function(team){
             return team.dataValues.id;
         });
+        console.log('teams are ');
+        console.dir(teams);
         if(!~teams.indexOf(updatedData.winningTeamId) || !~teams.indexOf(updatedData.losingTeamId) || updatedData.winningTeamId === updatedData.losingTeamId) throw new Error('invalid winningTeamId and losingTeamId team IDs');
 
         // was there previously a result set for this game?
