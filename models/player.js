@@ -10,14 +10,6 @@ module.exports = function(sequelize, datatypes){
             type: datatypes.STRING,
             allowNull: false
         },
-        slug: {
-            type: datatypes.STRING,
-            allowNull: false,
-            unique: true,
-            validate: {
-                is: ['^[a-z\-]+$', 'i'],
-            }
-        },
         statId: {
             type: datatypes.INTEGER,
             references: 'Stats',
