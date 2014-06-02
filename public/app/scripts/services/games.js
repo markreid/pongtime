@@ -24,13 +24,16 @@
         GamesService.prototype.save = function(data){
             // validation
             // we require .id, .winningTeamId:num, .losingTeamId:num and .redemption:bool
+            // todo - remove this eventually or replace this function with recordResult() or something
+            // because we want to do other transactions without requiring everything (like changing tournament)
             if(~[data.id, data.winningTeamId, data.losingTeamId, data.redemption].indexOf(null)) throw new Error('missing parameters.');
 
             return $http.put(apiRoot() + Number(data.id), {
                 winningTeamId: data.winningTeamId,
                 losingTeamId: data.losingTeamId,
                 redemption: data.redemption,
-                date: data.date.toString()
+                date: data.date.toString(),
+                tournamentId: data.tournamentId || null
             }).then(function(response){
                 return response.data;
             });

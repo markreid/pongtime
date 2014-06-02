@@ -1,0 +1,9 @@
+<div class="loader pageloader" ng-show="refreshing"></div>
+
+<div class="container" ng-hide="refreshing">
+
+    <h1>{{ tournament.name }}</h1>
+    <p class="lead" ng-show="{{ tournament.complete}}">Finished on some date</p>
+    <p class="lead" ng-show="{{ !tournament.complete}}">Currently in progress</p>
+
+</div>

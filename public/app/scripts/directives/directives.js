@@ -215,7 +215,7 @@
             }
         }
 
-    }]).directive('gamewidget', ['games', 'user', 'notifications', function(gamesService, userService, notificationsService){
+    }]).directive('gamewidget', ['games', 'tournaments', 'user', 'notifications', function(gamesService, tournamentsService, userService, notificationsService){
         return {
             restrict: 'E',
             templateUrl: '/static/views/gamewidget.html',
@@ -225,7 +225,10 @@
                 edit: '@edit'
             },
             link: function($scope, el, attrs){
-                console.log('new gamewidget');
+                tournamentsService.getTournaments().then(function(tournaments){
+                    $scope.tournaments = tournaments;
+                });
+
 
                 // not to be confused with 'editing'
                 $scope.editing = $scope.edit === 'true';
@@ -252,6 +255,7 @@
                 });
 
                 // parse the data the API returns to make it more readable and usable
+                // todo - move this to the games service
                 var parseGameData = function(game){
                     // format the date as a "x minutes ago"
                     game.readableDate = moment(game.date).format('MMM D, YYYY');
@@ -290,13 +294,16 @@
                 };
 
                 // hit the gamesService and update
+                // todo - you can clean this up by not checking properties here
+                // and doing it at the service level
                 $scope.save = function(){
                     gamesService.save({
                         id: $scope.game.id,
                         winningTeamId: $scope.game.winningTeamId,
                         losingTeamId: $scope.game.losingTeamId,
                         redemption: $scope.game.redemption,
-                        date: $scope.game.editableDate
+                        date: $scope.game.editableDate,
+                        tournamentId: $scope.game.tournamentId
                     }).then(function(game){
                         $scope.game = parseGameData(game);
                         $scope.editing = false;

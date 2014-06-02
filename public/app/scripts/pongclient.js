@@ -35,6 +35,12 @@
         }).when('/leagues/:id', {
             templateUrl: '/static/views/leaguedetailview.html',
             controller: 'leagueDetailController'
+        }).when('/tournaments', {
+            templateUrl: '/static/views/tournamentlistview.html',
+            controller: 'tournamentListController'
+        }).when('/tournaments/:id', {
+            templateUrl: '/static/views/tournamentdetailview.html',
+            controller: 'tournamentDetailController'
         }).otherwise({
             redirectTo: '/'
         });
