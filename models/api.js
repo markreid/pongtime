@@ -12,6 +12,7 @@ module.exports = function(sequelize, models){
         games: {},
         users: {},
         leagues: {},
+        tournaments: {},
         generic: {}
     };
 
@@ -904,6 +905,47 @@ module.exports = function(sequelize, models){
             if(!league) return false;
             return league.destroy();
         }).then(function(){
+            return true;
+        }).catch(function(err){
+            throw err;
+        });
+    };
+
+
+    api.tournaments.findOne = function(where, notValues){
+        return models.Tournament.find({
+            where: where
+        }).then(function(tournament){
+            if(!tournament) return null;
+            if(notValues) return tournament;
+            return tournament.values;
+        }).catch(function(err){
+            throw err;
+        });
+    };
+
+    api.tournaments.findAll = function(where, notValues){
+        return models.Tournament.findAll({
+            where: where
+        }).then(function(tournaments){
+            if(notValues) return tournaments;
+            return _.pluck(tournaments, 'values');
+        }).catch(function(err){
+            throw err;
+        });
+    };
+
+    api.tournaments.create = function(data){
+        var safeData = _.pick(data, ['name', 'complete', 'leagueId']);
+        return models.Tournament.create(data).then(function(tournament){
+            return tournament.values;
+        }).catch(function(err){
+            throw err;
+        });
+    };
+
+    api.tournaments.delete = function(tournamentModel){
+        return tournamentModel.destroy().then(function(){
             return true;
         }).catch(function(err){
             throw err;

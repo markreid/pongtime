@@ -101,7 +101,7 @@ router.param('teamId', function(req, res, next){
 /**
  * :gameId route handler, attach .game to req
  */
-router.param('gameId', function(req, res, next, id){
+router.param('gameId', function(req, res, next){
     if(!req.params.leagueId) throw new Error(':teamId route param used without :leagueId');
 
     // can't use league.getGames because it gets confused by:
@@ -117,6 +117,21 @@ router.param('gameId', function(req, res, next, id){
         next(err);
     });
 
+});
+
+router.param('tournamentId', function(req, res, next){
+    if(!req.params.leagueId) throw new Error(':leagueId route param used without :leagueId');
+
+    db.api.tournaments.findOne({
+        leagueId: req.league.id,
+        id: req.params.tournamentId
+    }, true).then(function(tournament){
+        if(!tournament) return next({status:404});
+        req.tournament = tournament;
+        next();
+    }).catch(function(err){
+        next(err);
+    });
 });
 
 
@@ -486,6 +501,39 @@ router.route('/leagues/:leagueId/games/:gameId').get(function(req, res, next){
 
 });
 
+
+router.route('/leagues/:leagueId/tournaments')
+.get(function(req, res, next){
+    db.api.tournaments.findAll({}).then(function(tournaments){
+        res.send(200, tournaments);
+    }).catch(function(err){
+        next(err);
+    });
+
+})
+.post(function(req, res, next){
+    var validProperties = _.pick(req.body, ['name', 'complete']);
+    validProperties.leagueId = req.params.leagueId;
+    db.api.tournaments.create(validProperties).then(function(tournament){
+        res.send(201, tournament);
+    }).catch(function(err){
+        next(err);
+    });
+
+});
+
+router.route('/leagues/:leagueId/tournaments/:tournamentId')
+.get(function(req, res, next){
+    res.send(200, req.tournament);
+
+}).delete(function(req, res, next){
+    db.api.tournaments.delete(req.tournament).then(function(deleted){
+        // todo - is this supposed to be a 201?
+        res.send(200);
+    }).catch(function(err){
+        next(err);
+    });
+});
 
 
 /**

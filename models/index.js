@@ -18,15 +18,6 @@ var sequelize = new Sequelize(config.DB.NAME, config.DB.USER, config.DB.PASS, {
 });
 
 
-// attach the models
-// var models = {};
-// fs.readdirSync(__dirname).filter(function(file){
-//     return (file.indexOf('.') !== 0) && !~['index.js', 'dbutils.js', 'api.js'].indexOf(file);
-// }).forEach(function(file){
-//     console.info('loading models from ' + file);
-//     var model = sequelize.import(path.join(__dirname, file));
-//     models[model.name] = model;
-// });
 
 var sequelizeImport = function(filename){
     return sequelize.import(path.join(__dirname, filename));
@@ -38,7 +29,8 @@ var models = {
     Game: sequelizeImport('game.js'),
     Team: sequelizeImport('team.js'),
     Stat: sequelizeImport('stats.js'),
-    League: sequelizeImport('league.js')
+    League: sequelizeImport('league.js'),
+    Tournament: sequelizeImport('tournament.js')
 };
 
 _.each(models, function(model){
@@ -81,6 +73,8 @@ models.League.hasMany(models.User, {as:'moderators', through: models.LeagueModer
 models.User.hasMany(models.League, {as:'moderators', through: models.LeagueModeators});
 models.League.hasMany(models.User, {as:'members', through: models.LeagueMembers});
 models.User.hasMany(models.League, {as:'members', through: models.LeagueMembers});
+
+models.Tournament.hasMany(models.Game, {foreignKey: 'leagueId'});
 
 
 // todo - this is an asynchronous task, it should have a success handler
