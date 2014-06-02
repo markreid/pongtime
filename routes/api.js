@@ -484,7 +484,7 @@ router.route('/leagues/:leagueId/games/:gameId').get(function(req, res, next){
 
 }).put(function(req, res, next){
 
-    var validProperties = _.pick(req.body, ['winningTeamId', 'losingTeamId', 'redemption', 'date']);
+    var validProperties = _.pick(req.body, ['winningTeamId', 'losingTeamId', 'redemption', 'date', 'tournamentId']);
     db.api.games.update(req.game, validProperties).then(function(game){
         res.send(200, game);
     }).catch(function(err){
@@ -530,6 +530,15 @@ router.route('/leagues/:leagueId/tournaments/:tournamentId')
     db.api.tournaments.delete(req.tournament).then(function(deleted){
         // todo - is this supposed to be a 201?
         res.send(200);
+    }).catch(function(err){
+        next(err);
+    });
+});
+
+router.route('/leagues/:leagueId/tournaments/:tournamentId/games').get(function(req, res, next){
+    req.tournament.getGames().then(function(games){
+        var gameValues = _.pluck(games, 'values');
+        res.send(200, gameValues);
     }).catch(function(err){
         next(err);
     });

@@ -74,7 +74,8 @@ models.User.hasMany(models.League, {as:'moderators', through: models.LeagueModea
 models.League.hasMany(models.User, {as:'members', through: models.LeagueMembers});
 models.User.hasMany(models.League, {as:'members', through: models.LeagueMembers});
 
-models.Tournament.hasMany(models.Game, {foreignKey: 'leagueId'});
+models.Tournament.hasMany(models.Game, {foreignKey: 'tournamentId'});
+models.Game.belongsTo(models.Tournament, {foreignKey: 'tournamentId'});
 
 
 // todo - this is an asynchronous task, it should have a success handler

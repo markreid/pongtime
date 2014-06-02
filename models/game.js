@@ -39,6 +39,13 @@ module.exports = function(sequelize, datatypes){
             references: 'Leagues',
             referencesKey: 'id',
             allowNull: false
+        },
+        tournamentId: {
+            allowNull: true,
+            type: datatypes.INTEGER,
+            references: 'Tournaments',
+            referencesKey: 'id',
+            // default onDelete is SET NULL, onUpdate is CASCADE so we don't need to do anything here
         }
     });
 

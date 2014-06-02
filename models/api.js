@@ -704,7 +704,8 @@ module.exports = function(sequelize, models){
             winningTeamId: updatedData.winningTeamId,
             losingTeamId: updatedData.losingTeamId,
             redemption: updatedData.redemption,
-            date: updatedData.date
+            date: updatedData.date,
+            tournamentId: updatedData.tournamentId || null
         }).then(function(game){
 
             // If this game previously had a result recorded, the stats table for the league needs to be regenerated.
