@@ -19,4 +19,8 @@
         </div>
     </div>
 
+    <section class="clearfix games-list" ng-include="'/static/views/opengameslist.html'" ng-show="openGames.length"></section>
+
+    <section class="clearfix games-list" ng-include="'/static/views/playedgameslist.html'" ng-show="playedGames.length"></section>
+
 </div>

@@ -296,11 +296,40 @@ module.exports = function(sequelize, models){
     };
 
     /**
+     * Get the games relating to a single team
+     * @param  {Number} teamId
+     * @return {Array}
+     */
+    api.teams.getTeamGames = function(teamId){
+        // easiest way is to grab the team, but only return the games.
+        return models.Team.find({
+            where: {
+                id: teamId
+            },
+            include: [{
+                model: models.Game,
+                include: [{
+                    model: models.Team,
+                    attributes: ['name', 'id']
+                }]
+            }]
+        }).then(function(team){
+            if(!team) return null;
+            return team.values.games;
+        }).catch(function(err){
+            throw err;
+        });
+    };
+
+
+
+    /**
      * Regenerates the stats for every team and player in the given league
      * @param {Number} leagueId
      * @returns {Promise} DB operations promise
      */
     api.stats.refreshLeagueStats = function(leagueId){
+        if(!leagueId) throw new Error('.refreshLeagueStats() called without a valid leagueId');
 
         // We fetch every single game that's been played in the league, ordering chronologically.
 
@@ -319,6 +348,9 @@ module.exports = function(sequelize, models){
             // If this is the first time we've seen this team, clone cleanStats and put it in teamStats, referenced by ID.
             // Otherwise, update the existing object in teamStats.
             _.each(games, function(game){
+
+                // no winner or loser, game hasn't been saved.
+                if(!game.winningTeamId || !game.losingTeamId) return;
 
                 teamStats[game.winningTeamId] = addWinToStats(teamStats[game.winningTeamId] || _.extend({}, cleanStats), game);
                 teamStats[game.losingTeamId] = addLossToStats(teamStats[game.losingTeamId] || _.extend({}, cleanStats), game);

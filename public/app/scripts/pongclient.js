@@ -12,8 +12,11 @@
             templateUrl: '/static/views/newgameview.html',
             controller: 'newGameController'
         }).when('/games', {
-            templateUrl: '/static/views/gamesview.html',
-            controller: 'gamesController'
+            templateUrl: '/static/views/gamelistview.html',
+            controller: 'gameListController'
+        }).when('/games/:id', {
+            templateUrl: '/static/views/gamedetailview.html',
+            controller: 'gameDetailController'
         }).when('/teams', {
             templateUrl: '/static/views/teamlistview.html',
             controller: 'teamsController'

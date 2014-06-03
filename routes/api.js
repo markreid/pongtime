@@ -186,15 +186,18 @@ router.route('/leagues')
 // req.league is set by the :leagueId parameter
 router.route('/leagues/:leagueId')
 .get(function(req, res, next){
-    // todo - this queries twice
-    // because we already have the league in req.league
-    db.api.leagues.findOneDetailed({
-        id: req.league.id
-    }).then(function(league){
-        res.send(200, league);
-    }).catch(function(err){
-        next(err);
-    });
+    res.send(200, req.league);
+    // findOneDetailed() is disabled for now because it thrashes the shit out of system memory
+    // by asking for everything associated with a league in one hit
+    // todo - configure the clientside to do it all in several requests and pass the work
+    // off to the client.
+    // db.api.leagues.findOneDetailed({
+    //     id: req.league.id
+    // }).then(function(league){
+    //     res.send(200, league);
+    // }).catch(function(err){
+    //     next(err);
+    // });
 }).put(function(req, res, next){
     // auth is handled by the :leagueId parameter middleware
     db.api.leagues.update(req.params.leagueId, req.body).then(function(league){
@@ -403,7 +406,15 @@ router.get('/leagues/:leagueId/teams/search/:playerIds', function(req, res, next
  * Get games associated with a team
  */
 router.get('/leagues/:leagueId/teams/:teamId/games', function(req, res, next){
-    req.team.getGames().then(function(games){
+    // todo - why doesn't this work?
+    // req.team.getGames({
+    //     include: [{
+    //         model: db.Team,
+    //         attributes: ['name', 'id']
+    //     }]
+    // })
+
+    db.api.teams.getTeamGames(req.params.teamId).then(function(games){
         if(!games) return next({status:404});
         res.send(200, games);
     }).catch(function(err){
@@ -554,7 +565,7 @@ router.get('/leagues/:leagueId/stats/refresh', function(req, res, next){
     // admin only for now
     if(!req.user || !req.user.isAdmin) return next({status:403});
 
-    db.api.stats.refreshLeagueStats(req.params.leagueid).then(function(result){
+    db.api.stats.refreshLeagueStats(req.params.leagueId).then(function(result){
         res.send(200, result);
     }).catch(function(err){
         next(err);
