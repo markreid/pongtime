@@ -9,6 +9,9 @@
 
 #### serverside
 
+* Triggering stats refresh won't update teams/players who haven't got any valid games left (ie, if you remove their only game and stats refresh, their stats remain)
+    * Probably need to say 'any teams or players that didn't have a matching game, reset to zero'
+* Something broke when deleting teams, need to check cascading on their stats model, I'd say.  Or maybe we were trying to delete it but cascading was in effect?
 * When updating a previously saved game, we should only call the stats refresh method if any of the values have actually changed
 * Shortcut for changing the most recent game results only (without triggering complete stats refresh)
 * Require auth to use the stats refresh call in REST API
