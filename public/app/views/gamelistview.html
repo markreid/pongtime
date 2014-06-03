@@ -1,0 +1,87 @@
+<div class="loader pageloader" ng-show="refreshing"></div>
+
+<div class="container" ng-hide="refreshing">
+
+    <div class="page-header">
+        <h1>Games</h1>
+    </div>
+
+    <section class="games-list clearfix">
+        <header class="row">
+            <div class="col-md-8">
+                <h3>Upcoming Games <button class="btn btn-xs btn-primary" ng-click="showOpenGames = !showOpenGames">toggle</button></h3>
+            </div>
+            <div class="col-md-4">
+                <div class="input-group">
+                    <input type="text" class="form-control" ng-model="openGamesFilter" placeholder="filter">
+                    <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-search" ng-show="!openGamesFilter"></span>
+                        <span class="glyphicon glyphicon-remove" ng-show="openGamesFilter" ng-click="openGamesFilter=''"></span>
+                    </span>
+                </div>
+            </div>
+        </header>
+        <div ng-show="showOpenGames">
+
+            <table class="table table-striped table-hover" ng-show="showOpenGames && openGames.length">
+                <thead>
+                    <th>Date</th>
+                    <th>Team 1</th>
+                    <th>Team 2</th>
+                    <th></th>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="game in openGames | orderBy:'-date' | filter:openGamesFilter">
+                        <td>{{ game.humanDate }}</td>
+                        <td>{{ game.teams[0].name }}</td>
+                        <td>{{ game.teams[1].name }}</td>
+                        <td><a ng-show="league.writable" href="/games/{{ game.id }}/">Add result &raquo;</a></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p class="lead" ng-show="!openGames.length">All games have been played. <a href="/newgame/">Want to start one?</a></p>
+
+        </div>
+    </section>
+
+    <section class="games-list clearfix">
+        <header class="row">
+            <div class="col-md-8">
+                <h3>Played Games <button class="btn btn-xs btn-primary" ng-click="showPlayedGames = !showPlayedGames">toggle</button></h3>
+            </div>
+            <div class="col-md-4">
+                <div class="input-group">
+                    <input type="text" class="form-control" ng-model="playedGamesFilter" placeholder="filter">
+                    <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-search" ng-show="!playedGamesFilter"></span>
+                        <span class="glyphicon glyphicon-remove" ng-show="playedGamesFilter" ng-click="playedGamesFilter=''"></span>
+                    </span>
+                </div>
+            </div>
+        </header>
+
+        <table class="table table-striped table-hover" ng-show="showPlayedGames && playedGames.length">
+            <thead>
+                <th>Date</th>
+                <th>Winner</th>
+                <th>Loser</th>
+                <th>Redemption</th>
+                <th></th>
+            </thead>
+            <tbody>
+                <tr ng-repeat="game in playedGames | orderBy:'-date' | filter:playedGamesFilter">
+                    <td>{{ game.humanDate }}</td>
+                    <td>{{ game.winningTeam.name }}</td>
+                    <td>{{ game.losingTeam.name }}</td>
+                    <td><span class="label label-success" ng-show="game.redemption">REDEEMED</span><span class="label label-danger" ng-show="!game.redemption">REDEMPTION DENIED</span></td>
+                    <td><a ng-show="league.writable" href="/games/{{ game.id }}/"><span class="glyphicon glyphicon-edit"></span></a></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p class="lead" ng-show="!playedGames.length">There aren't any played games yet.</p>
+
+    </section>
+
+</div>

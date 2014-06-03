@@ -9,9 +9,22 @@
 
         var GamesService = function(){};
 
+        /**
+         * Fetch all games
+         * @return {Array} [description]
+         */
         GamesService.prototype.getGames = function(){
             return $http.get(apiRoot()).then(function(response){
-                return response.data;
+                return _.map(response.data, parseGame);
+            });
+        };
+
+        /**
+         * Fetch a single game by ID
+         */
+        GamesService.prototype.getGame = function(id){
+            return $http.get(apiRoot() + id + '/').then(function(response){
+                return parseGame(response.data);
             });
         };
 
@@ -40,7 +53,6 @@
 			return $http.delete(apiRoot() + Number(gameid)).then(function(response){
 				return response.data;
 			});
-
 		};
 
         /**
@@ -147,6 +159,23 @@
                 };
             });
         };
+
+
+        function parseGame(game){
+            if(game.winningTeamId){
+                game.winningTeam = _.find(game.teams, function(team){
+                    return game.winningTeamId === team.id;
+                });
+            }
+            if(game.losingTeamId){
+                game.losingTeam = _.find(game.teams, function(team){
+                    return game.losingTeamId === team.id;
+                });
+            }
+
+            game.humanDate = moment(game.date).format('MMM Do')
+            return game;
+        }
 
         // return the games API root URL
         // checks the leagues service for the current active League Id
