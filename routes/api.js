@@ -497,7 +497,7 @@ router.get('/leagues/:leagueId/stats/refresh', function(req, res, next){
     // admin only for now
     if(!req.user || !req.user.isAdmin) return next({status:403});
 
-    db.api.stats.refreshLeagueStats(req.params.leagueid).then(function(result){
+    db.api.stats.refreshLeagueStats(req.params.leagueId).then(function(result){
         res.send(200, result);
     }).catch(function(err){
         next(err);

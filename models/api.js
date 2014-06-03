@@ -300,6 +300,7 @@ module.exports = function(sequelize, models){
      * @returns {Promise} DB operations promise
      */
     api.stats.refreshLeagueStats = function(leagueId){
+        if(!leagueId) throw new Error('.refreshLeagueStats() called without a valid leagueId');
 
         // We fetch every single game that's been played in the league, ordering chronologically.
 
@@ -318,6 +319,9 @@ module.exports = function(sequelize, models){
             // If this is the first time we've seen this team, clone cleanStats and put it in teamStats, referenced by ID.
             // Otherwise, update the existing object in teamStats.
             _.each(games, function(game){
+
+                // no winner or loser, game hasn't been saved.
+                if(!game.winningTeamId || !game.losingTeamId) return;
 
                 teamStats[game.winningTeamId] = addWinToStats(teamStats[game.winningTeamId] || _.extend({}, cleanStats), game);
                 teamStats[game.losingTeamId] = addLossToStats(teamStats[game.losingTeamId] || _.extend({}, cleanStats), game);
