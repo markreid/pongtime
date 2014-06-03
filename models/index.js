@@ -30,7 +30,8 @@ var models = {
     Team: sequelizeImport('team.js'),
     Stat: sequelizeImport('stats.js'),
     League: sequelizeImport('league.js'),
-    Tournament: sequelizeImport('tournament.js')
+    Tournament: sequelizeImport('tournament.js'),
+    TournamentTeams: sequelizeImport('tournamentteams.js')
 };
 
 _.each(models, function(model){
@@ -76,6 +77,14 @@ models.User.hasMany(models.League, {as:'members', through: models.LeagueMembers}
 
 models.Tournament.hasMany(models.Game, {foreignKey: 'tournamentId'});
 models.Game.belongsTo(models.Tournament, {foreignKey: 'tournamentId'});
+
+// TournamentTeams
+// Joins Tournaments with Teams
+// And adds a Stat model as
+models.Tournament.hasMany(models.Team, {through: models.TournamentTeams});
+models.Team.hasMany(models.Tournament, {through: models.TournamentTeams});
+models.Stat.hasOne(models.TournamentTeams, {foreignKey: 'statId'});
+models.TournamentTeams.belongsTo(models.Stat, {foreignKey: 'statId'});
 
 
 // todo - this is an asynchronous task, it should have a success handler

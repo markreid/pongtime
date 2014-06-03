@@ -555,6 +555,50 @@ router.route('/leagues/:leagueId/tournaments/:tournamentId/games').get(function(
     });
 });
 
+router.route('/leagues/:leagueId/tournaments/:tournamentId/teams')
+.get(function(req, res, next){
+    req.tournament.getTeams().then(function(teams){
+        var teamValues = _.map(teams, function(team){
+            return _.extend({}, team.values, team.TournamentTeam.values);
+        });
+        //var teamValues = _.pluck(teams, 'values');
+        res.send(200, teamValues);
+    }).catch(function(err){
+        next(err);
+    });
+})
+.post(function(req, res, next){
+    /**
+     * Create a TournamentTeam by adding a team to the tournament
+     * Also need to generate a stats model and associate it
+     */
+    if(!Number(req.body.teamId)) return next({status:400});
+
+    db.api.tournaments.addTeam(req.tournament, req.body.teamId).then(function(team){
+        res.send(201, team);
+    }).catch(function(err){
+        next(err);
+    });
+});
+
+router.route('/leagues/:leagueId/tournaments/:tournamentId/teams/:tournamentTeamId')
+.get(function(req, res, next){
+    req.tournament.getTeams({
+        where: {
+            id: req.params.tournamentTeamId,
+        }
+    }).then(function(teams){
+        teams[0].getTournamentTeamStats().then(function(teamStat){
+            console.log('teamStat:');
+            console.log(teamStat);
+        });
+        res.send(200, teams[0].values);
+    }).catch(function(err){
+        next(err);
+    });
+
+});
+
 
 /**
  * Force a stats refresh for a league

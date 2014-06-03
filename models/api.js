@@ -985,6 +985,39 @@ module.exports = function(sequelize, models){
         });
     };
 
+    /**
+     * Add a team to a tournament
+     * and associate a new Stat model
+     * @param {Sequelize.Model} tournamentModel
+     * @param {Number} teamId [description]
+     */
+    api.tournaments.addTeam = function(tournamentModel, teamId){
+        return models.Team.find({
+            where: {
+                id: teamId
+            }
+        }).then(function(team){
+            // team doesn't exist
+            if(!team){
+                console.log('no team');
+                return null;
+            }
+            // team and tournament are in different leagues
+            if(tournamentModel.leagueId !== team.leagueId){
+                console.log(tournamentModel.leagueId);
+                console.log(team.leagueId);
+                console.log('different leagues');
+                return null;
+            }
+
+            return tournamentModel.addTeam(team).then(function(tournament){
+                return team.values;
+            });
+        }).catch(function(err){
+            throw err;
+        });
+    };
+
     return api;
 
 };
