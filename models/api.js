@@ -295,6 +295,34 @@ module.exports = function(sequelize, models){
     };
 
     /**
+     * Get the games relating to a single team
+     * @param  {Number} teamId
+     * @return {Array}
+     */
+    api.teams.getTeamGames = function(teamId){
+        // easiest way is to grab the team, but only return the games.
+        return models.Team.find({
+            where: {
+                id: teamId
+            },
+            include: [{
+                model: models.Game,
+                include: [{
+                    model: models.Team,
+                    attributes: ['name', 'id']
+                }]
+            }]
+        }).then(function(team){
+            if(!team) return null;
+            return team.values.games;
+        }).catch(function(err){
+            throw err;
+        });
+    };
+
+
+
+    /**
      * Regenerates the stats for every team and player in the given league
      * @param {Number} leagueId
      * @returns {Promise} DB operations promise

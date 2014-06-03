@@ -391,7 +391,15 @@ router.get('/leagues/:leagueId/teams/search/:playerIds', function(req, res, next
  * Get games associated with a team
  */
 router.get('/leagues/:leagueId/teams/:teamId/games', function(req, res, next){
-    req.team.getGames().then(function(games){
+    // todo - why doesn't this work?
+    // req.team.getGames({
+    //     include: [{
+    //         model: db.Team,
+    //         attributes: ['name', 'id']
+    //     }]
+    // })
+
+    db.api.teams.getTeamGames(req.params.teamId).then(function(games){
         if(!games) return next({status:404});
         res.send(200, games);
     }).catch(function(err){

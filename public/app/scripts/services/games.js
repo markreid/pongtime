@@ -183,6 +183,11 @@
             return '/api/v1/leagues/' + leaguesService.getActiveLeagueId() + '/games/';
         }
 
+        /**
+         * put parseGame on the service so we can access it from outside
+         */
+        GamesService.prototype.parseGame = parseGame;
+
         return new GamesService();
 
     }]);

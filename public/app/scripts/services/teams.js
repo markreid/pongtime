@@ -5,7 +5,7 @@
 (function(){
     'use strict';
 
-    angular.module('pong').factory('teams', ['$http', 'stats', 'leagues', function($http, statsService, leaguesService){
+    angular.module('pong').factory('teams', ['$http', 'stats', 'leagues', 'games', function($http, statsService, leaguesService, gamesService){
 
         var TeamsService = function(){};
 
@@ -32,6 +32,17 @@
                 var team = parseTeam(response.data);
                 team.stat = statsService.parseStats(team.stat);
                 return team;
+            });
+        };
+
+        /**
+         * Fetch the games for a given team
+         * @param  {Number} id      teamId
+         * @return {Array}
+         */
+        TeamsService.prototype.getTeamGames = function(id){
+            return $http.get(apiRoot() + id + '/games/').then(function(response){
+                return _.map(response.data, gamesService.parseGame);
             });
         };
 
