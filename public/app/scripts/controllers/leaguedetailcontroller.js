@@ -9,9 +9,10 @@
             leaguesService.getLeagueDetail($routeParams.id).then(function(league){
                 $scope.league = league;
                 $scope.league.edited = _.extend({}, league);
-                $scope.stats = generateLeagueStats(league);
-                $scope.numPlayers = league.players.length;
-                $scope.numGames = league.games.length;
+                // todo - disabled until memory leak issues are sorted
+                // $scope.stats = generateLeagueStats(league);
+                // $scope.numPlayers = league.players.length;
+                // $scope.numGames = league.games.length;
                 $scope.refreshing = false;
             }).catch(function(err){
                 if(err.status === 404){

@@ -5,9 +5,16 @@
     <div class="jumbotron">
         <a class="pull-right" ng-show="canEdit" ng-click="showLeagueSettings()"><span class="glyphicon glyphicon-cog"></span></a>
         <h1>{{ league.name }}</h1>
-        <p class="lead">{{ numPlayers }} players have played {{ numGames }} games.</p>
+        <!-- todo - disabled until memory leak issues are fixed <p class="lead">{{ numPlayers }} players have played {{ numGames }} games.</p> -->
+        <p>&nbsp;</p>
         <p><a href="/newgame/" class="btn btn-primary btn-lg">Start a Game</a></p>
     </div>
+
+     <ul class="nav nav-pills">
+        <li><a href="/games/">Games</a></li>
+        <li><a href="/teams/">Teams</a></li>
+        <li><a href="/players/">Players</a></li>
+    </ul>
 
     <div class="well" ng-show="editing">
         <h3>League Settings</h3>
@@ -60,11 +67,11 @@
         </form>
     </div>
 
-
+    <!-- todo - disabled until memory issues are sorted
     <h3>Quick Team Stats</h3>
     <p ng-repeat="stat in stats.team"><b>{{ stat.title }}:</b> {{ stat.value }}</p>
 
     <h3>Quick Player Stats</h3>
-    <p ng-repeat="stat in stats.player"><b>{{ stat.title }}:</b> {{ stat.value }}</p>
+    <p ng-repeat="stat in stats.player"><b>{{ stat.title }}:</b> {{ stat.value }}</p> -->
 
 </div>

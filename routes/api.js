@@ -171,15 +171,18 @@ router.route('/leagues')
 // req.league is set by the :leagueId parameter
 router.route('/leagues/:leagueId')
 .get(function(req, res, next){
-    // todo - this queries twice
-    // because we already have the league in req.league
-    db.api.leagues.findOneDetailed({
-        id: req.league.id
-    }).then(function(league){
-        res.send(200, league);
-    }).catch(function(err){
-        next(err);
-    });
+    res.send(200, req.league);
+    // findOneDetailed() is disabled for now because it thrashes the shit out of system memory
+    // by asking for everything associated with a league in one hit
+    // todo - configure the clientside to do it all in several requests and pass the work
+    // off to the client.
+    // db.api.leagues.findOneDetailed({
+    //     id: req.league.id
+    // }).then(function(league){
+    //     res.send(200, league);
+    // }).catch(function(err){
+    //     next(err);
+    // });
 }).put(function(req, res, next){
     // auth is handled by the :leagueId parameter middleware
     db.api.leagues.update(req.params.leagueId, req.body).then(function(league){
