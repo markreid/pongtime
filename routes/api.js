@@ -573,7 +573,6 @@ router.route('/leagues/:leagueId/tournaments/:tournamentId/teams')
      * Also need to generate a stats model and associate it
      */
     if(!Number(req.body.teamId)) return next({status:400});
-
     db.api.tournaments.addTeam(req.tournament, req.body.teamId).then(function(team){
         res.send(201, team);
     }).catch(function(err){
@@ -588,11 +587,16 @@ router.route('/leagues/:leagueId/tournaments/:tournamentId/teams/:tournamentTeam
             id: req.params.tournamentTeamId,
         }
     }).then(function(teams){
-        teams[0].getTournamentTeamStats().then(function(teamStat){
+        teams[0].TournamentTeam.getStat().then(function(teamStat){
             console.log('teamStat:');
             console.log(teamStat);
+
+            var returnData = _.extend({}, teams[0].values, {
+                stat: teamStat.values
+            });
+
+            res.send(200, returnData);
         });
-        res.send(200, teams[0].values);
     }).catch(function(err){
         next(err);
     });

@@ -999,19 +999,34 @@ module.exports = function(sequelize, models){
         }).then(function(team){
             // team doesn't exist
             if(!team){
-                console.log('no team');
                 return null;
             }
             // team and tournament are in different leagues
             if(tournamentModel.leagueId !== team.leagueId){
-                console.log(tournamentModel.leagueId);
-                console.log(team.leagueId);
-                console.log('different leagues');
                 return null;
             }
 
-            return tournamentModel.addTeam(team).then(function(tournament){
-                return team.values;
+            return tournamentModel.addTeam(team).then(function(){
+                // need to find the team again so we can access tournamentteam
+                // it hsould be pased to addTeam but it's not, thanks sequelize.
+                return tournamentModel.getTeams({
+                    where: {
+                        id: team.id
+                    }
+                }).then(function(teams){
+                    var team = teams[0];
+
+                    // this TournamentTeam must have already existed, it
+                    // has a stat row already. Return the values.
+                    if(team.TournamentTeam.statId) return team.TournamentTeam.values;
+
+                    // creat a stat model and return the tournamentteam values.
+                    return models.Stat.create().then(function(stat){
+                        return team.TournamentTeam.setStat(stat).then(function(){
+                            return team.TournamentTeam.values;
+                        });
+                    });
+                })
             });
         }).catch(function(err){
             throw err;
