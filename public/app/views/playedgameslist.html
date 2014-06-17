@@ -18,7 +18,7 @@
         <th>Date</th>
         <th>Winner</th>
         <th>Loser</th>
-        <th>Redemption</th>
+        <th class="column-redemption">Redemption</th>
         <th></th>
     </thead>
     <tbody>
@@ -26,7 +26,7 @@
             <td>{{ game.humanDate }}</td>
             <td>{{ game.winningTeam.name }}</td>
             <td>{{ game.losingTeam.name }}</td>
-            <td><span class="label label-success" ng-show="game.redemption">REDEEMED</span><span class="label label-danger" ng-show="!game.redemption">REDEMPTION DENIED</span></td>
+            <td class="column-redemption"><span class="label label-success" ng-show="game.redemption">REDEEMED</span><span class="label label-danger" ng-show="!game.redemption">REDEMPTION DENIED</span></td>
             <td><a ng-show="league.writable" href="/games/{{ game.id }}/"><span class="glyphicon glyphicon-edit"></span></a></td>
         </tr>
     </tbody>

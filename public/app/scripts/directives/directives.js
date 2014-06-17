@@ -401,8 +401,6 @@
 
             }
         }
-    }]).run(function($rootScope){
-        $rootScope.testVar = 'foo';
-    });
+    }]);
 
 })();
