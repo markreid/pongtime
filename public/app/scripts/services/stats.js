@@ -78,6 +78,9 @@
             stats.redemptionsDeniedPercentage = Math.round((stats.redemptionsDenied/stats.wins)*100);
             stats.redemptionsHadPercentage = Math.round((stats.redemptionsHad/stats.losses)*100);
 
+            // points - according to the B-League rules
+            stats.points = (stats.wins*3) + stats.losses;
+
             return _.extend({}, stats, {
                 available: true,
                 paragraph: paragraph

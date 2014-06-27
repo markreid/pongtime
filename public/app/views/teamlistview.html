@@ -31,17 +31,19 @@
             <thead>
                 <tr ng-click="reverse=!reverse;">
                     <th ng-click="predicate='name'">Team</th>
+                    <th class="column-points" ng-click="predicate='stat.points'">Points</th>
                     <th ng-click="predicate='stat.games'">Games</th>
                     <th ng-click="predicate='stat.wins'">Wins</th>
                     <th ng-click="predicate='stat.winPercentage'">Win %</th>
                     <th ng-click="predicate='stat.losses'">Losses</th>
                     <th ng-click="predicate='stat.lossPercentage'">Loss %</th>
-            <th ng-click="predicate='stat.streak'">Streak</th>
+                    <th ng-click="predicate='stat.streak'">Streak</th>
                 </tr>
             </thead>
             <tbody>
                 <tr ng-repeat="team in teams | orderBy:predicate:reverse | filter:filterquery">
                     <td><a href="{{ team.url }}">{{ team.name }}</a> <small ng-show="showPlayerNames">{{ team.playerNames }}</small></td>
+                    <td class="column-points">{{ team.stat.points }}</td>
                     <td>{{ team.stat.games }}</td>
                     <td>{{ team.stat.wins }}</td>
                     <td>{{ team.stat.winPercentage }}%</td>

@@ -11,12 +11,20 @@
     .column-redemption {
         display: none;
     }
+    .column-points {
+        display: table-cell;
+    }
 
     // highlight the top 8 in the team list view
     &#view-team-list .teams-table table tbody tr:nth-child(8) td {
         border-bottom: 2px solid #d22;
     }
+
 }
+.column-points {
+    display: none;
+}
+
 
 /**
  * Base/generic/utils

@@ -7637,66 +7637,75 @@ td.visible-print {
 .league-4 .column-redemption {
   display: none;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000316}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000314}}
+.league-4 .column-points {
+  display: table-cell;
+}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000319}}
 .league-4#view-team-list .teams-table table tbody tr:nth-child(8) td {
-  border-bottom: 2px solid red;
+  border-bottom: 2px solid #d22;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000324}}
+.column-points {
+  display: none;
 }
 
 /**
  * Base/generic/utils
  */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000325}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000333}}
 .vspace {
   margin: 1em 0;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000329}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000337}}
 #view-container {
   padding-top: 90px;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000334}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000342}}
 .nav-user {
   margin-left: 2em;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000340}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000348}}
 form .chosen-container {
   display: block;
   width: 100% !important;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000344}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000352}}
 form .chosen-container ul.chosen-choices {
   padding: 6px;
   border-radius: 3px;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000348}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000356}}
 form .chosen-container ul.chosen-choices li.search-field {
   width: 100%;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000351}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000359}}
 form .chosen-container ul.chosen-choices li.search-field input[type=text] {
   width: 100% !important;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000359}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000367}}
 .games-list {
   margin: 60px 0;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000363}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000371}}
 .games-list header {
   margin-bottom: 20px;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000367}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000375}}
 .games-list header h3 {
   margin-top: 0;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000370}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000378}}
 .games-list header h3 button {
   margin-left: 1em;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000378}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000386}}
 #messages {
   position: fixed;
   top: 55px;
@@ -7706,40 +7715,40 @@ form .chosen-container ul.chosen-choices li.search-field input[type=text] {
   width: 80%;
   display: none;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000387}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000395}}
 #messages.active {
   display: block;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000391}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000399}}
 #messages div {
   position: relative;
   -webkit-animation: fadeinanddrop 0.3s ease-out;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000397}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\00003105}}
 teamwidget .loader {
   display: block;
   margin: 0 auto;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\00003104}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\00003112}}
 gamewidget .panel {
   position: relative;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\00003108}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\00003116}}
 gamewidget .btn-edit {
   position: absolute;
   top: 8px;
   right: 8px;
   color: #468847;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\00003116}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\00003124}}
 gamewidget .btn-edit:hover {
   color: #333;
   cursor: pointer;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\00003125}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\00003133}}
 #view-team-list .teams-table th {
   cursor: pointer;
 }
@@ -7747,7 +7756,7 @@ gamewidget .btn-edit:hover {
 /**
  * Old shit
  */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\00003135}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\00003143}}
 .section-players button {
   margin: 0 3px;
 }
@@ -7755,16 +7764,16 @@ gamewidget .btn-edit:hover {
 /**
  * Game widget
  */
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\00003144}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\00003152}}
 gamewidget .table-match-history tr td, gamewidget .table-match-history tr th {
   text-align: center;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\00003147}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\00003155}}
 gamewidget .table-match-history tr td:first-child, gamewidget .table-match-history tr th:first-child {
   text-align: left;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\00003156}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\00003164}}
 .cleaninput, .cleaninput:disabled {
   font: inherit;
   background: none;
@@ -7773,13 +7782,13 @@ gamewidget .table-match-history tr td:first-child, gamewidget .table-match-histo
   outline: none;
   color: inherit;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\00003164}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\00003172}}
 .cleaninput:focus, .cleaninput:disabled:focus {
   color: skyblue;
 }
 
 /** Better loader **/
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\00003172}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\00003180}}
 .loader {
   width: 50px;
   height: 50px;
@@ -7791,7 +7800,7 @@ gamewidget .table-match-history tr td:first-child, gamewidget .table-match-histo
   -webkit-animation: loader-1 0.5s infinite linear;
   animation: loader-1 0.5s infinite linear;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\00003183}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\00003191}}
 .loader::before, .loader::after {
   border-radius: 50%;
   position: absolute;
@@ -7805,7 +7814,7 @@ gamewidget .table-match-history tr td:first-child, gamewidget .table-match-histo
   -webkit-animation: 0.5s infinite ease-in-out;
   animation: 0.5s infinite ease-in-out;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\00003197}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\00003205}}
 .loader::before {
   left: -5%;
   -webkit-animation: loader-2 0.5s infinite alternate ease-in-out;
@@ -7813,7 +7822,7 @@ gamewidget .table-match-history tr td:first-child, gamewidget .table-match-histo
   animation: loader-2 0.5s infinite alternate ease-in-out;
   transform-origin: 10% 50%;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\00003205}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\00003213}}
 .loader::after {
   left: auto;
   right: -5%;
@@ -7824,7 +7833,7 @@ gamewidget .table-match-history tr td:first-child, gamewidget .table-match-histo
   transform: scale(0);
   transform-origin: 90% 50%;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\00003216}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\00003224}}
 .loader.pageloader {
   position: fixed;
   top: 30%;
@@ -7833,48 +7842,48 @@ gamewidget .table-match-history tr td:first-child, gamewidget .table-match-histo
 }
 
 @-webkit-keyframes loader-1 {
-  /* line 226, base.scss */
+  /* line 234, base.scss */
   0% {
     -webkit-transform: rotate(20deg);
   }
 
-  /* line 227, base.scss */
+  /* line 235, base.scss */
   100% {
     -webkit-transform: rotate(380deg);
   }
 }
 
 @-webkit-keyframes loader-2 {
-  /* line 231, base.scss */
+  /* line 239, base.scss */
   0% {
     -webkit-transform: scale(0);
   }
 
-  /* line 232, base.scss */
+  /* line 240, base.scss */
   100% {
     -webkit-transform: scale(1);
   }
 }
 
 @keyframes loader-1 {
-  /* line 236, base.scss */
+  /* line 244, base.scss */
   0% {
     transform: rotate(20deg);
   }
 
-  /* line 237, base.scss */
+  /* line 245, base.scss */
   100% {
     transform: rotate(380deg);
   }
 }
 
 @keyframes loader-2 {
-  /* line 241, base.scss */
+  /* line 249, base.scss */
   0% {
     transform: scale(0);
   }
 
-  /* line 242, base.scss */
+  /* line 250, base.scss */
   100% {
     transform: scale(1);
   }
@@ -7882,13 +7891,13 @@ gamewidget .table-match-history tr td:first-child, gamewidget .table-match-histo
 
 /** animations **/
 @-webkit-keyframes fadeinanddrop {
-  /* line 249, base.scss */
+  /* line 257, base.scss */
   0% {
     opacity: 0;
     top: -20px;
   }
 
-  /* line 250, base.scss */
+  /* line 258, base.scss */
   100% {
     opacity: 1;
     top: 0;

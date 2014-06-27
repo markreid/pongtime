@@ -25,7 +25,7 @@
         $scope.getAllTeams = function(){
             return teamsService.getTeams().then(function(teams){
                 $scope.teams = teams;
-                $scope.predicate = ['-stat.winPercentage', '-stat.wins'];
+                $scope.predicate = ['-stat.points'];
             }).catch(function(err){
                 notificationsService.generic();
                 console.log(err);
