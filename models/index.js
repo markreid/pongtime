@@ -59,11 +59,8 @@ models.Game.hasMany(models.Team);
 models.Stat.hasOne(models.Team, {foreignKey: 'statId', onDelete:'RESTRICT', onUpdate:'CASCADE'});
 models.Team.belongsTo(models.Stat, {foreignKey: 'statId'});
 
-// games and teams both have a league
-models.League.hasMany(models.Team, {foreignKey: 'leagueId'});
+// games belong to a league
 models.League.hasMany(models.Game, {foreignKey: 'leagueId'});
-
-models.Team.belongsTo(models.League, {foreignKey: 'leagueId'});
 models.Game.belongsTo(models.League, {foreignKey: 'leagueId'});
 
 // create join tables for league moderators and league members: league <-> user m2m

@@ -109,12 +109,9 @@ module.exports = function(sequelize, models){
     api.teams.findAll = function(where, notValues){
         return models.Team.findAll({
             where: where || {},
-            attributes: ['name', 'id', 'leagueId'],
+            //attributes: ['name', 'id'],
             include: [{
                 model: models.Stat
-            }, {
-                model: models.League,
-                attributes: ['id']
             }]
         }).then(function(teams){
             if(notValues) return teams;
@@ -459,8 +456,8 @@ module.exports = function(sequelize, models){
         var teamIds = data.teamIds;
         var leagueId = data.leagueId;
         return api.teams.findAll({
-            id: teamIds,
-            leagueId: leagueId
+            id: teamIds
+            //leagueId: leagueId
         }).then(function(teams){
             if(!teams || teams.length !== 2) throw new Error('Invalid team IDs');
 
