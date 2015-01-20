@@ -34,7 +34,6 @@ var sequelizeImport = function(filename){
 
 var models = {
     User: sequelizeImport('user.js'),
-    Player: sequelizeImport('player.js'),
     Game: sequelizeImport('game.js'),
     Team: sequelizeImport('team.js'),
     Stat: sequelizeImport('stats.js'),
@@ -55,22 +54,15 @@ models.Team.hasMany(models.Game, {foreignKey: 'losingTeamId'});
 models.Team.hasMany(models.Game);
 models.Game.hasMany(models.Team);
 
-// teams and players are m2m
-models.Team.hasMany(models.Player);
-models.Player.hasMany(models.Team);
 
-// players and teams both have stats, and you can't delete the stats while they're referenced
-models.Stat.hasOne(models.Player, {foreignKey: 'statId', onDelete:'RESTRICT', onUpdate:'CASCADE'});
+// teams have stats, and you can't delete the stats while they're referenced
 models.Stat.hasOne(models.Team, {foreignKey: 'statId', onDelete:'RESTRICT', onUpdate:'CASCADE'});
-models.Player.belongsTo(models.Stat, {foreignKey: 'statId'});
 models.Team.belongsTo(models.Stat, {foreignKey: 'statId'});
 
-// players, games and teams all have a league
-models.League.hasMany(models.Player, {foreignKey: 'leagueId'});
+// games and teams both have a league
 models.League.hasMany(models.Team, {foreignKey: 'leagueId'});
 models.League.hasMany(models.Game, {foreignKey: 'leagueId'});
 
-models.Player.belongsTo(models.League, {foreignKey: 'leagueId'});
 models.Team.belongsTo(models.League, {foreignKey: 'leagueId'});
 models.Game.belongsTo(models.League, {foreignKey: 'leagueId'});
 

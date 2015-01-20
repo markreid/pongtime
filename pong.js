@@ -81,6 +81,6 @@ app.use(function(err, req, res, next) {
 });
 
 
-app.listen(2020);
+app.listen(config.EXPRESS_PORT);
 
 module.exports = app;
