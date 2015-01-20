@@ -12,9 +12,6 @@ module.exports = function(sequelize, datatypes){
             type: datatypes.DATE,
             defaultValue: Sequelize.NOW
         },
-        redemption: {
-            type: datatypes.BOOLEAN
-        },
         meta: {
             type: datatypes.TEXT
         },

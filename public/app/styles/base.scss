@@ -1,22 +1,5 @@
 @import 'sass-bootstrap/lib/bootstrap';
 
-/**
- * League-specific overrides
- * This is a bit of a hack.
- * Well, a big hack, actually.
- */
-
-.league-4 {
-    // don't show redemption in lists
-    .column-redemption {
-        display: none;
-    }
-
-    // highlight the top 8 in the team list view
-    &#view-team-list .teams-table table tbody tr:nth-child(8) td {
-        border-bottom: 2px solid #d22;
-    }
-}
 
 /**
  * Base/generic/utils

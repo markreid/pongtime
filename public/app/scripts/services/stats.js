@@ -70,13 +70,6 @@
             stats.streakReadable = streaktext;
             stats.coldest = Math.abs(stats.coldest);
 
-            // redemptions
-            // db only stores redemptionsGiven and redemptionsHad, so to calculate
-            // redemptionsDenied, we take the number of wins and subtract the
-            // redemptionsGiven.
-            stats.redemptionsDenied = stats.wins - stats.redemptionsGiven;
-            stats.redemptionsDeniedPercentage = Math.round((stats.redemptionsDenied/stats.wins)*100);
-            stats.redemptionsHadPercentage = Math.round((stats.redemptionsHad/stats.losses)*100);
 
             return _.extend({}, stats, {
                 available: true,

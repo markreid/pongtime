@@ -14,7 +14,6 @@
 
         <div class="results clearfix" ng-show="game.hasResults && !editing">
             <p class="lead">{{ game.winningTeam.name }} won.</p>
-            <span class="label pull-right" ng-class="{'label-success': game.redemption, 'label-danger': !game.redemption}">{{ game.redemption ? 'REDEEMED' : 'REDEMPTION DENIED' }}.</span>
         </div>
 
         <div class="form-results=" ng-show="editing">
@@ -31,13 +30,6 @@
                 <div class="form-group">
                     <label for="loser">Who lost?</label>
                     <select ng-model="game.losingTeamId" ng-change="setWinner()" ng-options="team.id as team.name for team in game.teams"></select>
-                </div>
-
-                <div class="form-group">
-                    <label for="redemption">
-                        Was there redemption?
-                        <input type="checkbox" name="redemption" ng-model="game.redemption">
-                    </label>
                 </div>
 
                 <div class="form-group">

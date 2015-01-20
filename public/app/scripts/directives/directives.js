@@ -261,11 +261,8 @@
                     // if it's being sorted by date. hnnngg...
                     game.editableDate = game.date;
 
-                    // need to set redemption to false if it's null
-                    game.redemption = game.redemption || false;
-
-                    // hasResults - if winner, loser and redemption are all not null
-                    game.hasResults = !~[game.winningTeamId, game.losingTeamId, game.redemption].indexOf(null);
+                    // hasResults - if winner and loser aren't null
+                    game.hasResults = !~[game.winningTeamId, game.losingTeamId].indexOf(null);
 
                     if(!game.hasResults) return game;
 
@@ -295,7 +292,6 @@
                         id: $scope.game.id,
                         winningTeamId: $scope.game.winningTeamId,
                         losingTeamId: $scope.game.losingTeamId,
-                        redemption: $scope.game.redemption,
                         date: $scope.game.editableDate
                     }).then(function(game){
                         $scope.game = parseGameData(game);

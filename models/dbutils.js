@@ -112,7 +112,6 @@ var calls = {
                             return db.api.games.update(game, {
                                 winningTeamId: teamIds[0],
                                 losingTeamId: teamIds[1],
-                                redemption: Math.random() > 0.5,
                                 date: new Date()
                             });
 

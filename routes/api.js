@@ -402,7 +402,7 @@ router.route('/leagues/:leagueId/games/:gameId').get(function(req, res, next){
 
 }).put(function(req, res, next){
 
-    var validProperties = _.pick(req.body, ['winningTeamId', 'losingTeamId', 'redemption', 'date']);
+    var validProperties = _.pick(req.body, ['winningTeamId', 'losingTeamId', 'date']);
     db.api.games.update(req.game, validProperties).then(function(game){
         res.send(200, game);
     }).catch(function(err){

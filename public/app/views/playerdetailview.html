@@ -9,8 +9,6 @@
 
         <div ng-show="player.stat.games">
             <p>Has played {{ player.stat.games }} {{ 'game'|plural:player.stat.games }}, winning {{ player.stat.wins }} and losing {{ player.stat.losses }}. That's a win-rate of {{ player.stat.winPercentage }}%.</p>
-            <p>Has won redemption {{ player.stat.redemptionsHad }} times.</p>
-            <p>Has conceded redemption {{ player.stat.redemptionsGiven }} {{ 'time'|plural:player.stat.redemptionsGiven }}.</p>
             <p ng-show="player.stat.hottest > 1">Hottest streak was {{ player.stat.hottest }} wins.</p>
             <p ng-show="player.stat.coldest > 1">Coldest streak was {{ player.stat.coldest }} losses.</p>
 

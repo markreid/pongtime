@@ -36,13 +36,12 @@
 
         GamesService.prototype.save = function(data){
             // validation
-            // we require .id, .winningTeamId:num, .losingTeamId:num and .redemption:bool
-            if(~[data.id, data.winningTeamId, data.losingTeamId, data.redemption].indexOf(null)) throw new Error('missing parameters.');
+            // we require .id, .winningTeamId:num and .losingTeamId:num
+            if(~[data.id, data.winningTeamId, data.losingTeamId].indexOf(null)) throw new Error('missing parameters.');
 
             return $http.put(apiRoot() + Number(data.id), {
                 winningTeamId: data.winningTeamId,
                 losingTeamId: data.losingTeamId,
-                redemption: data.redemption,
                 date: data.date.toString()
             }).then(function(response){
                 return response.data;
@@ -73,9 +72,7 @@
                         team: teamid,
                         played: gamesPlayed,
                         wins: _.where(games, {winningTeamId: teamid}).length,
-                        losses: _.where(games, {losingTeamId: teamid}).length,
-                        redemptionsGiven: _.where(games, {winningTeamId: teamid, redemption: true}).length,
-                        redemptionsEarned: _.where(games, {losingTeamId: teamid, redemption: true}).length
+                        losses: _.where(games, {losingTeamId: teamid}).length
                     }
                 });
 
@@ -88,14 +85,6 @@
                     losses: {
                         t1: 0,
                         t2: 0
-                    },
-                    redemptionsWon: {
-                        t1: 0,
-                        t2: 0
-                    },
-                    redemptionsGiven: {
-                        t1: 0,
-                        t2: 0
                     }
                 };
 
@@ -104,18 +93,10 @@
                     if(game.winningTeamId === t1){
                         stats.wins.t1++;
                         stats.losses.t2++;
-                        if(game.redemption === true){
-                            stats.redemptionsGiven.t1++;
-                            stats.redemptionsWon.t2++;
-                        }
                     }
                     if(game.winningTeamId === t2){
                         stats.wins.t2++;
                         stats.losses.t1++;
-                        if(game.redemption === true){
-                            stats.redemptionsGiven.t2++;
-                            stats.redemptionsWon.t1++;
-                        }
                     }
 
                 });
@@ -137,16 +118,6 @@
                         title: 'Losses',
                         t1: stats.losses.t1,
                         t2: stats.losses.t2
-                    },
-                    {
-                        title: 'Redemptions Won',
-                        t1: stats.redemptionsWon.t1,
-                        t2: stats.redemptionsWon.t2
-                    },
-                    {
-                        title: 'Redemptions Given',
-                        t1: stats.redemptionsGiven.t1,
-                        t2: stats.redemptionsGiven.t2,
                     }
                 ];
 

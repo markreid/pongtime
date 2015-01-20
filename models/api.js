@@ -277,8 +277,6 @@ module.exports = function(sequelize, models){
             stats.streak = 1;
         }
 
-        // if redemption was won, it means the winners gave it away.
-        if(_game.redemption) stats.redemptionsGiven++;
 
         return stats;
     }
@@ -315,8 +313,6 @@ module.exports = function(sequelize, models){
             stats.streak = -1;
         }
 
-        // did they at least win redemption?
-        if(_game.redemption) stats.redemptionsHad++;
 
         return stats;
     }
@@ -486,8 +482,8 @@ module.exports = function(sequelize, models){
      * @param {Object} udpatedData
      */
     api.games.update = function(gameModel, updatedData){
-        // to update a game, we need winningTeamId, losingTeamId, redemption.
-        var requiredFields = ['winningTeamId', 'losingTeamId', 'redemption'];
+        // to update a game, we need winningTeamId, losingTeamId.
+        var requiredFields = ['winningTeamId', 'losingTeamId'];
         var missingFields = _.difference(requiredFields, Object.keys(updatedData));
         if(missingFields.length) throw new Error ('games.update() missing arguments: ' + missingFields.join(', '));
 
@@ -509,7 +505,6 @@ module.exports = function(sequelize, models){
         return gameModel.updateAttributes({
             winningTeamId: updatedData.winningTeamId,
             losingTeamId: updatedData.losingTeamId,
-            redemption: updatedData.redemption,
             date: updatedData.date
         }).then(function(game){
 
