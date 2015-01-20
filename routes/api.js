@@ -16,7 +16,6 @@ var db = require('../models');
  * Middleware
  */
 
-
 // Can be used in dev environment for simulating slow API responses
 router.use(function apiSlowdownMiddleware(req, res, next){
     setTimeout(function(){
@@ -201,92 +200,31 @@ router.route('/leagues/:leagueId')
 });
 
 /**
- * Player list
+ * Teams list
  */
-router.route('/leagues/:leagueId/players')
+
+router.route('/teams')
 .get(function(req, res, next){
-    req.league.getPlayers({
-        include: [{
-            model: db.Stat
-        }]
-    }).then(function(players){
-        res.send(200, _.pluck(players, 'values'));
+    db.api.teams.findAll().then(function(teams){
+        res.send(200, teams);
     }).catch(function(err){
         next(err);
     });
 }).post(function(req, res, next){
-    // if the user doesn't have write access to the specified league, it's a 403.
-    // todo - can we drop this?
-    if(!isLeagueWritable(req.league, req.user)) return next({status:403});
 
-    var properties = _.extend({}, req.body);
-    properties.leagueId = req.params.leagueId;
-    db.api.players.create(properties).then(function(player){
-        res.send(201, player);
+    db.api.teams.create({
+        name: req.body.name
+    }).then(function(team){
+        res.send(200, team);
     }).catch(function(err){
         next(err);
     });
+
 });
 
-/**
- * Player detail
- */
-router.route('/leagues/:leagueId/players/:playerId')
-.get(function(req, res, next){
-    res.send(200, req.player.values);
-}).put(function(req, res, next){
-    // 403 if the user doesn't have write permission on this league
-    if(!isLeagueWritable(req.league, req.user)) return next({status:403});
-
-    var properties = _.extend({}, req.body);
-    properties.leagueId = req.params.leagueId;
-    db.api.generic.updateModel(req.player, properties).then(function(player){
-        res.send(200, player.values);
-    }).catch(function(err){
-        next(err);
-    });
-}).delete(function(req, res, next){
-    // 403 if the user doesn't have write permission on this league
-    if(!isLeagueWritable(req.league, req.user)) return next({status:403});
-
-    db.api.generic.destroyModel(req.player).then(function(){
-        res.send(200);
-    }).catch(function(err){
-        next(err);
-    });
-});
 
 /**
- * Player detail with stats
- */
-router.get('/leagues/:leagueId/players/:playerId/stats', function(req, res, next){
-    req.player.getStat().then(function(stats){
-        if(!stats) return next({status:404});
-        var returnData = _.extend({}, req.player.values);
-        returnData.stat = stats.values;
-        res.send(200, returnData);
-    }).catch(function(err){
-        next(err);
-    });
-});
-
-/**
- * Player detail with all associated models (stats, teams)
- */
-router.get('/leagues/:leagueId/players/:thePlayerId/all', function(req, res, next){
-    db.api.players.findOneDetailed({
-        leagueId: req.league.id,
-        id: req.params.thePlayerId
-    }).then(function(player){
-        if(!player) return next({status:404});
-        res.send(200, player);
-    }).catch(function(err){
-        next(err);
-    });
-});
-
-/**
- * Teams list
+ * League teams
  */
 router.route('/leagues/:leagueId/teams')
 .get(function(req, res, next){
@@ -296,22 +234,6 @@ router.route('/leagues/:leagueId/teams')
         }]
     }).then(function(teams){
         res.send(200, teams);
-    }).catch(function(err){
-        next(err);
-    });
-
-}).post(function(req, res, next){
-
-    var playerIds = _.map(req.body.players, function(player){
-        return Number(player);
-    });
-
-    db.api.teams.create({
-        leagueId: req.params.leagueId,
-        name: req.body.name,
-        playerIds: playerIds,
-    }).then(function(team){
-        res.send(200, team);
     }).catch(function(err){
         next(err);
     });

@@ -332,15 +332,15 @@ module.exports = function(sequelize, models){
      */
     api.teams.create = function(data){
         var name = data.name;
-        var leagueId = data.leagueId;
+        //var leagueId = data.leagueId;
 
-        if(!name || !leagueId) throw {status:400, message: 'teams.create() requires 2 arguments'};
+        if(!name) throw {status:400, message: 'teams.create() requires a name'};
 
 
         // add the team to the DB
         return models.Team.create({
             name: name,
-            leagueId: leagueId
+            //leagueId: leagueId
         }).then(function(team){
 
             // now create a new Stat model and associate it with the team.

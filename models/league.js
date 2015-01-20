@@ -17,7 +17,7 @@ module.exports = function(sequelize, datatypes){
         },
         membersAreMods: {
             type: datatypes.BOOLEAN,
-            allowNull: false,
+            allowNull: true,
             default: false
         }
     });
