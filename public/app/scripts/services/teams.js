@@ -55,11 +55,9 @@
             });
         };
 
-        TeamsService.prototype.addTeam = function(players, name){
-            if(!players || !players.length || !name) throw new Error('shitty arguments, bro.');
+        TeamsService.prototype.addTeam = function(name){
+            if(!name) throw new Error('shitty arguments, bro.');
             return $http.post(apiRoot(), {
-                leagueId: leaguesService.getActiveLeagueId(),
-                players: players,
                 name: name
             }).then(function(response){
                 var team = parseTeam(response.data);
@@ -93,7 +91,9 @@
         // return the teams API root URL
         // checks the leagues service for the current active League Id
         function apiRoot(){
-            return '/api/v1/leagues/' + leaguesService.getActiveLeagueId() + '/teams/';
+            // deprecated
+            //return '/api/v1/leagues/' + leaguesService.getActiveLeagueId() + '/teams/';
+            return '/api/v1/teams/';
         }
 
         return new TeamsService();
