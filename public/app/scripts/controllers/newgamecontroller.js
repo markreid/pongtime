@@ -23,6 +23,7 @@
             $scope.showAddPlayer = false;
 	        $scope.warning = false;
             $scope.activeTeams = [];
+            $scope.highlightedTeam = -1;
 
 
             // fetch everything we need

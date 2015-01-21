@@ -9,13 +9,20 @@
     <section class="section-players">
         <div class="text-center">
 
-            <select class="select" ng-model="highlightedTeam">
-                <option ng-repeat="team in teams" value="{{ team.id }}">{{ team.name }}</option>
-            </select>
+            <form class="form-inline">
+            <div class="form-group">
+                <select class="form-control" ng-model="highlightedTeam">
+                    <option disabled value="-1">Pick a team</option>
+                    <option ng-repeat="team in teams" value="{{ team.id }}">{{ team.name }}</option>
+                </select>
 
-            <button class="btn btn-small" ng-click="addTeamToGame(highlightedTeam)">Add</button>
+                <button class="btn btn-small" ng-click="addTeamToGame(highlightedTeam)">Add to game</button>
+</div>
+            </form>
 
-            <a ng-show="comp.writable" ng-click="showAddTeam=!showAddTeam">[+]</a>
+            <p>
+                <a ng-show="comp.writable" ng-click="showAddTeam=!showAddTeam">Add a new team?</a>
+            </p>
 
             <form class="row" ng-show="showAddTeam" ng-submit="addNewTeam(newTeamName)" style="margin-top: 20px;">
                 <div class="input-group col-md-4 col-md-offset-4 col-xs-12 ">
