@@ -1,6 +1,6 @@
 <div class="loader pageloader" ng-show="refreshing"></div>
 
-<div class="container" ng-hide="refreshing" id="view-team-list">
+<div class="container comp-{{ comp.id }}" ng-hide="refreshing" id="view-team-list">
 
     <div class="page-header">
         <h1>{{ pageTitle }}</h1>
@@ -36,7 +36,7 @@
                     <th ng-click="predicate='stat.winPercentage'">Win %</th>
                     <th ng-click="predicate='stat.losses'">Losses</th>
                     <th ng-click="predicate='stat.lossPercentage'">Loss %</th>
-		    <th ng-click="predicate='stat.streak'">Streak</th>
+            <th ng-click="predicate='stat.streak'">Streak</th>
                 </tr>
             </thead>
             <tbody>
@@ -47,7 +47,7 @@
                     <td>{{ team.stat.winPercentage }}%</td>
                     <td>{{ team.stat.losses }}</td>
                     <td>{{ team.stat.lossPercentage }}%</td>
-		    <td>{{ team.stat.streak }}</td>
+                    <td>{{ team.stat.streak }}</td>
                 </tr>
             </tbody>
         </table>

@@ -1,17 +1,18 @@
 (function(){
     'use strict';
 
-    angular.module('pong').controller('leagueDetailController', ['$scope', '$routeParams', 'leagues', 'notifications', 'stats', 'user', function($scope, $routeParams, leaguesService, notificationsService, statsService, usersService){
+    angular.module('pong').controller('compDetailController', ['$scope', '$routeParams', 'comps', 'notifications', 'stats', 'user', function($scope, $routeParams, compsService, notificationsService, statsService, usersService){
 
         $scope.reset = function(){
             $scope.refreshing = true;
-            leaguesService.setActiveLeague($routeParams.id);
-            leaguesService.getLeagueDetail($routeParams.id).then(function(league){
-                $scope.league = league;
-                $scope.league.edited = _.extend({}, league);
-                $scope.stats = generateLeagueStats(league);
-                $scope.numPlayers = league.players.length;
-                $scope.numGames = league.games.length;
+            compsService.setActiveComp($routeParams.id);
+            compsService.getCompDetail($routeParams.id).then(function(comp){
+                $scope.comp = comp;
+                $scope.comp.edited = _.extend({}, comp);
+                // todo - disabled until memory leak issues are sorted
+                // $scope.stats = generateCompStats(comp);
+                // $scope.numPlayers = comp.players.length;
+                // $scope.numGames = comp.games.length;
                 $scope.refreshing = false;
             }).catch(function(err){
                 if(err.status === 404){
@@ -22,17 +23,17 @@
             });
         };
 
-        $scope.saveLeagueSettings = function(){
+        $scope.saveCompSettings = function(){
             $scope.saving = true;
 
-            var data = _.extend({}, $scope.league.edited);
+            var data = _.extend({}, $scope.comp.edited);
             data.members = _.pluck(data.members, 'id');
             data.moderators = _.pluck(data.moderators, 'id');
 
-            leaguesService.save(data).then(function(league){
-                console.log(league);
-                $scope.league = league;
-                $scope.league.edited = _.extend({}, league);
+            compsService.save(data).then(function(comp){
+                console.log(comp);
+                $scope.comp = comp;
+                $scope.comp.edited = _.extend({}, comp);
                 parseMembersAndModerators();
             }).catch(function(err){
                 if(err.status === 403){
@@ -46,7 +47,7 @@
             });
         };
 
-        $scope.showLeagueSettings = function(){
+        $scope.showCompSettings = function(){
             usersService.getUsers().then(function(users){
                 $scope.users = users;
                 parseMembersAndModerators();
@@ -58,26 +59,26 @@
         };
 
         function parseMembersAndModerators(){
-            var leagueMemberIds = _.pluck($scope.league.members, 'id');
-            var leagueModeratorIds = _.pluck($scope.league.moderators, 'id');
-            $scope.league.edited.members = [];
-            $scope.league.edited.moderators = [];
+            var compMemberIds = _.pluck($scope.comp.members, 'id');
+            var compModeratorIds = _.pluck($scope.comp.moderators, 'id');
+            $scope.comp.edited.members = [];
+            $scope.comp.edited.moderators = [];
             _.each($scope.users, function(user){
-                // league.edited.members needs to be an array of references to $scope.users
-                if(~leagueMemberIds.indexOf(user.id)) $scope.league.edited.members.push(user);
-                if(~leagueModeratorIds.indexOf(user.id)) $scope.league.edited.moderators.push(user);
+                // comp.edited.members needs to be an array of references to $scope.users
+                if(~compMemberIds.indexOf(user.id)) $scope.comp.edited.members.push(user);
+                if(~compModeratorIds.indexOf(user.id)) $scope.comp.edited.moderators.push(user);
             });
         };
 
 
-        // hit the leaguesService
-        function getLeague(id){
-            return leaguesService.getLeagueDetail(id);
+        // hit the compsService
+        function getComp(id){
+            return compsService.getCompDetail(id);
         }
 
-        function generateLeagueStats(league){
+        function generateCompStats(comp){
 
-            var firstTeam = _.extend({}, _.find(league.teams, function(team){
+            var firstTeam = _.extend({}, _.find(comp.teams, function(team){
                 return team.stat.games;
             }));
             firstTeam.stat = statsService.parseStats(firstTeam.stat);
@@ -89,7 +90,7 @@
             var teamHottestStreak = [firstTeam];
             var teamColdestStreak = [firstTeam];
 
-            _.each(league.teams, function(team){
+            _.each(comp.teams, function(team){
                 if(!team.stat.games) return;
                 team.stat = statsService.parseStats(team.stat);
 
@@ -112,7 +113,7 @@
 
 
 
-            var firstPlayer = _.extend({}, _.find(league.players, function(player){
+            var firstPlayer = _.extend({}, _.find(comp.players, function(player){
                 return player.stat.games;
             }));
             firstPlayer.stat = statsService.parseStats(firstPlayer.stat);
@@ -124,7 +125,7 @@
             var playerHottestStreak = [firstPlayer];
             var playerColdestStreak = [firstPlayer];
 
-            _.each(league.players, function(player){
+            _.each(comp.players, function(player){
                 if(!player.stat.games) return;
                 player.stat = statsService.parseStats(player.stat);
 

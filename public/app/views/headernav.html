@@ -14,17 +14,18 @@
 
             <ul class="nav navbar-nav navbar-left">
                 <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ activeLeague.name || 'Select a league...'}} <b class="caret"></b></a>
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ activeComp.name || 'Select a comp...'}} <b class="caret"></b></a>
                     <ul class="dropdown-menu">
-                        <li ng-show="!leagues.length"><a>No leagues available</a></li>
-                        <li ng-repeat="league in leagues"><a href="/leagues/{{ league.id }}/" ng-click="setLeague(league.id)">{{ league.name }}</a></li>
+                        <li ng-show="!comps.length"><a>No comps available</a></li>
+                        <li ng-repeat="comp in comps"><a href="/comps/{{ comp.id }}/" ng-click="setComp(comp.id)">{{ comp.name }}</a></li>
                         <li class="divider"></li>
-                        <li ng-show="user.isAdmin"><a href="/leagues/new/">Add League...</a></li>
+                        <li ng-show="user.isAdmin"><a href="/comps/new/">Add Comp...</a></li>
                     </ul>
                 </li>
 
             </ul>
 
+            <!--
             <ul class="nav navbar-nav navbar-right nav-user" ng-switch on="signedIn">
 
                 <li class="dropdown" ng-switch-when="true">
@@ -38,18 +39,16 @@
 
                 <li class="dropdown" ng-switch-when="false">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">Sign In <b class="caret"></b></a>
-                    <ul class="dropdown-menu">
-                        <li><a href="/auth/google/" target="_self">Google</a></li>
-                    </ul>
+                    <ul class="dropdown-menu"></ul>
                 </li>
 
             </ul>
+            -->
 
-            <ul class="nav navbar-nav navbar-right" ng-show="activeLeague">
+            <ul class="nav navbar-nav navbar-right">
                 <li ng-class="{active:path==='/newgame'}"><a href="/newgame/">New Game</a></li>
                 <li ng-class="{active:path==='/games'}"><a href="/games/">Games</a></li>
                 <li ng-class="{active:path==='/teams'}"><a href="/teams">Teams</a></li>
-                <li ng-class="{active:path==='/players'}"><a href="/players">Players</a></li>
             </ul>
 
         </div>

@@ -2,16 +2,10 @@
 
     <div class="panel-heading">
         <h4 ng-show="team.name">{{ team.name }}</h4>
-        <small ng-show="team.name && team.players.length > 1">{{ team.playerNames }}</small>
-        <h4 ng-hide="team.name">{{ playerNames }}</h4>
     </div>
 
     <div class="panel-body" ng-show="fetching">
         <div class="loader"></div>
-    </div>
-
-    <div class="panel-body" ng-show="exists===false">
-        This team hasn't been created yet.
     </div>
 
     <div class="panel-body" ng-hide="fetching">
@@ -29,8 +23,6 @@
                 <dt>Current streak</dt><dd>{{ team.stat.streak }}</dd>
                 <dt>Hottest streak</dt><dd>{{ team.stat.hottest }} wins</dd>
                 <dt>Coldest streak</dt><dd>{{ team.stat.coldest }} losses</dd>
-                <dt>Redemptions won</dt><dd>{{ team.stat.redemptionsHad }}/{{ team.stat.losses }} ({{ team.stat.redemptionsHadPercentage }}%)</dd>
-                <dt>Redemptions denied</dt><dd>{{ team.stat.redemptionsDenied || 0}}/{{ team.stat.wins }} ({{ team.stat.redemptionsDeniedPercentage }}%)</dd>
             </dl>
 
         </div>

@@ -6,12 +6,11 @@ module.exports = function(sequelize, models){
     'use strict';
 
     var api = {
-        players: {},
         teams: {},
         stats: {},
         games: {},
         users: {},
-        leagues: {},
+        comps: {},
         generic: {}
     };
 
@@ -43,7 +42,7 @@ module.exports = function(sequelize, models){
     };
 
     /**
-     * Update stat values with a win for a team and its players
+     * Update stat values with a win for a team
      * @param {Object} gameData     game model values
      */
     api.teams.recordWin = function(gameData){
@@ -53,20 +52,13 @@ module.exports = function(sequelize, models){
             },
             include: [{
                 model: models.Stat
-            }, {
-                model: models.Player,
-                include: [{
-                    model: models.Stat
-                }]
             }]
         }).then(function(team){
             if(!team.stat) throw new Error('Unable to find stat model for team ' + team.values.id);
 
             var updatedStats = addWinToStats(team.stat.values, gameData);
 
-            return team.stat.updateAttributes(updatedStats).then(function(stat){
-                return api.players.recordWins(team.players, gameData);
-            });
+            return team.stat.updateAttributes(updatedStats);
         });
     };
 
@@ -81,19 +73,12 @@ module.exports = function(sequelize, models){
             },
             include: [{
                 model: models.Stat
-            }, {
-                model: models.Player,
-                include: [{
-                    model: models.Stat
-                }]
             }]
         }).then(function(team){
             if(!team.stat) throw new Error('Unable to find stat model for team ' + team.values.id);
 
             var updatedStats = addLossToStats(team.stat.values, gameData);
-            return team.stat.updateAttributes(updatedStats).then(function(stat){
-                return api.players.recordLosses(team.players, gameData);
-            });
+            return team.stat.updateAttributes(updatedStats);
         });
     };
 
@@ -117,108 +102,6 @@ module.exports = function(sequelize, models){
 
 
     /**
-     * Find all players
-     * @param {where} Object        where clause
-     * @param {Boolean} notValues   return .values or model instance?
-     * @return {Object}     model.values
-     */
-    api.players.findAll = function(where, notValues){
-        return models.Player.findAll({
-            where: where || {},
-            attributes: ['name', 'id', 'leagueId'],
-            include: [{
-                model: models.Team
-            }, {
-                model: models.Stat
-            }, {
-                model: models.League,
-                attributes: ['id']
-            }],
-            order: 'id'
-        }).then(function(players){
-            if(notValues) return players;
-            return _.pluck(players, 'values');
-        }).catch(function(err){
-            throw err;
-        });
-    };
-
-    /**
-     * Find a single player with extra associated models
-     * @param  {Object} where   filter data
-     * @param  {Boolean} notValues  set true to pass the model, not the values
-     * @return {Object}         model.values
-     */
-    api.players.findOneDetailed = function(where, notValues){
-        return models.Player.findAll({
-            where: where || {},
-            include: [{
-                model: models.Team
-            }, {
-                model: models.Stat
-            }],
-            order: 'id',
-            limit: 1
-        }).then(function(players){
-            if(!players.length) return null;
-
-            // if notValues is true, we want to return the model
-            if(notValues) return players[0];
-            return players[0].values
-        }).catch(function(err){
-            throw err;
-        });
-    };
-
-    /**
-     * Create a player and associate a new stat model
-     * @param  {Object} data
-     * @return {Object}      model.values
-     */
-    api.players.create = function(data){
-        // todo - validation here
-        return models.Player.create(data).then(function(player){
-            return models.Stat.create({}).then(function(stat){
-                return player.setStat(stat);
-            }).then(function(){
-                return player.values;
-            });
-        }).catch(function(err){
-            throw err;
-        });
-    };
-
-    /**
-     * Record wins for 1 or more players
-     * @param {Array} players       player models array
-     * @param {Object} gameData
-     * @return {Promise} chainer.run()
-     */
-    api.players.recordWins = function(players, gameData){
-        var chainer = new Sequelize.Utils.QueryChainer();
-        _.each(players, function(player){
-            var updatedStats = addWinToStats(player.stat.values, gameData);
-            chainer.add(player.stat.updateAttributes(updatedStats));
-        });
-        return chainer.run();
-    };
-
-    /**
-     * Record losses for 1 or more players
-     * @param {Array} players       player models array
-     * @param {Object} gameData
-     * @return {Promise} chainer.run();
-     */
-    api.players.recordLosses = function(players, gameData){
-        var chainer = new Sequelize.Utils.QueryChainer();
-        _.each(players, function(player){
-            var updatedStats = addLossToStats(player.stat.values, gameData);
-            chainer.add(player.stat.updateAttributes(updatedStats));
-        });
-        return chainer.run();
-    };
-
-    /**
      * Find all teams
      * @param  {Object} where   filter params
      * @return {Object}         model.values
@@ -226,15 +109,9 @@ module.exports = function(sequelize, models){
     api.teams.findAll = function(where, notValues){
         return models.Team.findAll({
             where: where || {},
-            attributes: ['name', 'id', 'leagueId'],
+            //attributes: ['name', 'id'],
             include: [{
-                model: models.Player,
-                attributes: ['name', 'id']
-            }, {
                 model: models.Stat
-            }, {
-                model: models.League,
-                attributes: ['id']
             }]
         }).then(function(teams){
             if(notValues) return teams;
@@ -248,9 +125,6 @@ module.exports = function(sequelize, models){
         return models.Team.find({
             where: where || {},
             include: [{
-                model: models.Player,
-                attributes: ['name', 'id']
-            }, {
                 model: models.Stat
             }]
         }).then(function(team){
@@ -262,57 +136,51 @@ module.exports = function(sequelize, models){
     };
 
     /**
-     * Fetch a team ID by searching for its players
-     * @param  {Array} playerIDs
-     * @return {Number}
+     * Get the games relating to a single team
+     * @param  {Number} teamId
+     * @return {Array}
      */
-    api.teams.getTeamIdByPlayers = function(playerIDs){
-        var playersString = playerIDs.join(',');
-        return sequelize.query('SELECT "TeamId" FROM "PlayersTeams" GROUP BY "TeamId" HAVING COUNT(*) = SUM(CASE WHEN "PlayerId" IN(' + playersString + ') THEN 1 ELSE 0 END) AND COUNT (*) = ' + playerIDs.length + ';').then(function(data){
-            if(data && data.length) return data[0].TeamId;
-            return null;
+    api.teams.getTeamGames = function(teamId){
+        // easiest way is to grab the team, but only return the games.
+        return models.Team.find({
+            where: {
+                id: teamId
+            },
+            include: [{
+                model: models.Game,
+                include: [{
+                    model: models.Team,
+                    attributes: ['name', 'id']
+                }]
+            }]
+        }).then(function(team){
+            if(!team) return null;
+            return team.values.games;
+        }).catch(function(err){
+            throw err;
         });
     };
 
-    /**
-     * Fetch a team by searching for its players
-     * @param  {Array} playerIDs
-     * @return {Object}     team
-     */
-    api.teams.getTeamByPlayers = function(playerIDs){
-        return api.teams.getTeamIdByPlayers(playerIDs).then(function(teamId){
-            if(!teamId) return null;
-            return models.Team.find({
-                where: {
-                    id: teamId
-                },
-                include: [models.Player, models.Stat]
-            }).then(function(team){
-                if(!team) return null;
-                return team.values;
-            });
-        });
-    };
+
 
     /**
-     * Regenerates the stats for every team and player in the given league
-     * @param {Number} leagueId
+     * Regenerates all the stats for a comp.
+     * @param {Number} compId
      * @returns {Promise} DB operations promise
      */
-    api.stats.refreshLeagueStats = function(leagueId){
-        if(!leagueId) throw new Error('.refreshLeagueStats() called without a valid leagueId');
+    api.stats.refreshCompStats = function(compId){
+        if(!compId) throw new Error('.refreshCompStats() called without a valid compId');
 
-        // We fetch every single game that's been played in the league, ordering chronologically.
+        // We fetch every single game that's been played in the comp, ordering chronologically.
 
-        return api.games.findAllWithPlayers({
-            leagueId: leagueId
+        return api.games.findAll({
+            compId: compId
         }).then(function(games){
-            console.log('stats.refreshLeagueStats() found ' + games.length + ' games to process.');
+            console.log('stats.refreshCompStats() found ' + games.length + ' games to process.');
 
             // Generate a fresh Stat model, which we use as a template, and create an object to hold
-            // all of our player and team stats models.
+            // the team stats models.
             var cleanStats = models.Stat.build({}).values;
-            var playerStats = {};
             var teamStats = {};
 
             // Iterate through the games, checking the winningTeamId and losingTeamId.
@@ -326,30 +194,13 @@ module.exports = function(sequelize, models){
                 teamStats[game.winningTeamId] = addWinToStats(teamStats[game.winningTeamId] || _.extend({}, cleanStats), game);
                 teamStats[game.losingTeamId] = addLossToStats(teamStats[game.losingTeamId] || _.extend({}, cleanStats), game);
 
-                // Now we do the same with the players in each team.
-                _.each(game.teams, function(team){
-
-                    var winningTeam = team.id === game.winningTeamId;
-
-                    _.each(team.players, function(player){
-                        if(winningTeam){
-                            playerStats[player.id] = addWinToStats(playerStats[player.id] || _.extend({}, cleanStats), game);
-                        } else {
-                            playerStats[player.id] = addLossToStats(playerStats[player.id] || _.extend({}, cleanStats), game);
-                        }
-                    });
-
-                });
             });
 
-            // We now have regenerated Stat models for every team and every player in the league.
+            // We now have regenerated Stat models for every team in the comp.
             // So we need to overwrite the DB Stats with our new values.
 
             var teamIds = Object.keys(teamStats);
-            var playerIds = Object.keys(playerStats);
-
             var teamOperations = [];
-            var playerOperations = [];
 
             // Fetch all the relevant teams from the DB, and call updateAttributes on each of them,
             // pushing the call into our teamOperations array.
@@ -360,22 +211,12 @@ module.exports = function(sequelize, models){
                     teamOperations.push(team.stat.updateAttributes(teamStats[team.id]));
                 });
             }).then(function(){
-
-                // Do the same with each of the players
-                return api.players.findAll({
-                    id: playerIds
-                }, true).then(function(players){
-                    _.each(players, function(player){
-                        playerOperations.push(player.stat.updateAttributes(playerStats[player.id]));
-                    });
-                });
-            }).then(function(){
-                // teamOperations and playerOperations are now arrays full of promises for DB operations.
-                // Wrap them with Q.all so we can fire a response when they have all finished updating.
-                return Q.all(teamOperations.concat(playerOperations));
+                // teamOperations is an array full of promises for DB operations.
+                // Wrap it with Q.all so we can fire a response when they have all finished updating.
+                return Q.all(teamOperations);
 
             }).then(function(){
-                console.log('refreshed stats table for league ' + leagueId);
+                console.log('refreshed stats table for comp ' + compId);
                 return true;
             }).catch(function(err){
                 throw err;
@@ -386,15 +227,13 @@ module.exports = function(sequelize, models){
     };
 
     /**
-     * Find a team, including its players and all its games.
+     * Find a team and all its game data
      */
     api.teams.getTeamWithGames = function(where, notValues){
         return models.Team.find({
             where: where,
             include: [{
                 model: models.Game
-            }, {
-                model: models.Player
             }]
         }).then(function(team){
             if(!team) return null;
@@ -438,8 +277,6 @@ module.exports = function(sequelize, models){
             stats.streak = 1;
         }
 
-        // if redemption was won, it means the winners gave it away.
-        if(_game.redemption) stats.redemptionsGiven++;
 
         return stats;
     }
@@ -476,58 +313,46 @@ module.exports = function(sequelize, models){
             stats.streak = -1;
         }
 
-        // did they at least win redemption?
-        if(_game.redemption) stats.redemptionsHad++;
 
         return stats;
     }
 
 
     /**
-     * Create a new team, given a name and player IDs
+     * Create a new team
      * @param  {String} name
-     * @param {Array} playerIDs
      * @return {Object}
      */
     api.teams.create = function(data){
         var name = data.name;
-        var playerIds = data.playerIds;
-        var leagueId = data.leagueId;
+        //var compId = data.compId;
 
-        if(!name || !playerIds || !leagueId) throw {status:400, message: 'teams.create() requires 3 arguments'};
-        // First we need to ensure a team doesn't exist with these players
-        return api.teams.getTeamIdByPlayers(playerIds).then(function(teamId){
-            if(teamId) throw {status:409, message: 'Team exists: ' + teamId};
+        if(!name) throw {status:400, message: 'teams.create() requires a name'};
 
-            // now get the players
-            return api.players.findAll({
-                id: playerIds,
-                leagueId: leagueId
-            });
-        }).then(function(players){
-            if(!players || !players.length || players.length !== playerIds.length) throw {status:400, message: 'Invalid player IDs'};
 
-            // add the team to the DB
-            return models.Team.create({
-                name: name,
-                leagueId: leagueId
-            }).then(function(team){
+        // add the team to the DB
+        return models.Team.create({
+            name: name,
+            //compId: compId
+        }).then(function(team){
 
-                // ok it gets a bit crazy here because we need to
-                // refer to team, players and stat, all via closure
-
-                // now associate the players
-                return team.setPlayers(players).then(function(players){
-                    return models.Stat.create({});
-                }).then(function(stat){
-                    return team.setStat(stat).then(function(stat){
-                        return team.values;
-                    });
+            // now create a new Stat model and associate it with the team.
+            return models.Stat.create({}).then(function(statObject){
+                return team.setStat(statObject).then(function(stat){
+                    return team.values;
                 });
             });
-        }).catch(function(err){
-            throw err;
+
+            // // now associate the players
+            // return team.setPlayers(players).then(function(players){
+            //     return models.Stat.create({});
+            // }).then(function(stat){
+            //     return team.setStat(stat).then(function(stat){
+            //         return team.values;
+            //     });
+            // });
         });
+
     };
 
     /**
@@ -556,11 +381,6 @@ module.exports = function(sequelize, models){
         }).then(function(stat){
             if(!stat) return;
             return stat.destroy();
-        }).then(function(){
-            // remove the playersteams models
-            return sequelize.query('DELETE FROM "PlayersTeams" WHERE "PlayersTeams"."TeamId" = ' + teamId + ';');
-        }).then(function(){
-            return true;
         }).catch(function(err){
             throw err;
         });
@@ -585,27 +405,6 @@ module.exports = function(sequelize, models){
         });
     };
 
-    /**
-     * Find all games, include teams and players
-     * @param  {Object} where
-     * @return {Array}
-     */
-    api.games.findAllWithPlayers = function(where){
-        return models.Game.findAll({
-            where: where || {},
-            include: [{
-                model: models.Team,
-                include: [{
-                    model: models.Player
-                }]
-            }],
-            order: 'date'
-        }).then(function(games){
-            return _.pluck(games, 'values');
-        }).catch(function(err){
-            throw err;
-        });
-    };
 
     /**
      * Find a single game, optionally filtered
@@ -651,15 +450,15 @@ module.exports = function(sequelize, models){
      */
     api.games.create = function(data, notValues){
         var teamIds = data.teamIds;
-        var leagueId = data.leagueId;
+        var compId = data.compId;
         return api.teams.findAll({
-            id: teamIds,
-            leagueId: leagueId
+            id: teamIds
+            //compId: compId
         }).then(function(teams){
             if(!teams || teams.length !== 2) throw new Error('Invalid team IDs');
 
             return models.Game.create({
-                leagueId: leagueId
+                compId: compId
             }).then(function(game){
                 return game.setTeams(teams).then(function(teams){
                     if(notValues){
@@ -683,8 +482,8 @@ module.exports = function(sequelize, models){
      * @param {Object} udpatedData
      */
     api.games.update = function(gameModel, updatedData){
-        // to update a game, we need winningTeamId, losingTeamId, redemption.
-        var requiredFields = ['winningTeamId', 'losingTeamId', 'redemption'];
+        // to update a game, we need winningTeamId, losingTeamId.
+        var requiredFields = ['winningTeamId', 'losingTeamId'];
         var missingFields = _.difference(requiredFields, Object.keys(updatedData));
         if(missingFields.length) throw new Error ('games.update() missing arguments: ' + missingFields.join(', '));
 
@@ -706,17 +505,17 @@ module.exports = function(sequelize, models){
         return gameModel.updateAttributes({
             winningTeamId: updatedData.winningTeamId,
             losingTeamId: updatedData.losingTeamId,
-            redemption: updatedData.redemption,
             date: updatedData.date
         }).then(function(game){
 
-            // If this game previously had a result recorded, the stats table for the league needs to be regenerated.
+            // If this game previously had a result recorded, the stats table for the comp needs to be regenerated.
             // todo - it would be possible to create a shortcut here, provided that the game is the most recent game
-            // played in the league.  You could just roll back the results in the stats for each team/player without
+            // played in the comp.  You could just roll back the results in the stats for each team/player without
             // having to do a complete regeneration.
+            // TODO - need to refresh all team stats too because teams are now outside of comps
             if(hadResult){
-                console.log('Game had previously recorded result, updating league stats table');
-                return api.stats.refreshLeagueStats(gameModel.leagueId).then(function(){
+                console.log('Game had previously recorded result, updating comp stats table');
+                return api.stats.refreshCompStats(gameModel.compId).then(function(){
                     return game;
                 });
             }
@@ -772,8 +571,8 @@ module.exports = function(sequelize, models){
     };
 
 
-    api.leagues.findAll = function(where, notValues){
-        return models.League.findAll({
+    api.comps.findAll = function(where, notValues){
+        return models.Comp.findAll({
             where: where,
             include: [{
                 model: models.User,
@@ -784,9 +583,9 @@ module.exports = function(sequelize, models){
                 as: 'moderators',
                 attributes: ['id', 'name']
             }]
-        }).then(function(leagues){
-            if(notValues) return leagues;
-            return _.pluck(leagues, 'values');
+        }).then(function(comps){
+            if(notValues) return comps;
+            return _.pluck(comps, 'values');
         }).catch(function(err){
             throw err;
         });
@@ -794,8 +593,8 @@ module.exports = function(sequelize, models){
 
 
 
-    api.leagues.findOne = function(where, notValues){
-        return models.League.find({
+    api.comps.findOne = function(where, notValues){
+        return models.Comp.find({
             where: where,
             include: [{
                 model: models.User,
@@ -806,10 +605,10 @@ module.exports = function(sequelize, models){
                 as: 'moderators',
                 attributes: ['id', 'name']
             }]
-        }).then(function(league){
-            if(!league) return null;
-            if(notValues) return league;
-            return league.values;
+        }).then(function(comp){
+            if(!comp) return null;
+            if(notValues) return comp;
+            return comp.values;
         }).catch(function(err){
             throw err;
         });
@@ -817,8 +616,8 @@ module.exports = function(sequelize, models){
 
     // todo - this is a pretty ridiculous query, we can probably soften it up a bit? or maybe just need the frontend
     // to break it into parts...
-    api.leagues.findOneDetailed = function(where, notValues){
-        return models.League.find({
+    api.comps.findOneDetailed = function(where, notValues){
+        return models.Comp.find({
             where: where,
             include: [{
                 model: models.Team,
@@ -828,11 +627,6 @@ module.exports = function(sequelize, models){
             }, {
                 model: models.Game
             }, {
-                model: models.Player,
-                include: {
-                    model: models.Stat
-                }
-            }, {
                 model: models.User,
                 as: 'members',
                 attributes: ['id', 'name']
@@ -841,51 +635,51 @@ module.exports = function(sequelize, models){
                 as: 'moderators',
                 attributes: ['id', 'name']
             }]
-        }).then(function(league){
-            if(!league) return null;
-            if(notValues) return league;
-            return league.values
+        }).then(function(comp){
+            if(!comp) return null;
+            if(notValues) return comp;
+            return comp.values
         }).catch(function(err){
             throw err;
         })
     };
 
 
-    api.leagues.create = function(data){
+    api.comps.create = function(data){
         // todo - validation
-        return models.League.create(data).then(function(league){
-            return league.values;
+        return models.Comp.create(data).then(function(comp){
+            return comp.values;
         }).catch(function(err){
             throw err;
         });
     };
 
-    api.leagues.update = function(id, data){
+    api.comps.update = function(id, data){
         // todo - more stringent validation
         var validFields = ['name', 'public', 'membersAreMods'];
         var members = data.members;
         var moderators = data.moderators;
         var validData = _.pick(data, validFields);
 
-        return api.leagues.findOne({
+        return api.comps.findOne({
             id: id
-        }, true).then(function(league){
-            if(!league) return null;
+        }, true).then(function(comp){
+            if(!comp) return null;
 
-            return league.updateAttributes(validData).then(function(league){
+            return comp.updateAttributes(validData).then(function(comp){
 
                 // now setmembers and setmoderators
                 return api.users.findAll({
                     id: members
                 }, true).then(function(members){
-                    return league.setMembers(members);
+                    return comp.setMembers(members);
                 }).then(function(members){
                     return api.users.findAll({
                         id: moderators
                     }, true).then(function(moderators){
-                        return league.setModerators(moderators);
+                        return comp.setModerators(moderators);
                     }).then(function(moderators){
-                        return _.extend({}, league.values, {
+                        return _.extend({}, comp.values, {
                             members: _.pluck(members, 'values'),
                             moderators: _.pluck(moderators, 'values')
                         });
@@ -899,14 +693,14 @@ module.exports = function(sequelize, models){
 
     // todo - if sequelize isn't cleaning up all related moels, we need to do it manually here
     // probably safest to perform a transaction
-    api.leagues.delete = function(id){
-        return models.League.find({
+    api.comps.delete = function(id){
+        return models.Comp.find({
             where: {
                 id: id
             }
-        }).then(function(league){
-            if(!league) return false;
-            return league.destroy();
+        }).then(function(comp){
+            if(!comp) return false;
+            return comp.destroy();
         }).then(function(){
             return true;
         }).catch(function(err){

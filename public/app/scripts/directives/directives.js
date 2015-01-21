@@ -261,11 +261,8 @@
                     // if it's being sorted by date. hnnngg...
                     game.editableDate = game.date;
 
-                    // need to set redemption to false if it's null
-                    game.redemption = game.redemption || false;
-
-                    // hasResults - if winner, loser and redemption are all not null
-                    game.hasResults = !~[game.winningTeamId, game.losingTeamId, game.redemption].indexOf(null);
+                    // hasResults - if winner and loser aren't null
+                    game.hasResults = !~[game.winningTeamId, game.losingTeamId].indexOf(null);
 
                     if(!game.hasResults) return game;
 
@@ -295,7 +292,6 @@
                         id: $scope.game.id,
                         winningTeamId: $scope.game.winningTeamId,
                         losingTeamId: $scope.game.losingTeamId,
-                        redemption: $scope.game.redemption,
                         date: $scope.game.editableDate
                     }).then(function(game){
                         $scope.game = parseGameData(game);
@@ -324,7 +320,7 @@
                 };
             }
         };
-    }]).directive('headernav', ['user', 'leagues', '$location', function(userService, leaguesService, $location){
+    }]).directive('headernav', ['user', 'comps', '$location', function(userService, compsService, $location){
         return {
             restrict: 'E',
             templateUrl: '/static/views/headernav.html',
@@ -340,8 +336,8 @@
                     $scope.path = path;
                 });
 
-                $scope.setLeague = function(id){
-                    leaguesService.setActiveLeague(id);
+                $scope.setComp = function(id){
+                    compsService.setActiveComp(id);
                 };
 
                 // register a callback with the users service to keep an eye on the user object
@@ -350,10 +346,10 @@
                     $scope.signedIn = user.signedIn;
                 });
 
-                leaguesService.onFetch(function(leagues){
-                    $scope.leagues = leagues;
-                    $scope.activeLeague = _.find(leagues, function(league){
-                        return league.active;
+                compsService.onFetch(function(comps){
+                    $scope.comps = comps;
+                    $scope.activeComp = _.find(comps, function(comp){
+                        return comp.active;
                     });
                 });
 
@@ -401,8 +397,6 @@
 
             }
         }
-    }]).run(function($rootScope){
-        $rootScope.testVar = 'foo';
-    });
+    }]);
 
 })();

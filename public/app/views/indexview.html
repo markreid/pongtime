@@ -5,18 +5,18 @@
     <div class="jumbotron">
         <h1>Pong time?</h1>
 
-        <p class="lead">Welcome to PongTime.  Get started by selecting a league from the list below.</p>
+        <p class="lead">Welcome to PongTime.  Get started by selecting a comp from the list below.</p>
 
     </div>
 
-    <h2>Leagues</h2>
+    <h2>Comps</h2>
 
     <ul>
-        <li ng-repeat="league in leagues">
-            <h4><a href="/leagues/{{ league.id }}/">{{ league.name }}</a></h4>
+        <li ng-repeat="comp in comps">
+            <h4><a href="/comps/{{ comp.id }}/">{{ comp.name }}</a></h4>
         </li>
     </ul>
 
-    <p class="lead" ng-show="!leagues.length">There aren't any leagues available. You may need to sign in to view private leagues, use the menu in the top right.</p>
+    <p class="lead" ng-show="!comps.length">There aren't any comps active. Add one!</p>
 
 </div>

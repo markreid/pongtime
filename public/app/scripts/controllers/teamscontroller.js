@@ -1,7 +1,12 @@
 (function(){
     'use strict';
 
-    angular.module('pong').controller('teamsController', ['$scope', '$routeParams', 'teams', 'notifications', function($scope, $routeParams, teamsService, notificationsService){
+    angular.module('pong').controller('teamsController', ['$scope', '$routeParams', 'teams', 'notifications', 'comps', function($scope, $routeParams, teamsService, notificationsService, compsService){
+
+        // todo - should we just put the comp on the root scope?
+        compsService.onFetch(function(){
+            $scope.comp = compsService.getActiveComp();
+        });
 
         $scope.reset = function(){
             $scope.refreshing = true;

@@ -34,11 +34,10 @@ var sequelizeImport = function(filename){
 
 var models = {
     User: sequelizeImport('user.js'),
-    Player: sequelizeImport('player.js'),
     Game: sequelizeImport('game.js'),
     Team: sequelizeImport('team.js'),
     Stat: sequelizeImport('stats.js'),
-    League: sequelizeImport('league.js')
+    Comp: sequelizeImport('comp.js')
 };
 
 _.each(models, function(model){
@@ -55,32 +54,22 @@ models.Team.hasMany(models.Game, {foreignKey: 'losingTeamId'});
 models.Team.hasMany(models.Game);
 models.Game.hasMany(models.Team);
 
-// teams and players are m2m
-models.Team.hasMany(models.Player);
-models.Player.hasMany(models.Team);
 
-// players and teams both have stats, and you can't delete the stats while they're referenced
-models.Stat.hasOne(models.Player, {foreignKey: 'statId', onDelete:'RESTRICT', onUpdate:'CASCADE'});
+// teams have stats, and you can't delete the stats while they're referenced
 models.Stat.hasOne(models.Team, {foreignKey: 'statId', onDelete:'RESTRICT', onUpdate:'CASCADE'});
-models.Player.belongsTo(models.Stat, {foreignKey: 'statId'});
 models.Team.belongsTo(models.Stat, {foreignKey: 'statId'});
 
-// players, games and teams all have a league
-models.League.hasMany(models.Player, {foreignKey: 'leagueId'});
-models.League.hasMany(models.Team, {foreignKey: 'leagueId'});
-models.League.hasMany(models.Game, {foreignKey: 'leagueId'});
+// games belong to a comp
+models.Comp.hasMany(models.Game, {foreignKey: 'compId'});
+models.Game.belongsTo(models.Comp, {foreignKey: 'compId'});
 
-models.Player.belongsTo(models.League, {foreignKey: 'leagueId'});
-models.Team.belongsTo(models.League, {foreignKey: 'leagueId'});
-models.Game.belongsTo(models.League, {foreignKey: 'leagueId'});
-
-// create join tables for league moderators and league members: league <-> user m2m
-models.LeagueModerators = sequelize.define('LeagueModerators', {});
-models.LeagueMembers = sequelize.define('LeagueMembers', {});
-models.League.hasMany(models.User, {as:'moderators', through: models.LeagueModerators});
-models.User.hasMany(models.League, {as:'moderators', through: models.LeagueModeators});
-models.League.hasMany(models.User, {as:'members', through: models.LeagueMembers});
-models.User.hasMany(models.League, {as:'members', through: models.LeagueMembers});
+// create join tables for comp moderators and comp members: comp <-> user m2m
+models.CompModerators = sequelize.define('CompModerators', {});
+models.CompMembers = sequelize.define('CompMembers', {});
+models.Comp.hasMany(models.User, {as:'moderators', through: models.CompModerators});
+models.User.hasMany(models.Comp, {as:'moderators', through: models.CompModeators});
+models.Comp.hasMany(models.User, {as:'members', through: models.CompMembers});
+models.User.hasMany(models.Comp, {as:'members', through: models.CompMembers});
 
 
 // todo - this is an asynchronous task, it should have a success handler

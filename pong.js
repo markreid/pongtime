@@ -45,6 +45,16 @@ app.use(session({
 app.use('/static', express.static(path.join(__dirname, 'public/app')));
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(function(req, res, next){
+    req.user = {
+        name: 'mark',
+        email: 'mark@mark.com',
+        auth: 3,
+        isAdmin: true
+    };
+    next();
+});
+
 app.use('/api/v1/', apiroutes);
 app.use('/', routes);
 
@@ -81,6 +91,6 @@ app.use(function(err, req, res, next) {
 });
 
 
-app.listen(2020);
+app.listen(config.EXPRESS_PORT);
 
 module.exports = app;

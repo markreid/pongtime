@@ -12,8 +12,11 @@
             templateUrl: '/static/views/newgameview.html',
             controller: 'newGameController'
         }).when('/games', {
-            templateUrl: '/static/views/gamesview.html',
-            controller: 'gamesController'
+            templateUrl: '/static/views/gamelistview.html',
+            controller: 'gameListController'
+        }).when('/games/:id', {
+            templateUrl: '/static/views/gamedetailview.html',
+            controller: 'gameDetailController'
         }).when('/teams', {
             templateUrl: '/static/views/teamlistview.html',
             controller: 'teamsController'
@@ -26,15 +29,15 @@
         }).when('/players/:id', {
             templateUrl: '/static/views/playerdetailview.html',
             controller: 'playerDetailController'
-        }).when('/leagues', {
-            templateUrl: '/static/views/leaguelistview.html',
-            controller: 'leagueListController'
-        }).when('/leagues/new', {
-            templateUrl: '/static/views/leaguecreateview.html',
-            controller: 'leagueCreateController'
-        }).when('/leagues/:id', {
-            templateUrl: '/static/views/leaguedetailview.html',
-            controller: 'leagueDetailController'
+        }).when('/comps', {
+            templateUrl: '/static/views/complistview.html',
+            controller: 'compListController'
+        }).when('/comps/new', {
+            templateUrl: '/static/views/compcreateview.html',
+            controller: 'compCreateController'
+        }).when('/comps/:id', {
+            templateUrl: '/static/views/compdetailview.html',
+            controller: 'compDetailController'
         }).otherwise({
             redirectTo: '/'
         });
@@ -44,8 +47,8 @@
 
     }).run(function(ipCookie, $location){
 
-        // Redirect to the leagues list if the user hasn't selected a league yet
-        if(!ipCookie('ptLeagueId')) $location.path('/s');
+        // Redirect to the comps list if the user hasn't selected a comp yet
+        if(!ipCookie('ptCompId')) $location.path('/s');
 
     }).filter('plural', function(){
         // a super dodgy plural filter. use like this:

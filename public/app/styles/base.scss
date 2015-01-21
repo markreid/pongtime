@@ -1,5 +1,6 @@
 @import 'sass-bootstrap/lib/bootstrap';
 
+
 /**
  * Base/generic/utils
  */
@@ -36,6 +37,24 @@ form .chosen-container {
         }
     }
 
+}
+
+.games-list {
+
+    margin: 60px 0;
+
+    header {
+
+        margin-bottom: 20px;
+
+        h3 {
+            margin-top: 0;
+
+            button {
+                margin-left: 1em;
+            }
+        }
+    }
 }
 
 

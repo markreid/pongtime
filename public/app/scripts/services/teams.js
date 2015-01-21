@@ -5,7 +5,7 @@
 (function(){
     'use strict';
 
-    angular.module('pong').factory('teams', ['$http', 'stats', 'leagues', function($http, statsService, leaguesService){
+    angular.module('pong').factory('teams', ['$http', 'stats', 'comps', 'games', function($http, statsService, compsService, gamesService){
 
         var TeamsService = function(){};
 
@@ -35,6 +35,17 @@
             });
         };
 
+        /**
+         * Fetch the games for a given team
+         * @param  {Number} id      teamId
+         * @return {Array}
+         */
+        TeamsService.prototype.getTeamGames = function(id){
+            return $http.get(apiRoot() + id + '/games/').then(function(response){
+                return _.map(response.data, gamesService.parseGame);
+            });
+        };
+
         TeamsService.prototype.getTeamByPlayers = function(players){
             var playersString = players.join(',');
             return $http.get(apiRoot() + 'search/' + playersString +'/').then(function(response){
@@ -44,11 +55,9 @@
             });
         };
 
-        TeamsService.prototype.addTeam = function(players, name){
-            if(!players || !players.length || !name) throw new Error('shitty arguments, bro.');
+        TeamsService.prototype.addTeam = function(name){
+            if(!name) throw new Error('shitty arguments, bro.');
             return $http.post(apiRoot(), {
-                leagueId: leaguesService.getActiveLeagueId(),
-                players: players,
                 name: name
             }).then(function(response){
                 var team = parseTeam(response.data);
@@ -80,9 +89,11 @@
         };
 
         // return the teams API root URL
-        // checks the leagues service for the current active League Id
+        // checks the comps service for the current active Comp Id
         function apiRoot(){
-            return '/api/v1/leagues/' + leaguesService.getActiveLeagueId() + '/teams/';
+            // deprecated
+            //return '/api/v1/comps/' + compsService.getActiveCompId() + '/teams/';
+            return '/api/v1/teams/';
         }
 
         return new TeamsService();

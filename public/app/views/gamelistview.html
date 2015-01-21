@@ -1,0 +1,13 @@
+<div class="loader pageloader" ng-show="refreshing"></div>
+
+<div class="container comp-{{ comp.id }}" ng-hide="refreshing">
+
+    <div class="page-header">
+        <h1>Games</h1>
+    </div>
+
+    <section class="games-list clearfix" ng-include="'/static/views/opengameslist.html'"></section>
+
+    <section class="games-list clearfix" ng-include="'/static/views/playedgameslist.html'"></section>
+
+</div>

@@ -75,14 +75,14 @@ var calls = {
     },
     simgames: function(){
         prompt.start();
-        prompt.get(['leagueId', 'numGames'], function(err, data){
-            var leagueId = Number(data.leagueId);
+        prompt.get(['compId', 'numGames'], function(err, data){
+            var compId = Number(data.compId);
             var numGames = Number(data.numGames);
-            if(isNaN(leagueId) || leagueId < 1 || isNaN(numGames) || numGames < 1) throw 'Bad inputs';
+            if(isNaN(compId) || compId < 1 || isNaN(numGames) || numGames < 1) throw 'Bad inputs';
 
             // fetch all the teams
             db.api.teams.findAll({
-                leagueId: leagueId
+                compId: compId
             }).then(function(teams){
 
                 var allTeamIds = _.pluck(teams, 'id');
@@ -99,7 +99,7 @@ var calls = {
 
                         operations.push(db.api.games.create({
                             teamIds: teamIds,
-                            leagueId: leagueId
+                            compId: compId
                         }, true).then(function(game){
                             // we need to fake this here. it's quite annoying.
                             game.values.teams = _.map(game.values.teams, function(team, i){
@@ -112,7 +112,6 @@ var calls = {
                             return db.api.games.update(game, {
                                 winningTeamId: teamIds[0],
                                 losingTeamId: teamIds[1],
-                                redemption: Math.random() > 0.5,
                                 date: new Date()
                             });
 

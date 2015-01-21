@@ -1,10 +1,18 @@
 (function(){
     'use strict';
 
-    angular.module('pong').controller('teamDetailController', ['$scope', '$routeParams', 'teams', 'notifications', function($scope, $routeParams, teamsService, notificationsService){
+    angular.module('pong').controller('teamDetailController', ['$scope', '$routeParams', 'teams', 'notifications', 'comps', function($scope, $routeParams, teamsService, notificationsService, compsService){
+
+        // todo - put the comp on the root scope?
+        compsService.onFetch(function(){
+            $scope.comp = compsService.getActiveComp();
+        });
 
         $scope.reset = function(){
             $scope.refreshing = true;
+            $scope.showOpenGames = true;
+            $scope.showPlayedGames = true;
+
             teamsService.getTeamWithDetails($routeParams.id).then(function(team){
                 $scope.team = team;
                 $scope.pageTitle = team.name;
@@ -16,10 +24,24 @@
             }).finally(function(){
                 $scope.refreshing = false;
             });
+            teamsService.getTeamGames($routeParams.id).then(function(games){
+                // todo - could put this in games service, it's duplicated in game list controller
+                $scope.allGames = games;
+                $scope.openGames = [];
+                $scope.playedGames = [];
+                _.each($scope.allGames, function(game){
+                    if(game.winningTeamId){
+                        $scope.playedGames.push(game);
+                    } else {
+                        $scope.openGames.push(game);
+                    }
+                });
+            });
         };
 
         $scope.save = function(){
             teamsService.saveTeam($scope.team).then(function(team){
+
                 $scope.team = team;
                 $scope.pageTitle = team.name;
                 $scope.hasBeenEdited = false;

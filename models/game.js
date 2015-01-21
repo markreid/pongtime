@@ -12,9 +12,6 @@ module.exports = function(sequelize, datatypes){
             type: datatypes.DATE,
             defaultValue: Sequelize.NOW
         },
-        redemption: {
-            type: datatypes.BOOLEAN
-        },
         meta: {
             type: datatypes.TEXT
         },
@@ -34,9 +31,9 @@ module.exports = function(sequelize, datatypes){
             onDelete: 'CASCADE',
             onUpdate: 'CASCADE'
         },
-        leagueId: {
+        compId: {
             type: datatypes.INTEGER,
-            references: 'Leagues',
+            references: 'Comps',
             referencesKey: 'id',
             allowNull: false
         }

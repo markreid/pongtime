@@ -3,29 +3,35 @@
 <div class="container" ng-hide="refreshing">
 
     <div class="jumbotron">
-        <a class="pull-right" ng-show="canEdit" ng-click="showLeagueSettings()"><span class="glyphicon glyphicon-cog"></span></a>
-        <h1>{{ league.name }}</h1>
-        <p class="lead">{{ numPlayers }} players have played {{ numGames }} games.</p>
+        <a class="pull-right" ng-show="canEdit" ng-click="showCompSettings()"><span class="glyphicon glyphicon-cog"></span></a>
+        <h1>{{ comp.name }}</h1>
+        <!-- todo - disabled until memory leak issues are fixed <p class="lead">{{ numPlayers }} players have played {{ numGames }} games.</p> -->
+        <p>&nbsp;</p>
         <p><a href="/newgame/" class="btn btn-primary btn-lg">Start a Game</a></p>
     </div>
 
+     <ul class="nav nav-pills">
+        <li><a href="/games/">Games</a></li>
+        <li><a href="/teams/">Teams</a></li>
+    </ul>
+
     <div class="well" ng-show="editing">
-        <h3>League Settings</h3>
+        <h3>Comp Settings</h3>
 
         <form class="form-horizontal">
 
             <div class="form-group">
                 <label for="title" class="col-sm-2 control-label">Name</label>
                 <div class="col-sm-10">
-                    <input type="text" class="form-control" ng-model="league.edited.name">
+                    <input type="text" class="form-control" ng-model="comp.edited.name">
                 </div>
             </div>
             <div class="form-group">
                  <div class="col-sm-offset-2 col-sm-10">
                     <div class="checkbox">
                         <label for="public">
-                            <input type="checkbox" ng-model="league.edited.public" name="public">
-                            League is public <small>Public leagues are visible by anybody.</small>
+                            <input type="checkbox" ng-model="comp.edited.public" name="public">
+                            Public comp? <small>Visible to all users</small>
                         </label>
 
                     </div>
@@ -35,7 +41,7 @@
                 <div class="col-sm-offset-2 col-sm-10">
                     <div class="checkbox">
                         <label>
-                            <input type="checkbox" ng-model="league.edited.membersAreMods">
+                            <input type="checkbox" ng-model="comp.edited.membersAreMods">
                             Members can update games <small>Moderator permissions aren't required</small>
                         </label>
                     </div>
@@ -44,27 +50,27 @@
             <div class="form-group">
                 <label for="members" class="col-sm-2 control-label">Members</label>
                 <div class="col-sm-10">
-                    <small>Members can view a league even if it's private.</small>
-                    <select chosen multiple ng-model="league.edited.members" ng-options="user as user.name for user in users"><option value=""></option></select>
+                    <small>Members can view a comp even if it's private.</small>
+                    <select chosen multiple ng-model="comp.edited.members" ng-options="user as user.name for user in users"><option value=""></option></select>
                 </div>
             </div>
             <div class="form-group">
                 <label class="col-sm-2 control-label">Moderators</label>
                 <div class="col-sm-10">
-                    <small>Can change league settings, update games, members, etc.</small>
-                    <select chosen multiple ng-model="league.edited.moderators" ng-options="user as user.name for user in users"><option value=""></option></select>
+                    <small>Can change comp settings, update games, members, etc.</small>
+                    <select chosen multiple ng-model="comp.edited.moderators" ng-options="user as user.name for user in users"><option value=""></option></select>
                 </div>
             </div>
 
-            <button type="submit" class="btn btn-md btn-primary" ng-click="saveLeagueSettings()">Save</button> <button class="btn btn-md btn-warning" ng-click="editing=false">Cancel</button><span ng-show="saving">saving</span>
+            <button type="submit" class="btn btn-md btn-primary" ng-click="saveCompSettings()">Save</button> <button class="btn btn-md btn-warning" ng-click="editing=false">Cancel</button><span ng-show="saving">saving</span>
         </form>
     </div>
 
-
+    <!-- todo - disabled until memory issues are sorted
     <h3>Quick Team Stats</h3>
     <p ng-repeat="stat in stats.team"><b>{{ stat.title }}:</b> {{ stat.value }}</p>
 
     <h3>Quick Player Stats</h3>
-    <p ng-repeat="stat in stats.player"><b>{{ stat.title }}:</b> {{ stat.value }}</p>
+    <p ng-repeat="stat in stats.player"><b>{{ stat.title }}:</b> {{ stat.value }}</p> -->
 
 </div>

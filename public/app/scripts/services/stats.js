@@ -20,10 +20,20 @@
                 available: false,
                 paragraph: 'Stats unavailable.'
             };
-            if(stats.games === 0) return {
-                available: false,
-                paragraph: 'No games played yet.'
-            };
+
+            // no games played yet, return zero stats.
+            if(stats.games === 0){
+                return {
+                    games: 0,
+                    wins: 0,
+                    losses: 0,
+                    streak: 0,
+                    winPercentage: 0,
+                    lossPercentage: 0,
+                    available: false,
+                    paragraph: 'No games played yet.'
+                };
+            }
 
             stats.winPercentage = Math.round((stats.wins/stats.games)*100);
             stats.lossPercentage = Math.round((stats.losses/stats.games)*100);
@@ -60,13 +70,6 @@
             stats.streakReadable = streaktext;
             stats.coldest = Math.abs(stats.coldest);
 
-            // redemptions
-            // db only stores redemptionsGiven and redemptionsHad, so to calculate
-            // redemptionsDenied, we take the number of wins and subtract the
-            // redemptionsGiven.
-            stats.redemptionsDenied = stats.wins - stats.redemptionsGiven;
-            stats.redemptionsDeniedPercentage = Math.round((stats.redemptionsDenied/stats.wins)*100);
-            stats.redemptionsHadPercentage = Math.round((stats.redemptionsHad/stats.losses)*100);
 
             return _.extend({}, stats, {
                 available: true,

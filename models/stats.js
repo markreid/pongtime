@@ -37,16 +37,7 @@ module.exports = function(sequelize, datatypes){
         streak: {
             type: datatypes.INTEGER,
             defaultValue: 0
-        },
-        redemptionsGiven: {
-            type: datatypes.INTEGER,
-            defaultValue: 0
-        },
-        redemptionsHad: {
-            type: datatypes.INTEGER,
-            defaultValue: 0
         }
-
     });
 
     return Stat;

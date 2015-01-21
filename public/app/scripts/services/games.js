@@ -5,13 +5,26 @@
 (function(){
     'use strict';
 
-    angular.module('pong').factory('games', ['$http', '$q', 'leagues', function($http, $q, leaguesService){
+    angular.module('pong').factory('games', ['$http', '$q', 'comps', function($http, $q, compsService){
 
         var GamesService = function(){};
 
+        /**
+         * Fetch all games
+         * @return {Array} [description]
+         */
         GamesService.prototype.getGames = function(){
             return $http.get(apiRoot()).then(function(response){
-                return response.data;
+                return _.map(response.data, parseGame);
+            });
+        };
+
+        /**
+         * Fetch a single game by ID
+         */
+        GamesService.prototype.getGame = function(id){
+            return $http.get(apiRoot() + id + '/').then(function(response){
+                return parseGame(response.data);
             });
         };
 
@@ -23,13 +36,12 @@
 
         GamesService.prototype.save = function(data){
             // validation
-            // we require .id, .winningTeamId:num, .losingTeamId:num and .redemption:bool
-            if(~[data.id, data.winningTeamId, data.losingTeamId, data.redemption].indexOf(null)) throw new Error('missing parameters.');
+            // we require .id, .winningTeamId:num and .losingTeamId:num
+            if(~[data.id, data.winningTeamId, data.losingTeamId].indexOf(null)) throw new Error('missing parameters.');
 
             return $http.put(apiRoot() + Number(data.id), {
                 winningTeamId: data.winningTeamId,
                 losingTeamId: data.losingTeamId,
-                redemption: data.redemption,
                 date: data.date.toString()
             }).then(function(response){
                 return response.data;
@@ -40,7 +52,6 @@
 			return $http.delete(apiRoot() + Number(gameid)).then(function(response){
 				return response.data;
 			});
-
 		};
 
         /**
@@ -61,9 +72,7 @@
                         team: teamid,
                         played: gamesPlayed,
                         wins: _.where(games, {winningTeamId: teamid}).length,
-                        losses: _.where(games, {losingTeamId: teamid}).length,
-                        redemptionsGiven: _.where(games, {winningTeamId: teamid, redemption: true}).length,
-                        redemptionsEarned: _.where(games, {losingTeamId: teamid, redemption: true}).length
+                        losses: _.where(games, {losingTeamId: teamid}).length
                     }
                 });
 
@@ -76,14 +85,6 @@
                     losses: {
                         t1: 0,
                         t2: 0
-                    },
-                    redemptionsWon: {
-                        t1: 0,
-                        t2: 0
-                    },
-                    redemptionsGiven: {
-                        t1: 0,
-                        t2: 0
                     }
                 };
 
@@ -92,18 +93,10 @@
                     if(game.winningTeamId === t1){
                         stats.wins.t1++;
                         stats.losses.t2++;
-                        if(game.redemption === true){
-                            stats.redemptionsGiven.t1++;
-                            stats.redemptionsWon.t2++;
-                        }
                     }
                     if(game.winningTeamId === t2){
                         stats.wins.t2++;
                         stats.losses.t1++;
-                        if(game.redemption === true){
-                            stats.redemptionsGiven.t2++;
-                            stats.redemptionsWon.t1++;
-                        }
                     }
 
                 });
@@ -125,16 +118,6 @@
                         title: 'Losses',
                         t1: stats.losses.t1,
                         t2: stats.losses.t2
-                    },
-                    {
-                        title: 'Redemptions Won',
-                        t1: stats.redemptionsWon.t1,
-                        t2: stats.redemptionsWon.t2
-                    },
-                    {
-                        title: 'Redemptions Given',
-                        t1: stats.redemptionsGiven.t1,
-                        t2: stats.redemptionsGiven.t2,
                     }
                 ];
 
@@ -148,11 +131,33 @@
             });
         };
 
-        // return the games API root URL
-        // checks the leagues service for the current active League Id
-        function apiRoot(){
-            return '/api/v1/leagues/' + leaguesService.getActiveLeagueId() + '/games/';
+
+        function parseGame(game){
+            if(game.winningTeamId){
+                game.winningTeam = _.find(game.teams, function(team){
+                    return game.winningTeamId === team.id;
+                });
+            }
+            if(game.losingTeamId){
+                game.losingTeam = _.find(game.teams, function(team){
+                    return game.losingTeamId === team.id;
+                });
+            }
+
+            game.humanDate = moment(game.date).format('MMM Do')
+            return game;
         }
+
+        // return the games API root URL
+        // checks the comps service for the current active Comp Id
+        function apiRoot(){
+            return '/api/v1/comps/' + compsService.getActiveCompId() + '/games/';
+        }
+
+        /**
+         * put parseGame on the service so we can access it from outside
+         */
+        GamesService.prototype.parseGame = parseGame;
 
         return new GamesService();
 

@@ -1,12 +1,14 @@
 <h3>Teams</h3>
 
 <div class="row">
-    <teamwidget ng-repeat="team in teams track by $index" team="teams[$index]" player-ids="team.playerIds" player-names="{{ team.playerNames }}" class="col-xs-6"></teamwidget>
+    <teamwidget ng-repeat="team in teams track by $index" team="teams[$index]" class="col-xs-6"></teamwidget>
 </div>
 
 <div class="row">
     <section ng-show="showStats" class="text-center col-md-6 col-md-offset-3">
-        <h4>Previous matches between these teams:</h4>
+        <h4>Matchup History</h4>
+
+        {{ teams[0].name }} {{ teams}}
 
         <table class="table table-striped table-bordered table-match-history">
             <thead>
