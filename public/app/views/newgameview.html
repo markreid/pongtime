@@ -15,7 +15,7 @@
 
             <button class="btn btn-small" ng-click="addTeamToGame(highlightedTeam)">Add</button>
 
-            <a ng-show="league.writable" ng-click="showAddTeam=!showAddTeam">[+]</a>
+            <a ng-show="comp.writable" ng-click="showAddTeam=!showAddTeam">[+]</a>
 
             <form class="row" ng-show="showAddTeam" ng-submit="addNewTeam(newTeamName)" style="margin-top: 20px;">
                 <div class="input-group col-md-4 col-md-offset-4 col-xs-12 ">

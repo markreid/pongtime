@@ -1,7 +1,7 @@
 (function(){
     'use strict';
 
-    angular.module('pong').controller('newGameController', ['$scope', '$timeout', '$q', 'players', 'teams', 'notifications', 'user', 'leagues', function($scope, $timeout, $q, playersService, teamsService, notificationsService, userService, leaguesService){
+    angular.module('pong').controller('newGameController', ['$scope', '$timeout', '$q', 'players', 'teams', 'notifications', 'user', 'comps', function($scope, $timeout, $q, playersService, teamsService, notificationsService, userService, compsService){
 
         /**
          * This controller has a kind-of complicated workflow, so here's a little description:
@@ -32,10 +32,10 @@
 
         };
 
-        // attach the active league to the scope
-        leaguesService.onFetch(function(leagues){
-            $scope.league = _.find(leagues, function(league){
-                return league.active;
+        // attach the active comp to the scope
+        compsService.onFetch(function(comps){
+            $scope.comp = _.find(comps, function(comp){
+                return comp.active;
             });
         });
 

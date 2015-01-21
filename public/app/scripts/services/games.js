@@ -5,7 +5,7 @@
 (function(){
     'use strict';
 
-    angular.module('pong').factory('games', ['$http', '$q', 'leagues', function($http, $q, leaguesService){
+    angular.module('pong').factory('games', ['$http', '$q', 'comps', function($http, $q, compsService){
 
         var GamesService = function(){};
 
@@ -149,9 +149,9 @@
         }
 
         // return the games API root URL
-        // checks the leagues service for the current active League Id
+        // checks the comps service for the current active Comp Id
         function apiRoot(){
-            return '/api/v1/leagues/' + leaguesService.getActiveLeagueId() + '/games/';
+            return '/api/v1/comps/' + compsService.getActiveCompId() + '/games/';
         }
 
         /**

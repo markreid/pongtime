@@ -1,0 +1,32 @@
+<div class="loader pageloader" ng-show="refreshing"></div>
+
+<div class="container" ng-hide="refreshing">
+
+    <header class="page-header">
+        <h1>Add a new comp</h1>
+    </header>
+
+    <div class="well" ng-hide="successful">
+
+        <form class="form" ng-submit="addComp()">
+
+            <div class="form-group">
+                <label>Comp Name</label>
+                <input ng-model="comp.name" type="text" placeholder="PongTime Showdown" class="form-control" required="required">
+            </div>
+            <div class="checkbox">
+                <label>This comp is public</label>
+                <input type="checkbox" ng-model="comp.public">
+            </div>
+
+            <button type="submit" class="btn btn-primary" ng-disabled="saving">Add comp</button>
+
+        </form>
+
+    </div>
+
+    <div class="alert alert-success" ng-show="successful">Your comp has been created.  You can view it <a href="/comps/{{ comp.id }}">here.</a></div>
+
+
+
+</div>

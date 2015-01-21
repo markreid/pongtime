@@ -1,10 +1,10 @@
 (function(){
     'use strict';
 
-    angular.module('pong').controller('leagueCreateController', ['$scope', 'leagues', 'notifications', function($scope, leaguesService, notificationsService){
+    angular.module('pong').controller('compCreateController', ['$scope', 'comps', 'notifications', function($scope, compsService, notificationsService){
 
         $scope.reset = function(){
-            $scope.league = {
+            $scope.comp = {
                 name: '',
                 public: false
             };
@@ -12,11 +12,11 @@
             $scope.refreshing = false;
         }
 
-        $scope.addLeague = function(){
+        $scope.addComp = function(){
             $scope.saving = true;
 
-            leaguesService.create($scope.league).then(function(league){
-                $scope.league = league;
+            compsService.create($scope.comp).then(function(comp){
+                $scope.comp = comp;
                 $scope.successful = true;
             }).catch(function(err){
                 if(err.status === 403){

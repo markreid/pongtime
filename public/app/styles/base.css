@@ -7629,16 +7629,16 @@ td.visible-print {
   }
 }
 /**
- * League-specific overrides
+ * Comp-specific overrides
  * This is a bit of a hack.
  * Well, a big hack, actually.
  */
 @media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000311}}
-.league-4 .column-redemption {
+.comp-4 .column-redemption {
   display: none;
 }
 @media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/mark\/webapps\/pong\/public\/app\/styles\/base\.scss}line{font-family:\0000316}}
-.league-4#view-team-list .teams-table table tbody tr:nth-child(8) td {
+.comp-4#view-team-list .teams-table table tbody tr:nth-child(8) td {
   border-bottom: 2px solid red;
 }
 

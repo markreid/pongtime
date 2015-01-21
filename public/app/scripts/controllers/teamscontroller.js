@@ -1,11 +1,11 @@
 (function(){
     'use strict';
 
-    angular.module('pong').controller('teamsController', ['$scope', '$routeParams', 'teams', 'notifications', 'leagues', function($scope, $routeParams, teamsService, notificationsService, leaguesService){
+    angular.module('pong').controller('teamsController', ['$scope', '$routeParams', 'teams', 'notifications', 'comps', function($scope, $routeParams, teamsService, notificationsService, compsService){
 
-        // todo - should we just put the league on the root scope?
-        leaguesService.onFetch(function(){
-            $scope.league = leaguesService.getActiveLeague();
+        // todo - should we just put the comp on the root scope?
+        compsService.onFetch(function(){
+            $scope.comp = compsService.getActiveComp();
         });
 
         $scope.reset = function(){

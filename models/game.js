@@ -31,9 +31,9 @@ module.exports = function(sequelize, datatypes){
             onDelete: 'CASCADE',
             onUpdate: 'CASCADE'
         },
-        leagueId: {
+        compId: {
             type: datatypes.INTEGER,
-            references: 'Leagues',
+            references: 'Comps',
             referencesKey: 'id',
             allowNull: false
         }

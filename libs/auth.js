@@ -25,10 +25,10 @@ passport.use(new passportGoogle({
             googleIdentifier: identifier
         },
         include: [{
-            model: db.League,
+            model: db.Comp,
             as: 'moderators'
         }, {
-            model: db.League,
+            model: db.Comp,
             as: 'members'
         }]
     }).then(function(user){
@@ -38,17 +38,17 @@ passport.use(new passportGoogle({
         // until they've logged out and in again.  Could cache and flag for invalidation to minimize DB hits.
         if(user){
 
-            // We store league details and permissions here.
-            // So we want a list of league IDs that the user is allowed to look at,
-            // and a list of league IDs that the user has permission to modify.
+            // We store comp details and permissions here.
+            // So we want a list of comp IDs that the user is allowed to look at,
+            // and a list of comp IDs that the user has permission to modify.
             var returnData = _.extend({}, user.values);
 
             // var moderatorOf = _.pluck(returnData.moderators, 'id');
             // var memberOf = _.pluck(returnData.members, 'id');
             // var memberModeratorOf = _.pluck(_.where(returnData.members, {membersAreMods: true}), 'id');
 
-            // returnData.visibleLeagues = _.unique(memberOf.concat(moderatorOf));
-            // returnData.writeableLeagues = _.unique(moderatorOf.concat(memberModeratorOf));
+            // returnData.visibleComps = _.unique(memberOf.concat(moderatorOf));
+            // returnData.writeableComps = _.unique(moderatorOf.concat(memberModeratorOf));
             returnData.isAdmin = user.values.auth === 3;
             return done(null, returnData);
         }

@@ -1,7 +1,7 @@
 (function(){
     'use strict';
 
-    angular.module('pong').controller('gameDetailController', ['$scope', '$routeParams', 'games', 'leagues', 'notifications', function($scope, $routeParams, gamesService, leaguesService, notificationsService){
+    angular.module('pong').controller('gameDetailController', ['$scope', '$routeParams', 'games', 'comps', 'notifications', function($scope, $routeParams, gamesService, compsService, notificationsService){
 
         $scope.reset = function(){
             $scope.refreshing = true;
@@ -15,9 +15,9 @@
         }
 
         // todo - is it safer just to look at root scope?
-        leaguesService.onFetch(function(leagues){
-            $scope.league = _.find(leagues, function(league){
-                return league.active;
+        compsService.onFetch(function(comps){
+            $scope.comp = _.find(comps, function(comp){
+                return comp.active;
             });
         });
 

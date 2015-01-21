@@ -1,11 +1,11 @@
 /**
- * leagues
+ * comps
  */
 
 module.exports = function(sequelize, datatypes){
     'use strict';
 
-    var League = sequelize.define('League', {
+    var Comp = sequelize.define('Comp', {
         name: {
             type: datatypes.STRING,
             allowNull: false
@@ -22,5 +22,5 @@ module.exports = function(sequelize, datatypes){
         }
     });
 
-    return League;
+    return Comp;
 };

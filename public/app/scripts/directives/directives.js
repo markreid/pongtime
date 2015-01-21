@@ -320,7 +320,7 @@
                 };
             }
         };
-    }]).directive('headernav', ['user', 'leagues', '$location', function(userService, leaguesService, $location){
+    }]).directive('headernav', ['user', 'comps', '$location', function(userService, compsService, $location){
         return {
             restrict: 'E',
             templateUrl: '/static/views/headernav.html',
@@ -336,8 +336,8 @@
                     $scope.path = path;
                 });
 
-                $scope.setLeague = function(id){
-                    leaguesService.setActiveLeague(id);
+                $scope.setComp = function(id){
+                    compsService.setActiveComp(id);
                 };
 
                 // register a callback with the users service to keep an eye on the user object
@@ -346,10 +346,10 @@
                     $scope.signedIn = user.signedIn;
                 });
 
-                leaguesService.onFetch(function(leagues){
-                    $scope.leagues = leagues;
-                    $scope.activeLeague = _.find(leagues, function(league){
-                        return league.active;
+                compsService.onFetch(function(comps){
+                    $scope.comps = comps;
+                    $scope.activeComp = _.find(comps, function(comp){
+                        return comp.active;
                     });
                 });
 

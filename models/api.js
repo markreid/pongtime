@@ -10,7 +10,7 @@ module.exports = function(sequelize, models){
         stats: {},
         games: {},
         users: {},
-        leagues: {},
+        comps: {},
         generic: {}
     };
 
@@ -164,19 +164,19 @@ module.exports = function(sequelize, models){
 
 
     /**
-     * Regenerates all the stats for a league.
-     * @param {Number} leagueId
+     * Regenerates all the stats for a comp.
+     * @param {Number} compId
      * @returns {Promise} DB operations promise
      */
-    api.stats.refreshLeagueStats = function(leagueId){
-        if(!leagueId) throw new Error('.refreshLeagueStats() called without a valid leagueId');
+    api.stats.refreshCompStats = function(compId){
+        if(!compId) throw new Error('.refreshCompStats() called without a valid compId');
 
-        // We fetch every single game that's been played in the league, ordering chronologically.
+        // We fetch every single game that's been played in the comp, ordering chronologically.
 
         return api.games.findAll({
-            leagueId: leagueId
+            compId: compId
         }).then(function(games){
-            console.log('stats.refreshLeagueStats() found ' + games.length + ' games to process.');
+            console.log('stats.refreshCompStats() found ' + games.length + ' games to process.');
 
             // Generate a fresh Stat model, which we use as a template, and create an object to hold
             // the team stats models.
@@ -196,7 +196,7 @@ module.exports = function(sequelize, models){
 
             });
 
-            // We now have regenerated Stat models for every team in the league.
+            // We now have regenerated Stat models for every team in the comp.
             // So we need to overwrite the DB Stats with our new values.
 
             var teamIds = Object.keys(teamStats);
@@ -216,7 +216,7 @@ module.exports = function(sequelize, models){
                 return Q.all(teamOperations);
 
             }).then(function(){
-                console.log('refreshed stats table for league ' + leagueId);
+                console.log('refreshed stats table for comp ' + compId);
                 return true;
             }).catch(function(err){
                 throw err;
@@ -325,7 +325,7 @@ module.exports = function(sequelize, models){
      */
     api.teams.create = function(data){
         var name = data.name;
-        //var leagueId = data.leagueId;
+        //var compId = data.compId;
 
         if(!name) throw {status:400, message: 'teams.create() requires a name'};
 
@@ -333,7 +333,7 @@ module.exports = function(sequelize, models){
         // add the team to the DB
         return models.Team.create({
             name: name,
-            //leagueId: leagueId
+            //compId: compId
         }).then(function(team){
 
             // now create a new Stat model and associate it with the team.
@@ -450,15 +450,15 @@ module.exports = function(sequelize, models){
      */
     api.games.create = function(data, notValues){
         var teamIds = data.teamIds;
-        var leagueId = data.leagueId;
+        var compId = data.compId;
         return api.teams.findAll({
             id: teamIds
-            //leagueId: leagueId
+            //compId: compId
         }).then(function(teams){
             if(!teams || teams.length !== 2) throw new Error('Invalid team IDs');
 
             return models.Game.create({
-                leagueId: leagueId
+                compId: compId
             }).then(function(game){
                 return game.setTeams(teams).then(function(teams){
                     if(notValues){
@@ -508,13 +508,14 @@ module.exports = function(sequelize, models){
             date: updatedData.date
         }).then(function(game){
 
-            // If this game previously had a result recorded, the stats table for the league needs to be regenerated.
+            // If this game previously had a result recorded, the stats table for the comp needs to be regenerated.
             // todo - it would be possible to create a shortcut here, provided that the game is the most recent game
-            // played in the league.  You could just roll back the results in the stats for each team/player without
+            // played in the comp.  You could just roll back the results in the stats for each team/player without
             // having to do a complete regeneration.
+            // TODO - need to refresh all team stats too because teams are now outside of comps
             if(hadResult){
-                console.log('Game had previously recorded result, updating league stats table');
-                return api.stats.refreshLeagueStats(gameModel.leagueId).then(function(){
+                console.log('Game had previously recorded result, updating comp stats table');
+                return api.stats.refreshCompStats(gameModel.compId).then(function(){
                     return game;
                 });
             }
@@ -570,8 +571,8 @@ module.exports = function(sequelize, models){
     };
 
 
-    api.leagues.findAll = function(where, notValues){
-        return models.League.findAll({
+    api.comps.findAll = function(where, notValues){
+        return models.Comp.findAll({
             where: where,
             include: [{
                 model: models.User,
@@ -582,9 +583,9 @@ module.exports = function(sequelize, models){
                 as: 'moderators',
                 attributes: ['id', 'name']
             }]
-        }).then(function(leagues){
-            if(notValues) return leagues;
-            return _.pluck(leagues, 'values');
+        }).then(function(comps){
+            if(notValues) return comps;
+            return _.pluck(comps, 'values');
         }).catch(function(err){
             throw err;
         });
@@ -592,8 +593,8 @@ module.exports = function(sequelize, models){
 
 
 
-    api.leagues.findOne = function(where, notValues){
-        return models.League.find({
+    api.comps.findOne = function(where, notValues){
+        return models.Comp.find({
             where: where,
             include: [{
                 model: models.User,
@@ -604,10 +605,10 @@ module.exports = function(sequelize, models){
                 as: 'moderators',
                 attributes: ['id', 'name']
             }]
-        }).then(function(league){
-            if(!league) return null;
-            if(notValues) return league;
-            return league.values;
+        }).then(function(comp){
+            if(!comp) return null;
+            if(notValues) return comp;
+            return comp.values;
         }).catch(function(err){
             throw err;
         });
@@ -615,8 +616,8 @@ module.exports = function(sequelize, models){
 
     // todo - this is a pretty ridiculous query, we can probably soften it up a bit? or maybe just need the frontend
     // to break it into parts...
-    api.leagues.findOneDetailed = function(where, notValues){
-        return models.League.find({
+    api.comps.findOneDetailed = function(where, notValues){
+        return models.Comp.find({
             where: where,
             include: [{
                 model: models.Team,
@@ -634,51 +635,51 @@ module.exports = function(sequelize, models){
                 as: 'moderators',
                 attributes: ['id', 'name']
             }]
-        }).then(function(league){
-            if(!league) return null;
-            if(notValues) return league;
-            return league.values
+        }).then(function(comp){
+            if(!comp) return null;
+            if(notValues) return comp;
+            return comp.values
         }).catch(function(err){
             throw err;
         })
     };
 
 
-    api.leagues.create = function(data){
+    api.comps.create = function(data){
         // todo - validation
-        return models.League.create(data).then(function(league){
-            return league.values;
+        return models.Comp.create(data).then(function(comp){
+            return comp.values;
         }).catch(function(err){
             throw err;
         });
     };
 
-    api.leagues.update = function(id, data){
+    api.comps.update = function(id, data){
         // todo - more stringent validation
         var validFields = ['name', 'public', 'membersAreMods'];
         var members = data.members;
         var moderators = data.moderators;
         var validData = _.pick(data, validFields);
 
-        return api.leagues.findOne({
+        return api.comps.findOne({
             id: id
-        }, true).then(function(league){
-            if(!league) return null;
+        }, true).then(function(comp){
+            if(!comp) return null;
 
-            return league.updateAttributes(validData).then(function(league){
+            return comp.updateAttributes(validData).then(function(comp){
 
                 // now setmembers and setmoderators
                 return api.users.findAll({
                     id: members
                 }, true).then(function(members){
-                    return league.setMembers(members);
+                    return comp.setMembers(members);
                 }).then(function(members){
                     return api.users.findAll({
                         id: moderators
                     }, true).then(function(moderators){
-                        return league.setModerators(moderators);
+                        return comp.setModerators(moderators);
                     }).then(function(moderators){
-                        return _.extend({}, league.values, {
+                        return _.extend({}, comp.values, {
                             members: _.pluck(members, 'values'),
                             moderators: _.pluck(moderators, 'values')
                         });
@@ -692,14 +693,14 @@ module.exports = function(sequelize, models){
 
     // todo - if sequelize isn't cleaning up all related moels, we need to do it manually here
     // probably safest to perform a transaction
-    api.leagues.delete = function(id){
-        return models.League.find({
+    api.comps.delete = function(id){
+        return models.Comp.find({
             where: {
                 id: id
             }
-        }).then(function(league){
-            if(!league) return false;
-            return league.destroy();
+        }).then(function(comp){
+            if(!comp) return false;
+            return comp.destroy();
         }).then(function(){
             return true;
         }).catch(function(err){

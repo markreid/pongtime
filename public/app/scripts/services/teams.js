@@ -5,7 +5,7 @@
 (function(){
     'use strict';
 
-    angular.module('pong').factory('teams', ['$http', 'stats', 'leagues', 'games', function($http, statsService, leaguesService, gamesService){
+    angular.module('pong').factory('teams', ['$http', 'stats', 'comps', 'games', function($http, statsService, compsService, gamesService){
 
         var TeamsService = function(){};
 
@@ -89,10 +89,10 @@
         };
 
         // return the teams API root URL
-        // checks the leagues service for the current active League Id
+        // checks the comps service for the current active Comp Id
         function apiRoot(){
             // deprecated
-            //return '/api/v1/leagues/' + leaguesService.getActiveLeagueId() + '/teams/';
+            //return '/api/v1/comps/' + compsService.getActiveCompId() + '/teams/';
             return '/api/v1/teams/';
         }
 
