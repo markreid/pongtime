@@ -14,7 +14,7 @@
 
             <ul class="nav navbar-nav navbar-left">
                 <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ activeComps.name || 'Select a comp...'}} <b class="caret"></b></a>
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ activeComp.name || 'Select a comp...'}} <b class="caret"></b></a>
                     <ul class="dropdown-menu">
                         <li ng-show="!comps.length"><a>No comps available</a></li>
                         <li ng-repeat="comp in comps"><a href="/comps/{{ comp.id }}/" ng-click="setComp(comp.id)">{{ comp.name }}</a></li>
@@ -25,6 +25,7 @@
 
             </ul>
 
+            <!--
             <ul class="nav navbar-nav navbar-right nav-user" ng-switch on="signedIn">
 
                 <li class="dropdown" ng-switch-when="true">
@@ -38,14 +39,13 @@
 
                 <li class="dropdown" ng-switch-when="false">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">Sign In <b class="caret"></b></a>
-                    <ul class="dropdown-menu">
-                        <li><a href="/auth/google/" target="_self">Google</a></li>
-                    </ul>
+                    <ul class="dropdown-menu"></ul>
                 </li>
 
             </ul>
+            -->
 
-            <ul class="nav navbar-nav navbar-right" ng-show="activeComps">
+            <ul class="nav navbar-nav navbar-right">
                 <li ng-class="{active:path==='/newgame'}"><a href="/newgame/">New Game</a></li>
                 <li ng-class="{active:path==='/games'}"><a href="/games/">Games</a></li>
                 <li ng-class="{active:path==='/teams'}"><a href="/teams">Teams</a></li>

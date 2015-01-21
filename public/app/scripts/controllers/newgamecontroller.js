@@ -59,6 +59,7 @@
         $scope.addNewTeam = function(teamName){
             return teamsService.addTeam(teamName).then(function(team){
                 $scope.teams.push(team);
+                $scope.newTeamName = '';
             }).catch(function(err){
                 notificationsService.generic();
                 console.log(err);
