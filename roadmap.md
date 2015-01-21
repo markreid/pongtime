@@ -1,4 +1,4 @@
-# pong time, gentlemen?
+# IT'S PONG TIME
 
 ### to-do list
 
@@ -16,18 +16,16 @@
 * Team slugs
 
 
-#### database
+#### db issues
 
 * Can SQL enforce that game.winningTeamId != game.losingTeamId ...?
 * Can we add a cascade so that deleting a player deletes the associated stat? Currently it works backwards with a Restrict (can't delete stat while it has a player/team)...
     * I think it's a no because there's no reference to the player/team from the stat, it's backwards. You might need a trigger instead.
-*
 
 
 
-### features
+#### future features
 
-* add/remove players
 * keep score and stats
     * how many times has a team won/lost
         * count games where winner = team
