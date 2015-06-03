@@ -9,8 +9,8 @@
 
         var TeamsService = function(){};
 
-        TeamsService.prototype.getTeams = function(){
-            return $http.get(apiRoot()).then(function(response){
+        TeamsService.prototype.getTeams = function(compID){
+            return $http.get(compTeamsURL(compID)).then(function(response){
                 response.data = _.map(response.data, function(team){
                     team = parseTeam(team);
                     team.stat = statsService.parseStats(team.stat);
@@ -21,14 +21,14 @@
         };
 
         TeamsService.prototype.getTeam = function(id){
-            return $http.get(apiRoot() + id + '/').then(function(response){
+            return $http.get(compTeamsURL(0) + id + '/').then(function(response){
                 var team = parseTeam(response.data);
                 return team;
             });
         };
 
         TeamsService.prototype.getTeamWithDetails = function(id){
-            return $http.get(apiRoot() + id + '/all/').then(function(response){
+            return $http.get(compTeamsURL(0) + id + '/all/').then(function(response){
                 var team = parseTeam(response.data);
                 team.stat = statsService.parseStats(team.stat);
                 return team;
@@ -41,23 +41,14 @@
          * @return {Array}
          */
         TeamsService.prototype.getTeamGames = function(id){
-            return $http.get(apiRoot() + id + '/games/').then(function(response){
+            return $http.get(compTeamsURL(0) + id + '/games/').then(function(response){
                 return _.map(response.data, gamesService.parseGame);
-            });
-        };
-
-        TeamsService.prototype.getTeamByPlayers = function(players){
-            var playersString = players.join(',');
-            return $http.get(apiRoot() + 'search/' + playersString +'/').then(function(response){
-                var team = parseTeam(response.data);
-                team.stat = statsService.parseStats(team.stat);
-                return team;
             });
         };
 
         TeamsService.prototype.addTeam = function(name){
             if(!name) throw new Error('shitty arguments, bro.');
-            return $http.post(apiRoot(), {
+            return $http.post(compTeamsURL(0), {
                 name: name
             }).then(function(response){
                 var team = parseTeam(response.data);
@@ -88,12 +79,18 @@
             return team;
         };
 
-        // return the teams API root URL
-        // checks the comps service for the current active Comp Id
-        function apiRoot(){
-            // deprecated
-            //return '/api/v1/comps/' + compsService.getActiveCompId() + '/teams/';
-            return '/api/v1/teams/';
+
+        /**
+         * Returns the API endpoint for teams from a given comp
+         * @param  {String} [compID=0]
+         * @return {String}
+         */
+        function compTeamsURL(compID){
+            if(!compID){
+                return '/api/v1/teams/';
+            } else {
+                return '/api/v1/comps/' + compID + '/teams/';
+            }
         }
 
         return new TeamsService();

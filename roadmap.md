@@ -1,9 +1,18 @@
 # IT'S PONG TIME
 
+
+### bugs
+
+* comps service needs to refresh comps when you add one
+
+
 ### to-do list
 
 #### clientside
 
+* Consolidate comps into a single parent page, don't have the "current comp" cookie
+*
+* Move comps to a dropdown on the right
 * Saving team/player names breaks because the API doesn't return everything (stats etc) but the client expects it
 
 

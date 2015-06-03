@@ -40,6 +40,7 @@
                 notificationsService.generic();
             }).finally(function(){
                 $scope.refreshing = false;
+                $scope.pageTitle = 'Games: ' + $scope.comp.name;
             });
         };
 

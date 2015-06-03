@@ -91,6 +91,8 @@ app.use(function(err, req, res, next) {
 });
 
 
-app.listen(config.EXPRESS_PORT);
+db.api.doFixtures().then(function(){
+    app.listen(config.EXPRESS_PORT);
+});
 
 module.exports = app;

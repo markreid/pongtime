@@ -5,10 +5,10 @@
 
         $scope.reset = function(){
             $scope.refreshing = true;
-            compsService.setActiveComp($routeParams.id);
-            compsService.getCompDetail($routeParams.id).then(function(comp){
+            compsService.getCompDetail($routeParams.compID).then(function(comp){
                 $scope.comp = comp;
                 $scope.comp.edited = _.extend({}, comp);
+
                 // todo - disabled until memory leak issues are sorted
                 // $scope.stats = generateCompStats(comp);
                 // $scope.numPlayers = comp.players.length;

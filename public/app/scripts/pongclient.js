@@ -14,30 +14,30 @@
         }).when('/games', {
             templateUrl: '/static/views/gamelistview.html',
             controller: 'gameListController'
-        }).when('/games/:id', {
+        }).when('/games/:gameID', {
             templateUrl: '/static/views/gamedetailview.html',
             controller: 'gameDetailController'
         }).when('/teams', {
             templateUrl: '/static/views/teamlistview.html',
             controller: 'teamsController'
-        }).when('/teams/:id', {
+        }).when('/teams/:teamID', {
             templateUrl: '/static/views/teamdetailview.html',
             controller: 'teamDetailController'
-        }).when('/players', {
-            templateUrl: '/static/views/playerlistview.html',
-            controller: 'playersController'
-        }).when('/players/:id', {
-            templateUrl: '/static/views/playerdetailview.html',
-            controller: 'playerDetailController'
         }).when('/comps', {
             templateUrl: '/static/views/complistview.html',
             controller: 'compListController'
         }).when('/comps/new', {
             templateUrl: '/static/views/compcreateview.html',
             controller: 'compCreateController'
-        }).when('/comps/:id', {
+        }).when('/comps/:compID', {
             templateUrl: '/static/views/compdetailview.html',
             controller: 'compDetailController'
+        }).when('/comps/:compID/teams', {
+            templateUrl: '/static/views/teamlistview.html',
+            controller: 'teamsController'
+        }).when('/comps/:compID/games', {
+            templateUrl: '/static/views/gamelistview.html',
+            controller: 'gamesController'
         }).otherwise({
             redirectTo: '/'
         });

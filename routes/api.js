@@ -228,16 +228,43 @@ router.route('/teams')
  */
 router.route('/comps/:compId/teams')
 .get(function(req, res, next){
+    /**
+     * List the teams in a comp
+     */
+
     req.comp.getTeams({
-        include: [{
-            model: db.Stat
-        }]
+        include: [db.Stat]
     }).then(function(teams){
         res.send(200, teams);
     }).catch(function(err){
         next(err);
     });
 
+}).post(function(req, res, next){
+    /**
+     * Add a team to a comp
+     */
+
+    db.api.teams.findOne(req.body.id, true).then(function(teamObject){
+        return req.comp.addTeam(teamObject);
+    }).then(function(associatedTeams){
+        res.send(200);
+    }).catch(function(err){
+        throw err;
+    });
+
+}).delete(function(req, res, next){
+    /**
+     * Remove a team from a comp
+     */
+
+    db.api.teams.findOne(req.body.id, true).then(function(teamObject){
+        return req.comp.removeTeam(teamObject);
+    }).then(function(){
+        res.send(200);
+    }).catch(function(err){
+        throw err;
+    });
 });
 
 

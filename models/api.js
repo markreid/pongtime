@@ -108,11 +108,11 @@ module.exports = function(sequelize, models){
      */
     api.teams.findAll = function(where, notValues){
         return models.Team.findAll({
-            where: where || {},
+            where: where || {}
             //attributes: ['name', 'id'],
-            include: [{
-                model: models.Stat
-            }]
+            // include: [{
+            //     model: models.Stat
+            // }]
         }).then(function(teams){
             if(notValues) return teams;
             return _.pluck(teams, 'values');
@@ -121,6 +121,23 @@ module.exports = function(sequelize, models){
         });
     };
 
+    /**
+     * Find a single team by ID
+     * @type {Promise}  resolves to Object
+     */
+    api.teams.findOne = function(id, notValues){
+        return models.Team.find(id).then(function(team){
+            if(notValues) return team;
+            return team.values;
+        }).catch(function(err){
+            throw err;
+        });
+    };
+
+    /**
+     * Find a single team including its stats
+     * @type {Promise} resolves to Object
+     */
     api.teams.findOneDetailed = function(where, notValues){
         return models.Team.find({
             where: where || {},
@@ -332,25 +349,28 @@ module.exports = function(sequelize, models){
 
         // add the team to the DB
         return models.Team.create({
-            name: name,
-            //compId: compId
+            name: name
         }).then(function(team){
+
+            // now we need to add the team to the global comp and create a stat object for them.
+            return api.comps.findOne({
+                id: 0
+            }, true).then(function(globalComp){
+                return globalComp.addTeam(team);
+            }).then(function(){
+                return models.Stat.create({});
+            }).then(function(statObject){
+                return statObject.setComp()
+            });
 
             // now create a new Stat model and associate it with the team.
             return models.Stat.create({}).then(function(statObject){
-                return team.setStat(statObject).then(function(stat){
-                    return team.values;
-                });
+                // return team.setStats([statObject]).then(function(stat){
+                //     return team.values;
+                // });
             });
 
-            // // now associate the players
-            // return team.setPlayers(players).then(function(players){
-            //     return models.Stat.create({});
-            // }).then(function(stat){
-            //     return team.setStat(stat).then(function(stat){
-            //         return team.values;
-            //     });
-            // });
+
         });
 
     };
@@ -707,6 +727,19 @@ module.exports = function(sequelize, models){
             throw err;
         });
     };
+
+    // Set some fixtures
+    // todo - move this into another file
+    api.doFixtures = function(){
+        return models.Comp.findAll().then(function(comps){
+            if(!comps.length){
+                return api.comps.create({
+                    name: 'Global comp',
+                    public: true
+                });
+            }
+        });
+    }
 
     return api;
 

@@ -3,27 +3,27 @@
 
     angular.module('pong').controller('teamsController', ['$scope', '$routeParams', 'teams', 'notifications', 'comps', function($scope, $routeParams, teamsService, notificationsService, compsService){
 
-        // todo - should we just put the comp on the root scope?
-        compsService.onFetch(function(){
-            $scope.comp = compsService.getActiveComp();
-        });
-
         $scope.reset = function(){
             $scope.refreshing = true;
 
             if($routeParams.id){
                 $scope.getOneTeam($routeParams.id);
             } else {
-                $scope.getAllTeams();
+                // get the current comp (if any) then fetch all teams
+                compsService.getCurrentComp().then(function(comp){
+                    $scope.comp = comp;
+                    $scope.getAllTeams(comp.id);
+                });
             }
 
         };
 
         /**
-         * Call the players service to fetch players from the DB
+         * Call the teams service to fetch players from the DB
+         * @param {String} compID
          */
-        $scope.getAllTeams = function(){
-            return teamsService.getTeams().then(function(teams){
+        $scope.getAllTeams = function(compID){
+            return teamsService.getTeams(compID).then(function(teams){
                 $scope.teams = teams;
                 $scope.predicate = ['-stat.winPercentage', '-stat.wins'];
             }).catch(function(err){
@@ -31,7 +31,7 @@
                 console.log(err);
             }).finally(function(){
                 $scope.refreshing = false;
-                $scope.pageTitle = 'Teams';
+                $scope.pageTitle = 'Teams: ' + $scope.comp.name;
             });
         };
 

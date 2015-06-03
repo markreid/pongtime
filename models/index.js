@@ -54,14 +54,27 @@ models.Team.hasMany(models.Game, {foreignKey: 'losingTeamId'});
 models.Team.hasMany(models.Game);
 models.Game.hasMany(models.Team);
 
-
 // teams have stats, and you can't delete the stats while they're referenced
-models.Stat.hasOne(models.Team, {foreignKey: 'statId', onDelete:'RESTRICT', onUpdate:'CASCADE'});
-models.Team.belongsTo(models.Stat, {foreignKey: 'statId'});
+// models.Stat.hasOne(models.Team, {foreignKey: 'statId', onDelete:'RESTRICT', onUpdate:'CASCADE'});
+// models.Team.belongsTo(models.Stat, {foreignKey: 'statId'});
 
-// games belong to a comp
+// teams have many stats
+// models.Stat.belongsTo(models.Team, {foreignKey: ''})
+
+// Teams have many stats (for each comp), but stats only have one team and one comp
+models.Team.hasMany(models.Stat);
+// fucking sequelize makes this sound backwards
+models.Team.hasOne(models.Stat);
+models.Comp.hasOne(models.Stat);
+
+
+// comps have games
 models.Comp.hasMany(models.Game, {foreignKey: 'compId'});
 models.Game.belongsTo(models.Comp, {foreignKey: 'compId'});
+
+// comps and teams are m2m
+models.Team.hasMany(models.Comp);
+models.Comp.hasMany(models.Team);
 
 // create join tables for comp moderators and comp members: comp <-> user m2m
 models.CompModerators = sequelize.define('CompModerators', {});
@@ -76,6 +89,7 @@ models.User.hasMany(models.Comp, {as:'members', through: models.CompMembers});
 sequelize.sync().then(function(){
     console.log('sequelize synced (force:false)');
 });
+
 
 module.exports = _.extend({
     sequelize: sequelize,

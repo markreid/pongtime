@@ -4,7 +4,7 @@
 
 (function(){
     'use strict';
-    angular.module('pong').factory('comps', ['$http', 'ipCookie', '$location', 'user', function($http, ipCookie, $location, usersService){
+    angular.module('pong').factory('comps', ['$http', 'ipCookie', '$location', '$routeParams', '$q', 'user', function($http, ipCookie, $location, $routeParams, $q, usersService){
 
         var registeredObservers = [];
 
@@ -12,6 +12,12 @@
         var synced = false;
         var comps = [];
         var user = null;
+
+        // the dummy comp
+        var globalComp = {
+            id: 0,
+            name: 'Free play (no comp)'
+        };
 
         /**
          * Constructor
@@ -31,23 +37,54 @@
             }, this)).then(notifyObservers);
         };
 
+        /**
+         * Get all comps from the API (wraps getComps)
+         * @type {promise}
+         */
         CompsService.prototype.getComps = function(){
             return fetchComps();
         };
 
+        /**
+         * Returns the cache of the comps, hitting the API if there's no cache
+         * @type {promise}
+         */
+        CompsService.prototype.getCompsCached = function(){
+            var dfd = $q.defer();
+
+            if(synced){
+                dfd.resolve(comps);
+            } else {
+                fetchComps().then(function(comps){
+                    dfd.resolve(comps);
+                }).catch(function(err){
+                    dfd.reject(err);
+                });
+            }
+
+            return dfd.promise;
+        };
+
+        // todo - think this can be deprecated
         CompsService.prototype.getActiveComp = function(){
+            console.log('checking url for active comp');
+            console.log($routeParams.compID);
             return _.find(comps, function(comp){
                 return comp.active;
             });
         };
 
-        CompsService.prototype.getActiveCompId = function(){
-            return ipCookie('ptCompId') || -1;
-        };
+        /**
+         * Fetch all the comps from the API (check cache first)
+         * Find the comp matching the current url, falling back to the default
+         * @type {promise} resolves to comp object
+         */
+        CompsService.prototype.getCurrentComp = function(){
+            var urlCompId = ($routeParams.compID && Number($routeParams.compID)) || 0;
 
-        CompsService.prototype.setActiveComp = function(id){
-            ipCookie('ptCompId', Number(id), {path:'/', expires: 7});
-            this.reset();
+            return this.getCompsCached().then(function(comps){
+                return _.findWhere(comps, {id: urlCompId }) || globalComp;
+            });
         };
 
         // single comp API fetch
@@ -98,7 +135,11 @@
             return returnComps;
         };
 
-        // API call
+
+        /**
+         * Fetch all the comps from the API
+         * @return {promise}
+         */
         function fetchComps (){
             return $http.get('/api/v1/comps').then(function(response){
                 return response.data;
