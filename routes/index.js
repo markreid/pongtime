@@ -1,6 +1,7 @@
 /**
  * Index routes.
  */
+'use strict';
 
 var express = require('express');
 var passport = require('passport');
@@ -11,12 +12,18 @@ var path = require('path');
 /**
  * Passport authentication routes
  */
-router.get('/auth/google', passport.authenticate('google'));
-
-router.get('/auth/google/return', passport.authenticate('google', {
-    successRedirect: '/',
-    failureRedirect: '/login'
+router.get('/auth/google', passport.authenticate('google', {
+    scope: 'profile'
 }));
+
+
+router.get('/oauth2callback', passport.authenticate('google', {
+    failureRedirect: '/login'
+}), function(req, res){
+    // we're authenticated, let's go home
+    res.redirect('/');
+});
+
 
 router.get('/auth/logout', function(req, res){
     req.logout();

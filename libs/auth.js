@@ -3,9 +3,10 @@
  *
  * handle auth with passport
  */
+'use strict';
 
 var passport = require('passport');
-var passportGoogle = require('passport-google').Strategy;
+var passportGoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 var db = require('../models');
 var _ = require('underscore');
 var config = require('../config');
@@ -14,15 +15,18 @@ var config = require('../config');
 /**
  * Google authentication
  */
-passport.use(new passportGoogle({
-    returnURL: config.AUTH.GOOGLE.RETURNURL,
-    realm: config.AUTH.GOOGLE.REALM
-}, function googleAuthCallback(identifier, profile, done){
+
+passport.use(new passportGoogleStrategy({
+    clientID: config.AUTH.GOOGLE.CLIENT_ID,
+    clientSecret: config.AUTH.GOOGLE.CLIENT_SECRET,
+    callbackURL: config.AUTH.GOOGLE.RETURN_URL
+//}, function googleAuthCallback(identifier, profile, done){
+}, function googleAuthCallback(accessToken, refreshToken, profile, done){
 
     // Try and find a matching user
     db.User.find({
         where: {
-            googleIdentifier: identifier
+            googleIdentifier: profile.id
         },
         include: [{
             model: db.Comp,
@@ -53,10 +57,10 @@ passport.use(new passportGoogle({
             return done(null, returnData);
         }
 
-        // User doesn't exist, creat tehm.
+        // User doesn't exist, create!
         return db.User.create({
-            googleIdentifier: identifier,
-            email: profile.emails[0].value,
+            googleIdentifier: profile.id,
+            // email: profile.emails[0].value,
             name: profile.displayName
         }).then(function(user){
             return done(null, user.values);

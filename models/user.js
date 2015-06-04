@@ -10,11 +10,6 @@ module.exports = function(sequelize, datatypes){
             type: datatypes.STRING,
             allowNull: false
         },
-        email: {
-            type: datatypes.STRING,
-            allowNull: false,
-            unique: true
-        },
         auth: {
             type: datatypes.INTEGER,
             defaultValue: 0
